@@ -1,0 +1,78 @@
+{
+  "query": "563013000",
+  "resolved": true,
+  "vessel_id": "5d386b797-798e-b4d5-0465-1e6bf3556044",
+  "shipname": "VIRTUE-1",
+  "flag": "SGP",
+  "shiptype": null,
+  "ssvid": "563013000",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 1,
+    "registryInfo": [
+      {
+        "id": "a93bc6d43e4f5bca637867f8cd9ef9c0",
+        "sourceCode": [
+          "IMO"
+        ],
+        "ssvid": "563013000",
+        "flag": "SGP",
+        "shipname": "VIRTUE1",
+        "nShipname": "VIRTUE1",
+        "callsign": "9VPC7",
+        "imo": "8770493",
+        "latestVesselInfo": true,
+        "transmissionDateFrom": "2012-01-13T17:12:30Z",
+        "transmissionDateTo": "2026-06-30T17:08:49Z",
+        "geartypes": [
+          "NON_FISHING"
+        ],
+        "lengthM": null,
+        "tonnageGt": 9743,
+        "vesselInfoReference": "efdaf89375d9f02a568826bd091d4af0",
+        "extraFields": []
+      }
+    ],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "5d386b797-798e-b4d5-0465-1e6bf3556044",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2012,
+            "yearTo": 2026
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2012,
+            "yearTo": 2026
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "5d386b797-798e-b4d5-0465-1e6bf3556044",
+        "ssvid": "563013000",
+        "shipname": "VIRTUE-1",
+        "nShipname": "VIRTUE1",
+        "flag": "SGP",
+        "callsign": "9VPC7",
+        "imo": "8770493",
+        "messagesCounter": 6332284,
+        "positionsCounter": 2239728,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "SEVERAL_FIELDS",
+        "transmissionDateFrom": "2012-01-13T07:42:58Z",
+        "transmissionDateTo": "2026-08-30T23:59:53Z"
+      }
+    ]
+  }
+}

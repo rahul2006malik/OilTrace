@@ -1,0 +1,78 @@
+{
+  "query": "576672000",
+  "resolved": true,
+  "vessel_id": "5d95146cd-d10e-9101-87f5-6b0d1cf0a2d8",
+  "shipname": "KEY SINGAPORE",
+  "flag": "VUT",
+  "shiptype": null,
+  "ssvid": "576672000",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 1,
+    "registryInfo": [
+      {
+        "id": "d36b4e4aad00af9cddd20d9a9c1958a9",
+        "sourceCode": [
+          "IMO"
+        ],
+        "ssvid": "576672000",
+        "flag": "VUT",
+        "shipname": "KEYSINGAPORE",
+        "nShipname": "KEYSINGAPORE",
+        "callsign": "YJRX3",
+        "imo": "8752166",
+        "latestVesselInfo": true,
+        "transmissionDateFrom": "2015-01-06T01:09:50Z",
+        "transmissionDateTo": "2026-06-24T21:22:19Z",
+        "geartypes": [
+          "NON_FISHING"
+        ],
+        "lengthM": null,
+        "tonnageGt": 6566,
+        "vesselInfoReference": "6283723ea3211cc602942b160ccd25bd",
+        "extraFields": []
+      }
+    ],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "5d95146cd-d10e-9101-87f5-6b0d1cf0a2d8",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2015,
+            "yearTo": 2026
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2015,
+            "yearTo": 2026
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "5d95146cd-d10e-9101-87f5-6b0d1cf0a2d8",
+        "ssvid": "576672000",
+        "shipname": "KEY SINGAPORE",
+        "nShipname": "KEYSINGAPORE",
+        "flag": "VUT",
+        "callsign": "YJRX3",
+        "imo": "8752166",
+        "messagesCounter": 2639968,
+        "positionsCounter": 919246,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "SEVERAL_FIELDS",
+        "transmissionDateFrom": "2015-01-06T01:07:31Z",
+        "transmissionDateTo": "2026-08-30T23:18:05Z"
+      }
+    ]
+  }
+}

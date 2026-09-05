@@ -1,0 +1,102 @@
+{
+  "query": "419381000",
+  "resolved": true,
+  "vessel_id": "4df8e7884-40b0-a891-7d68-c5d1f0a96853",
+  "shipname": "MOPU SAGAR SAMRAT",
+  "flag": "IND",
+  "shiptype": null,
+  "ssvid": "419381000",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 1,
+    "registryInfo": [
+      {
+        "id": "22d1e25a4923b21d7cfde3a7e2aa1584",
+        "sourceCode": [
+          "IMO"
+        ],
+        "ssvid": "419381000",
+        "flag": "IND",
+        "shipname": "SAGARSAMRAT",
+        "nShipname": "MOPUSAGARSAMRAT",
+        "callsign": "ATIL",
+        "imo": "8754750",
+        "latestVesselInfo": true,
+        "transmissionDateFrom": "2021-08-21T19:00:47Z",
+        "transmissionDateTo": "2026-06-29T22:50:05Z",
+        "geartypes": [
+          "NON_FISHING"
+        ],
+        "lengthM": null,
+        "tonnageGt": 6821,
+        "vesselInfoReference": "fa90d49362d17c97a4065ee7d4de0a96",
+        "extraFields": []
+      }
+    ],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "4df8e7884-40b0-a891-7d68-c5d1f0a96853",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2020,
+            "yearTo": 2026
+          },
+          {
+            "name": "NA",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2019,
+            "yearTo": 2019
+          },
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2018,
+            "yearTo": 2018
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2018,
+            "yearTo": 2018
+          },
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2020,
+            "yearTo": 2026
+          },
+          {
+            "name": "NA",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2019,
+            "yearTo": 2019
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "4df8e7884-40b0-a891-7d68-c5d1f0a96853",
+        "ssvid": "419381000",
+        "shipname": "MOPU SAGAR SAMRAT",
+        "nShipname": "MOPUSAGARSAMRAT",
+        "flag": "IND",
+        "callsign": "ATIL",
+        "imo": "8754750",
+        "messagesCounter": 3501232,
+        "positionsCounter": 1210362,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "SEVERAL_FIELDS",
+        "transmissionDateFrom": "2018-03-27T03:44:40Z",
+        "transmissionDateTo": "2026-08-30T23:59:59Z"
+      }
+    ]
+  }
+}

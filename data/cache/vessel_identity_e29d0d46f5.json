@@ -1,0 +1,78 @@
+{
+  "query": "419000208",
+  "resolved": true,
+  "vessel_id": "3d213d087-7c10-a00f-bfec-d1825cc3fe7c",
+  "shipname": "L J JOHNSON",
+  "flag": "IND",
+  "shiptype": null,
+  "ssvid": "419000208",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 1,
+    "registryInfo": [
+      {
+        "id": "9d32cc6eb6e2db4cf05d6a2fbc7a80c7",
+        "sourceCode": [
+          "IMO"
+        ],
+        "ssvid": "419000208",
+        "flag": "IND",
+        "shipname": "LJJOHNSON",
+        "nShipname": "LJJOHNSON",
+        "callsign": "AVIV",
+        "imo": "9576363",
+        "latestVesselInfo": true,
+        "transmissionDateFrom": "2013-08-12T08:35:35Z",
+        "transmissionDateTo": "2026-07-31T15:38:11Z",
+        "geartypes": [
+          "NON_FISHING"
+        ],
+        "lengthM": null,
+        "tonnageGt": 1831,
+        "vesselInfoReference": "328dafc9665c8815151dae4bf6afe920",
+        "extraFields": []
+      }
+    ],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "3d213d087-7c10-a00f-bfec-d1825cc3fe7c",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2013,
+            "yearTo": 2026
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2013,
+            "yearTo": 2026
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "3d213d087-7c10-a00f-bfec-d1825cc3fe7c",
+        "ssvid": "419000208",
+        "shipname": "L J JOHNSON",
+        "nShipname": "LJJOHNSON",
+        "flag": "IND",
+        "callsign": "AVIV",
+        "imo": "9576363",
+        "messagesCounter": 2329637,
+        "positionsCounter": 1084134,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "SEVERAL_FIELDS",
+        "transmissionDateFrom": "2013-08-09T05:02:33Z",
+        "transmissionDateTo": "2026-09-01T23:59:50Z"
+      }
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "query": "419001415",
+  "resolved": true,
+  "vessel_id": "3ca51af5b-b194-f5fa-85cd-23c15cb1bb5c",
+  "shipname": "GREATSHIP ADITI",
+  "flag": "IND",
+  "shiptype": null,
+  "ssvid": "419001415",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 0,
+    "registryInfo": [],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "3ca51af5b-b194-f5fa-85cd-23c15cb1bb5c",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2019,
+            "yearTo": 2026
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2019,
+            "yearTo": 2026
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "3ca51af5b-b194-f5fa-85cd-23c15cb1bb5c",
+        "ssvid": "419001415",
+        "shipname": "GREATSHIP ADITI",
+        "nShipname": "GREATSHIPADITI",
+        "flag": "IND",
+        "callsign": "VTAK",
+        "imo": "9457256",
+        "messagesCounter": 2559472,
+        "positionsCounter": 947494,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "NO_MATCH",
+        "transmissionDateFrom": "2019-02-15T07:58:22Z",
+        "transmissionDateTo": "2026-09-01T23:59:20Z"
+      }
+    ]
+  }
+}

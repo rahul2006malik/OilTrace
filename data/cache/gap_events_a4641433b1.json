@@ -1,0 +1,20 @@
+{
+  "data_provenance": "real_gfw",
+  "dataset": "public-global-gaps-events:latest",
+  "endpoint": "events",
+  "query": {
+    "bbox": [
+      60.0,
+      15.0,
+      73.0,
+      22.0
+    ],
+    "start_date": "2026-08-18",
+    "end_date": "2026-08-25",
+    "limit": 500
+  },
+  "fetched_at": "2026-08-31T16:09:45.301792+00:00",
+  "total_events_in_window": 0,
+  "returned_events": 0,
+  "events": []
+}

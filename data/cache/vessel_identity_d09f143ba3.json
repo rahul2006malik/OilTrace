@@ -1,0 +1,55 @@
+{
+  "query": "457794000",
+  "resolved": true,
+  "vessel_id": "3412d310a-aace-ad68-0843-ee63647dde0e",
+  "shipname": "ABAN VIII",
+  "flag": "MNG",
+  "shiptype": null,
+  "ssvid": "457794000",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 0,
+    "registryInfo": [],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "3412d310a-aace-ad68-0843-ee63647dde0e",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2022,
+            "yearTo": 2026
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2022,
+            "yearTo": 2026
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "3412d310a-aace-ad68-0843-ee63647dde0e",
+        "ssvid": "457794000",
+        "shipname": "ABAN VIII",
+        "nShipname": "ABAN8",
+        "flag": "MNG",
+        "callsign": "JVCK5",
+        "imo": "8768983",
+        "messagesCounter": 1852829,
+        "positionsCounter": 594050,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "NO_MATCH",
+        "transmissionDateFrom": "2022-02-07T08:11:54Z",
+        "transmissionDateTo": "2026-08-30T23:28:54Z"
+      }
+    ]
+  }
+}

@@ -1,0 +1,165 @@
+# ==============================================================================
+# OilTrace — Git Ignore Configuration (SIH26143)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Environment, Secrets & Credentials (CRITICAL - NEVER COMMIT)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.env
+.cdsapirc
+*.pem
+*.key
+*.cert
+*.pfx
+secrets/
+
+# ------------------------------------------------------------------------------
+# 2. Internal Strategy, Coordination & Workflow Documents (LOCAL ONLY - NEVER COMMIT)
+# ------------------------------------------------------------------------------
+AGENTS.md
+GEMINI.md
+REVIEW_NOTES*.md
+docs/*Claude*
+docs/*COORDINATOR*
+docs/PROJECT_STATE.md
+docs/SIH26143_FRONTEND_DESIGN_SPEC.md
+docs/SIH26143_Project_Document*
+
+# ------------------------------------------------------------------------------
+# 3. Python & Virtual Environments
+# ------------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Coverage
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+htmlcov/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# ------------------------------------------------------------------------------
+# 3. Node.js & Frontend Build Artifacts
+# ------------------------------------------------------------------------------
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.env.local
+frontend/.env.*.local
+*.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ------------------------------------------------------------------------------
+# 4. Heavy Data & Raw Imagery (Sentinel-1 SAR, NetCDF, Copernicus, Zenodo)
+# ------------------------------------------------------------------------------
+data/raw/
+data/processed/
+data/*.nc
+data/*.nc4
+data/cache/forcing/*.nc
+data/cache/forcing/*.nc4
+*.nc
+*.nc4
+*.hdf
+*.h5
+*.tif
+*.tiff
+*.grb
+*.grib
+*.grib2
+*.geotiff
+*.7z
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+
+# ------------------------------------------------------------------------------
+# 5. Machine Learning Checkpoints, Weights & Large Models (>100MB)
+# ------------------------------------------------------------------------------
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.safetensors
+*.bin
+checkpoints/
+checkpoints_archive/
+
+# ------------------------------------------------------------------------------
+# 6. Temporary, Local Demos & Backup Files
+# ------------------------------------------------------------------------------
+.backup/
+backup/
+demo/sample_output/
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# ------------------------------------------------------------------------------
+# 7. Operating System & IDE Files
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace

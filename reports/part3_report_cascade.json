@@ -1,0 +1,44 @@
+{
+  "manifest": "/kaggle/working/manifest_part3.csv",
+  "checkpoint": "/kaggle/working/checkpoints_wholescene_mixed_v2/unet_wholescene_best.pt",
+  "input_mode": "whole_scene",
+  "cascade_classifier_checkpoint": "/kaggle/working/checkpoints_classifier/classifier_best.pt",
+  "n_scenes": 447,
+  "n_oil_scenes": 150,
+  "n_negative_scenes": 297,
+  "threshold_sweep": [
+    {
+      "threshold": 0.3,
+      "oil_iou": 0.6617956703926887,
+      "false_positive_rate": 0.0006064911081333353
+    },
+    {
+      "threshold": 0.4,
+      "oil_iou": 0.6842832641605407,
+      "false_positive_rate": 0.0004173585461446332
+    },
+    {
+      "threshold": 0.5,
+      "oil_iou": 0.6952704915891297,
+      "false_positive_rate": 0.0002662613737061369
+    },
+    {
+      "threshold": 0.6,
+      "oil_iou": 0.6900684549451228,
+      "false_positive_rate": 0.00016978694132281473
+    },
+    {
+      "threshold": 0.7,
+      "oil_iou": 0.6575191326614519,
+      "false_positive_rate": 0.00010001137601807463
+    }
+  ],
+  "best": {
+    "threshold": 0.5,
+    "oil_iou": 0.6952704915891297,
+    "false_positive_rate": 0.0002662613737061369
+  },
+  "cascade_missed_oil_scenes": 11,
+  "cascade_false_alarm_scenes": 10,
+  "note": "This report reflects the TRUE END-TO-END cascade: classifier misses on real oil scenes are counted as IoU=0, not excluded. Compare against a run WITHOUT --classifier-checkpoint (the segmenter's own ceiling) to see how much the gate costs \u2014 report both numbers, the gap is itself informative, not something to hide."
+}

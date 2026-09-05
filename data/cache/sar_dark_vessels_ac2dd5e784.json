@@ -1,0 +1,18 @@
+{
+  "data_provenance": "real_gfw",
+  "dataset": "public-global-sar-presence:latest",
+  "endpoint": "4wings/report (SAR, matched=false)",
+  "query": {
+    "bbox": [
+      60.0,
+      15.0,
+      73.0,
+      22.0
+    ],
+    "start_date": "2026-08-18",
+    "end_date": "2026-08-25"
+  },
+  "fetched_at": "2026-09-01T20:18:07.842089+00:00",
+  "total_entries": 0,
+  "entries": []
+}

@@ -1,0 +1,8 @@
+﻿torch
+torchvision
+segmentation-models-pytorch
+tifffile
+imagecodecs
+opencv-python
+numpy
+pandas

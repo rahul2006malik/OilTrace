@@ -1,0 +1,55 @@
+{
+  "query": "636022539",
+  "resolved": true,
+  "vessel_id": "e0925bfff-f676-5480-68e9-d89b77e92da7",
+  "shipname": "SEA CHALLENGER",
+  "flag": "LBR",
+  "shiptype": null,
+  "ssvid": "636022539",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 0,
+    "registryInfo": [],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "e0925bfff-f676-5480-68e9-d89b77e92da7",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2022,
+            "yearTo": 2026
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2022,
+            "yearTo": 2026
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "e0925bfff-f676-5480-68e9-d89b77e92da7",
+        "ssvid": "636022539",
+        "shipname": "SEA CHALLENGER",
+        "nShipname": "SEACHALLENGER",
+        "flag": "LBR",
+        "callsign": "5LJH5",
+        "imo": "8750168",
+        "messagesCounter": 3259662,
+        "positionsCounter": 900319,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "NO_MATCH",
+        "transmissionDateFrom": "2022-11-24T17:07:09Z",
+        "transmissionDateTo": "2026-08-30T23:40:53Z"
+      }
+    ]
+  }
+}

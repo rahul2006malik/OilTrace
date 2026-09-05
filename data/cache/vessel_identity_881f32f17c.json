@@ -1,0 +1,114 @@
+{
+  "query": "419900753",
+  "resolved": true,
+  "vessel_id": "18a65b8d0-09f5-e452-6731-49906f4574d2",
+  "shipname": "SAGAR RATNA",
+  "flag": "IND",
+  "shiptype": null,
+  "ssvid": "419900753",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 1,
+    "registryInfo": [
+      {
+        "id": "08bd9aa8f68380f6d12631d0379bd2fd",
+        "sourceCode": [
+          "IMO"
+        ],
+        "ssvid": "419900753",
+        "flag": "IND",
+        "shipname": "SAGARRATNA",
+        "nShipname": "SAGARRATNA",
+        "callsign": "8TDR",
+        "imo": "8754748",
+        "latestVesselInfo": true,
+        "transmissionDateFrom": "2014-03-13T21:57:43Z",
+        "transmissionDateTo": "2026-06-24T09:02:18Z",
+        "geartypes": [
+          "NON_FISHING"
+        ],
+        "lengthM": null,
+        "tonnageGt": 8481,
+        "vesselInfoReference": "4d80542ee181490ffc8c41f2b1609ab2",
+        "extraFields": []
+      }
+    ],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "e8e189618-8851-1f28-ef23-00604b16f390",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2014,
+            "yearTo": 2020
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2014,
+            "yearTo": 2020
+          }
+        ]
+      },
+      {
+        "vesselId": "18a65b8d0-09f5-e452-6731-49906f4574d2",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2014,
+            "yearTo": 2026
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2014,
+            "yearTo": 2026
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "18a65b8d0-09f5-e452-6731-49906f4574d2",
+        "ssvid": "419900753",
+        "shipname": "SAGAR RATNA",
+        "nShipname": "SAGARRATNA",
+        "flag": "IND",
+        "callsign": "8TDR",
+        "imo": "8754748",
+        "messagesCounter": 2726436,
+        "positionsCounter": 1311785,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "SEVERAL_FIELDS",
+        "transmissionDateFrom": "2014-02-11T14:58:19Z",
+        "transmissionDateTo": "2026-08-30T23:28:29Z"
+      },
+      {
+        "id": "e8e189618-8851-1f28-ef23-00604b16f390",
+        "ssvid": "419900753",
+        "shipname": "SAGAR RATNA",
+        "nShipname": "SAGARRATNA",
+        "flag": "IND",
+        "callsign": "8TDR",
+        "imo": "8754748",
+        "messagesCounter": 1749,
+        "positionsCounter": 1747,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "SEVERAL_FIELDS",
+        "transmissionDateFrom": "2014-02-05T09:32:37Z",
+        "transmissionDateTo": "2020-01-25T12:27:23Z"
+      }
+    ]
+  }
+}

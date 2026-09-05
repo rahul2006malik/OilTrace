@@ -1,0 +1,15 @@
+# SIH26143 — Attribution subsystem dependencies
+
+requests>=2.31
+python-dotenv>=1.0
+
+# Real anomaly scoring (scorer.py) — replaces the prior naive heuristic
+scikit-learn>=1.3
+numpy>=1.26
+
+# Live AIS capture (aisstream_client.py)
+websockets>=12.0
+
+# Optional, only needed if you want to load cached JSON into notebooks for
+# inspection/plotting rather than just reading it with `json` directly:
+# pandas>=2.0

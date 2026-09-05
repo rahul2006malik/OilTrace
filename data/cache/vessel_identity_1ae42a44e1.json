@@ -1,0 +1,114 @@
+{
+  "query": "636009817",
+  "resolved": true,
+  "vessel_id": "4835b53cd-db10-5cc8-b3f8-7232e1afe93a",
+  "shipname": "TRIDENT II",
+  "flag": "LBR",
+  "shiptype": null,
+  "ssvid": "636009817",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 1,
+    "registryInfo": [
+      {
+        "id": "8aa9d52bd7cfe5f7c429188c8bb942e6",
+        "sourceCode": [
+          "IMO"
+        ],
+        "ssvid": "636009817",
+        "flag": "LBR",
+        "shipname": "TRIDENT2",
+        "nShipname": "TRIDENT2",
+        "callsign": "ELPO2",
+        "imo": "8756356",
+        "latestVesselInfo": true,
+        "transmissionDateFrom": "2012-08-01T06:11:31Z",
+        "transmissionDateTo": "2026-06-24T07:13:24Z",
+        "geartypes": [
+          "NON_FISHING"
+        ],
+        "lengthM": null,
+        "tonnageGt": 6033,
+        "vesselInfoReference": "4d77bd539dd14d1b0d396c27f29b223b",
+        "extraFields": []
+      }
+    ],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "bbae8db8e-e033-78c7-4de9-676b29ff86da",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2012,
+            "yearTo": 2013
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2012,
+            "yearTo": 2013
+          }
+        ]
+      },
+      {
+        "vesselId": "4835b53cd-db10-5cc8-b3f8-7232e1afe93a",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2013,
+            "yearTo": 2026
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2013,
+            "yearTo": 2026
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "4835b53cd-db10-5cc8-b3f8-7232e1afe93a",
+        "ssvid": "636009817",
+        "shipname": "TRIDENT II",
+        "nShipname": "TRIDENT2",
+        "flag": "LBR",
+        "callsign": "ELPO2",
+        "imo": "8756356",
+        "messagesCounter": 4784329,
+        "positionsCounter": 1802555,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "SEVERAL_FIELDS",
+        "transmissionDateFrom": "2013-12-13T08:37:22Z",
+        "transmissionDateTo": "2026-08-30T23:58:42Z"
+      },
+      {
+        "id": "bbae8db8e-e033-78c7-4de9-676b29ff86da",
+        "ssvid": "636009817",
+        "shipname": "TRIDENT-2",
+        "nShipname": "TRIDENT2",
+        "flag": "LBR",
+        "callsign": "ELPO2",
+        "imo": null,
+        "messagesCounter": 22795,
+        "positionsCounter": 14769,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "SEVERAL_FIELDS",
+        "transmissionDateFrom": "2012-01-02T19:05:20Z",
+        "transmissionDateTo": "2013-12-11T22:47:40Z"
+      }
+    ]
+  }
+}

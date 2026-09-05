@@ -1,0 +1,41 @@
+{
+  "manifest": "/kaggle/working/manifest_part3.csv",
+  "checkpoint": "/kaggle/working/checkpoints_wholescene_mixed_v2/unet_wholescene_best.pt",
+  "input_mode": "whole_scene",
+  "cascade_classifier_checkpoint": null,
+  "n_scenes": 447,
+  "n_oil_scenes": 150,
+  "n_negative_scenes": 297,
+  "threshold_sweep": [
+    {
+      "threshold": 0.3,
+      "oil_iou": 0.6743259404586056,
+      "false_positive_rate": 0.0009726474582145511
+    },
+    {
+      "threshold": 0.4,
+      "oil_iou": 0.6956263178386971,
+      "false_positive_rate": 0.000589489535450534
+    },
+    {
+      "threshold": 0.5,
+      "oil_iou": 0.7058105012328362,
+      "false_positive_rate": 0.000359435675521491
+    },
+    {
+      "threshold": 0.6,
+      "oil_iou": 0.6996261303054779,
+      "false_positive_rate": 0.000216354023326527
+    },
+    {
+      "threshold": 0.7,
+      "oil_iou": 0.6663712611833228,
+      "false_positive_rate": 0.00011358437714753327
+    }
+  ],
+  "best": {
+    "threshold": 0.5,
+    "oil_iou": 0.7058105012328362,
+    "false_positive_rate": 0.000359435675521491
+  }
+}

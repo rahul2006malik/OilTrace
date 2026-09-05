@@ -1,0 +1,55 @@
+{
+  "query": "419702000",
+  "resolved": true,
+  "vessel_id": "8ba4ccdbd-d3ef-c9e0-77df-84ed5f9b9d37",
+  "shipname": null,
+  "flag": "IND",
+  "shiptype": null,
+  "ssvid": "419702000",
+  "raw": {
+    "dataset": "public-global-vessel-identity:v4.0",
+    "registryInfoTotalRecords": 0,
+    "registryInfo": [],
+    "registryOwners": [],
+    "combinedSourcesInfo": [
+      {
+        "vesselId": "8ba4ccdbd-d3ef-c9e0-77df-84ed5f9b9d37",
+        "geartypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2012,
+            "yearTo": 2019
+          }
+        ],
+        "shiptypes": [
+          {
+            "name": "OTHER",
+            "source": "COMBINATION_OF_REGISTRY_AND_AIS_INFERRED_NN_INFO",
+            "yearFrom": 2012,
+            "yearTo": 2019
+          }
+        ]
+      }
+    ],
+    "selfReportedInfo": [
+      {
+        "id": "8ba4ccdbd-d3ef-c9e0-77df-84ed5f9b9d37",
+        "ssvid": "419702000",
+        "shipname": null,
+        "nShipname": null,
+        "flag": "IND",
+        "callsign": null,
+        "imo": null,
+        "messagesCounter": 227,
+        "positionsCounter": 227,
+        "sourceCode": [
+          "AIS"
+        ],
+        "matchFields": "NO_MATCH",
+        "transmissionDateFrom": "2012-01-02T17:39:44Z",
+        "transmissionDateTo": "2019-12-16T08:16:11Z"
+      }
+    ]
+  }
+}
