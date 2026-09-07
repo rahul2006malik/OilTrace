@@ -36,6 +36,12 @@ async def lifespan(app: FastAPI):
     """
     logger.info("Initializing OilTrace Pipeline Engines (v2.4.1 Production)...")
     try:
+        from .db import ensure_db_wal
+        ensure_db_wal(_PROJECT_ROOT / "data" / "live_ais.db")
+        ensure_db_wal(_PROJECT_ROOT / "data" / "processed_scenes.db")
+    except Exception as e:
+        logger.debug("[lifespan] SQLite WAL init deferred: %s", e)
+    try:
         from detection import OilSpillDetector
         app.state.detector = OilSpillDetector()
         logger.info("OilSpillDetector initialized successfully (singleton).")

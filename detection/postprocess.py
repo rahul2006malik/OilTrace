@@ -165,15 +165,24 @@ def _build_pixel_to_lonlat(
 
 def _geodesic_area_km2(geom) -> float:
     """Geodesic (WGS84 ellipsoid) area of a Polygon or MultiPolygon, in km2."""
+    if geom is None or geom.is_empty:
+        return 0.0
 
     def _single_area_m2(poly: Polygon) -> float:
-        area_m2, _perimeter_m = _GEOD.geometry_area_perimeter(poly)
-        return abs(area_m2)  # sign depends on ring winding direction, not meaningful here
+        if poly is None or poly.is_empty or not hasattr(poly, "exterior") or poly.exterior is None:
+            return 0.0
+        try:
+            area_m2, _perimeter_m = _GEOD.geometry_area_perimeter(poly)
+            return abs(area_m2)  # sign depends on ring winding direction, not meaningful here
+        except Exception:
+            return 0.0
 
     if isinstance(geom, MultiPolygon):
         total_m2 = sum(_single_area_m2(p) for p in geom.geoms)
-    else:
+    elif isinstance(geom, Polygon):
         total_m2 = _single_area_m2(geom)
+    else:
+        total_m2 = 0.0
     return float(total_m2 / 1.0e6)
 
 
@@ -324,9 +333,14 @@ def mask_to_geojson(
         )
 
     geo_geom = shapely_transform(transform_fn, unified_pixel_geom)
+    if geo_geom is None or geo_geom.is_empty:
+        return None
 
     centroid_pt = geo_geom.centroid
-    centroid = [float(centroid_pt.x), float(centroid_pt.y)]  # [lon, lat]
+    centroid = [
+        float(np.clip(centroid_pt.x, -180.0, 180.0)),
+        float(np.clip(centroid_pt.y, -90.0, 90.0)),
+    ]  # [lon, lat]
     area_km2 = _geodesic_area_km2(geo_geom)
 
     # --- 6. Assemble schemas.md-compliant output ---------------------------
@@ -345,4 +359,5 @@ def mask_to_geojson(
         "lookalike_suppressed": bool(lookalike_suppressed),
         "thickness_class": thickness_class,
         "source_scene_id": resolved_scene_id,
+        "data_provenance": "real_detector",
     }

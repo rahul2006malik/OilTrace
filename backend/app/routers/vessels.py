@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 
 from ..models import AnalystFeedbackRequest
+from ..db import sqlite_connection
 
 logger = logging.getLogger("vessels_router")
 router = APIRouter(tags=["vessels"])
@@ -84,19 +85,16 @@ async def get_vessel_dossier(mmsi: str, scenario_id: Optional[str] = None) -> di
     db_file = cache_dir.parent / "live_ais.db"
     if db_file.exists():
         try:
-            import sqlite3
-            con = sqlite3.connect(str(db_file))
-            con.row_factory = sqlite3.Row
-            cur = con.cursor()
-            cur.execute("""
-                SELECT mmsi, timestamp, lat, lon, sog, cog, heading, ship_name, vessel_type
-                FROM ais_pings
-                WHERE mmsi = ?
-                ORDER BY timestamp DESC
-                LIMIT 50;
-            """, (str_mmsi,))
-            rows = cur.fetchall()
-            con.close()
+            with sqlite_connection(db_file) as con:
+                cur = con.cursor()
+                cur.execute("""
+                    SELECT mmsi, timestamp, lat, lon, sog, cog, heading, ship_name, vessel_type
+                    FROM ais_pings
+                    WHERE mmsi = ?
+                    ORDER BY timestamp DESC
+                    LIMIT 50;
+                """, (str_mmsi,))
+                rows = cur.fetchall()
             if rows:
                 latest = dict(rows[0])
                 pings = [dict(r) for r in reversed(rows)]

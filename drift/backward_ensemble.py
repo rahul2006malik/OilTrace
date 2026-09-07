@@ -267,8 +267,9 @@ def fast_rk4_backward_ensemble(
     import xarray as xr
 
     rng = np.random.default_rng(42)
-    dt_seconds = float(time_step_s)
-    expected_steps = int(round(backward_hours * 3600.0 / dt_seconds)) + 1
+    dt_seconds = float(time_step_s) if time_step_s > 0 else 900.0
+    safe_backward_hours = max(1, int(backward_hours)) if backward_hours is not None else 24
+    expected_steps = int(round(safe_backward_hours * 3600.0 / dt_seconds)) + 1
 
     with xr.open_dataset(currents_path) as ds_c, xr.open_dataset(winds_path) as ds_w:
         c_lon_var = "longitude" if "longitude" in ds_c else "lon"
@@ -315,12 +316,13 @@ def fast_rk4_backward_ensemble(
 
     # Initialize perturbed element ensemble
     m_per_deg_lat = 110574.0
+    n_members = max(1, int(n_members))
     angles = rng.uniform(0, 2 * math.pi, n_members)
     radii = seed_radius_m * np.sqrt(rng.uniform(0.1, 1.0, n_members))
-    m_per_deg_lon_init = 111320.0 * math.cos(math.radians(lat))
+    m_per_deg_lon_init = 111320.0 * max(0.001, abs(math.cos(math.radians(lat))))
 
     p_lons = lon + (radii * np.cos(angles)) / m_per_deg_lon_init
-    p_lats = lat + (radii * np.sin(angles)) / m_per_deg_lat
+    p_lats = np.clip(lat + (radii * np.sin(angles)) / m_per_deg_lat, -89.9, 89.9)
     windages = np.clip(rng.normal(0.030, 0.004, n_members), 0.018, 0.048)
     diff_sigma = math.sqrt(2.0 * 10.0 * dt_seconds)
 
@@ -346,7 +348,7 @@ def fast_rk4_backward_ensemble(
         v_w = _sample_bilinear(w_lats, w_lons, v_w_raw[t_w_idx], q_lats, q_lons)
 
         # Backward velocity in deg/s: negative sign advects backwards in time
-        m_lon_scale = 111320.0 * np.cos(np.radians(q_lats))
+        m_lon_scale = 111320.0 * np.maximum(0.001, np.abs(np.cos(np.radians(q_lats))))
         f_lon = -(u_c + windages * u_w) / m_lon_scale
         f_lat = -(v_c + windages * v_w) / m_per_deg_lat
         return f_lon, f_lat
@@ -380,12 +382,12 @@ def fast_rk4_backward_ensemble(
         d_lat_rk4 = (dt_seconds / 6.0) * (k1_lat + 2.0 * k2_lat + 2.0 * k3_lat + k4_lat)
 
         # Fay turbulent diffusion
-        m_lon_scale_curr = 111320.0 * np.cos(np.radians(p_lats))
+        m_lon_scale_curr = 111320.0 * np.maximum(0.001, np.abs(np.cos(np.radians(p_lats))))
         d_lon_diff = rng.normal(0, diff_sigma, n_members) / m_lon_scale_curr
         d_lat_diff = rng.normal(0, diff_sigma, n_members) / m_per_deg_lat
 
-        p_lons = p_lons + d_lon_rk4 + d_lon_diff
-        p_lats = p_lats + d_lat_rk4 + d_lat_diff
+        p_lons = ((p_lons + d_lon_rk4 + d_lon_diff + 180.0) % 360.0) - 180.0
+        p_lats = np.clip(p_lats + d_lat_rk4 + d_lat_diff, -89.9, 89.9)
         curr_dt = t_next
 
         all_lons.append(p_lons.copy())

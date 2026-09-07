@@ -37,10 +37,21 @@ DB_PATH = _PROJECT_ROOT / "data" / "processed_scenes.db"
 DEFAULT_BBOX = [68.0, 15.0, 74.0, 22.0]
 
 
+def _get_con(db_path: Path = DB_PATH, timeout: float = 15.0) -> sqlite3.Connection:
+    """Creates a connection configured with WAL mode and 10s busy timeout."""
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(db_path), timeout=timeout)
+    con.row_factory = sqlite3.Row
+    con.execute("PRAGMA journal_mode=WAL;")
+    con.execute("PRAGMA busy_timeout=10000;")
+    con.execute("PRAGMA synchronous=NORMAL;")
+    con.execute("PRAGMA foreign_keys=ON;")
+    return con
+
+
 def init_tracker_db(db_path: Path = DB_PATH) -> sqlite3.Connection:
     """Initializes local SQLite database for tracking ingested SAR scenes."""
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(str(db_path))
+    con = _get_con(db_path)
     con.execute("""
         CREATE TABLE IF NOT EXISTS sar_scenes (
             scene_id TEXT PRIMARY KEY,
@@ -63,7 +74,7 @@ def is_scene_processed(scene_id: str, db_path: Path = DB_PATH) -> bool:
     """Checks if a scene ID has already been logged or processed."""
     if not db_path.exists():
         return False
-    con = sqlite3.connect(str(db_path))
+    con = _get_con(db_path)
     try:
         cur = con.cursor()
         cur.execute("SELECT 1 FROM sar_scenes WHERE scene_id = ?", (scene_id,))
@@ -74,7 +85,7 @@ def is_scene_processed(scene_id: str, db_path: Path = DB_PATH) -> bool:
 
 def record_scene(scene: Dict[str, Any], status: str = "DISCOVERED", db_path: Path = DB_PATH):
     """Records a newly discovered or processed Sentinel-1 SAR scene."""
-    con = sqlite3.connect(str(db_path))
+    con = _get_con(db_path)
     try:
         con.execute("""
             INSERT OR REPLACE INTO sar_scenes 

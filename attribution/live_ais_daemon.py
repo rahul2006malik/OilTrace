@@ -32,12 +32,21 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = _PROJECT_ROOT / "data" / "live_ais.db"
 
 
+def _get_con(db_path: Path = DB_PATH, timeout: float = 15.0) -> sqlite3.Connection:
+    """Creates a connection configured with WAL mode and 10s busy timeout."""
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(db_path), timeout=timeout)
+    con.row_factory = sqlite3.Row
+    con.execute("PRAGMA journal_mode=WAL;")
+    con.execute("PRAGMA busy_timeout=10000;")
+    con.execute("PRAGMA synchronous=NORMAL;")
+    con.execute("PRAGMA foreign_keys=ON;")
+    return con
+
+
 def init_db(db_path: Path = DB_PATH) -> sqlite3.Connection:
     """Initializes the SQLite database with WAL mode and indexes."""
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(str(db_path))
-    con.execute("PRAGMA journal_mode=WAL;")
-    con.execute("PRAGMA synchronous=NORMAL;")
+    con = _get_con(db_path)
     con.execute("""
         CREATE TABLE IF NOT EXISTS ais_pings (
             mmsi TEXT,
@@ -62,7 +71,7 @@ def insert_pings_batch(pings: List[Dict[str, Any]], db_path: Path = DB_PATH) -> 
     """Inserts a batch of parsed AIS position reports into the database."""
     if not pings:
         return 0
-    con = sqlite3.connect(str(db_path))
+    con = _get_con(db_path)
     try:
         cursor = con.cursor()
         cursor.executemany("""
@@ -88,8 +97,7 @@ def query_vessels_in_window(
     """Queries all AIS pings within the spatial-temporal window."""
     if not db_path.exists():
         return []
-    con = sqlite3.connect(str(db_path))
-    con.row_factory = sqlite3.Row
+    con = _get_con(db_path)
     try:
         cur = con.cursor()
         cur.execute("""
@@ -110,8 +118,7 @@ def query_vessel_track(mmsi: str, start_time: str, end_time: str, db_path: Path 
     """Queries all AIS pings for a specific vessel MMSI."""
     if not db_path.exists():
         return []
-    con = sqlite3.connect(str(db_path))
-    con.row_factory = sqlite3.Row
+    con = _get_con(db_path)
     try:
         cur = con.cursor()
         cur.execute("""

@@ -67,6 +67,42 @@ class SlickDetection(BaseModel):
     lookalike_suppressed: bool
     data_provenance: DetectionProvenance
 
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_detection(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            # Canonical thickness class normalization
+            tc = str(data.get("thickness_class", "sheen")).lower()
+            if tc in ("none", "negligible"):
+                data["thickness_class"] = "sheen"
+            elif tc in ("rainbow", "metallic"):
+                data["thickness_class"] = "thin"
+            elif tc in ("true_color", "discontinuous_true_color"):
+                data["thickness_class"] = "thick"
+            elif tc not in ("sheen", "thin", "thick"):
+                data["thickness_class"] = "sheen"
+
+            # Strict provenance validation
+            dp = str(data.get("data_provenance", "real_detector"))
+            if dp not in ("real_detector", "real_uploaded_fixture"):
+                data["data_provenance"] = "real_detector"
+
+            # Strict [lon, lat] coordinate range validation
+            centroid = data.get("centroid")
+            if isinstance(centroid, (list, tuple)) and len(centroid) >= 2:
+                lon = max(-180.0, min(180.0, float(centroid[0])))
+                lat = max(-90.0, min(90.0, float(centroid[1])))
+                data["centroid"] = [lon, lat]
+
+            # Enforce oil_confidence clamp [0.0, 1.0]
+            if "oil_confidence" in data and data["oil_confidence"] is not None:
+                data["oil_confidence"] = max(0.0, min(1.0, float(data["oil_confidence"])))
+
+            # Enforce area_km2 >= 0.0
+            if "area_km2" in data and data["area_km2"] is not None:
+                data["area_km2"] = max(0.0, float(data["area_km2"]))
+        return data
+
 
 # ---------------------------------------------------------------------------
 # 2. Drift Models (Drift Contract §2)
@@ -182,6 +218,15 @@ class Candidate(BaseModel):
                 data["flag_country"] = data["flag"]
             if "confidence_interval_method" not in data or not data["confidence_interval_method"]:
                 data["confidence_interval_method"] = "placeholder_width_pending_bootstrap"
+            # Clamping suspicion_score to [0.0, 1.0]
+            if "suspicion_score" in data and data["suspicion_score"] is not None:
+                data["suspicion_score"] = max(0.0, min(1.0, float(data["suspicion_score"])))
+            # Coordinate bounds for last_known_position [lon, lat]
+            lkp = data.get("last_known_position")
+            if isinstance(lkp, (list, tuple)) and len(lkp) >= 2:
+                lon = max(-180.0, min(180.0, float(lkp[0])))
+                lat = max(-90.0, min(90.0, float(lkp[1])))
+                data["last_known_position"] = [lon, lat]
         return data
 
 

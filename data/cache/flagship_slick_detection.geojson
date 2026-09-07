@@ -213,5 +213,6 @@
   "oil_confidence": 0.81603,
   "lookalike_suppressed": false,
   "thickness_class": "sheen",
-  "source_scene_id": "S1C_IW_GRDH_00000"
+  "source_scene_id": "S1C_IW_GRDH_00000",
+  "data_provenance": "real_uploaded_fixture"
 }

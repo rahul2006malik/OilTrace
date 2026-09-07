@@ -43,7 +43,17 @@ def fetch_currents(bbox, start_dt, end_dt, out_dir):
     if os.path.exists(out_path):
         print(f"[currents] already cached: {out_path}")
         return out_path
-    # Check INCOIS regional 2km model first for Indian EEZ
+    # Check if remote network fetching is explicitly permitted.
+    # In live demo, testing, and operational deployment, default to local cache to prevent network hangs.
+    allow_remote = os.environ.get("OILTRACE_ALLOW_REMOTE_FORCING", "0") == "1"
+    if not allow_remote:
+        import glob
+        cached = sorted(glob.glob(os.path.join(out_dir, "glorys_currents_*.nc")), reverse=True)
+        if cached:
+            print(f"[currents] Fast offline/cached forcing mode: using {cached[0]}")
+            return cached[0]
+
+    # Check INCOIS regional 2km model first for Indian EEZ (when remote permitted)
     try:
         from .incois_client import fetch_incois_currents
     except ImportError:
@@ -56,16 +66,6 @@ def fetch_currents(bbox, start_dt, end_dt, out_dir):
         incois_path = fetch_incois_currents(bbox, start_dt, end_dt, out_dir)
         if incois_path and os.path.exists(incois_path):
             return incois_path
-
-    # Check if remote network fetching is explicitly permitted.
-    # In live demo, testing, and operational deployment, default to local cache to prevent ECMWF queue hangs.
-    allow_remote = os.environ.get("OILTRACE_ALLOW_REMOTE_FORCING", "0") == "1"
-    if not allow_remote:
-        import glob
-        cached = sorted(glob.glob(os.path.join(out_dir, "glorys_currents_*.nc")), reverse=True)
-        if cached:
-            print(f"[currents] Fast offline/cached forcing mode: using {cached[0]}")
-            return cached[0]
 
     print(f"[currents] requesting {DATASET_ID} for bbox={bbox}, "
           f"{start_dt} -> {end_dt}")

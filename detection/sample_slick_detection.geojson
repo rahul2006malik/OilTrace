@@ -1,6 +1,6 @@
 {
-  "spill_id": "spill_ca8b89d15a0b",
-  "detected_at": "2026-09-05T05:52:20Z",
+  "spill_id": "spill_082740b1807b",
+  "detected_at": "2026-09-07T19:28:21Z",
   "geometry": {
     "type": "MultiPolygon",
     "coordinates": [
@@ -407,5 +407,6 @@
   "oil_confidence": 0.5409227283366462,
   "lookalike_suppressed": false,
   "thickness_class": "sheen",
-  "source_scene_id": "00000"
+  "source_scene_id": "00000",
+  "data_provenance": "real_detector"
 }

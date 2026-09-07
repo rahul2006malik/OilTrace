@@ -28,6 +28,16 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from detection import OilSpillDetector  # noqa: E402
 
+try:
+    import pytest
+
+    @pytest.fixture(scope="module")
+    def detector() -> OilSpillDetector:
+        return OilSpillDetector()
+except ImportError:
+    pass
+
+
 POSITIVE_SAMPLE = PROJECT_ROOT / "data" / "processed" / "part3" / "Images" / "Oil" / "00000.tif"
 NEGATIVE_SAMPLE = PROJECT_ROOT / "data" / "processed" / "part3" / "Images" / "No oil" / "00000.tif"
 OUTPUT_GEOJSON = PROJECT_ROOT / "detection" / "sample_slick_detection.geojson"
@@ -48,6 +58,7 @@ REQUIRED_KEYS = {
     "lookalike_suppressed",
     "thickness_class",
     "source_scene_id",
+    "data_provenance",
 }
 
 
@@ -84,6 +95,9 @@ def test_positive_sample(detector: OilSpillDetector) -> dict:
 
     assert geojson["thickness_class"] in {"sheen", "thin", "thick"}, (
         f"thickness_class={geojson['thickness_class']!r} is not a valid schema enum value"
+    )
+    assert geojson["data_provenance"] in {"real_detector", "real_uploaded_fixture"}, (
+        f"data_provenance={geojson['data_provenance']!r} is not a valid schema enum value"
     )
     assert 0.0 <= geojson["oil_confidence"] <= 1.0, f"oil_confidence={geojson['oil_confidence']} out of [0,1]"
     assert isinstance(geojson["centroid"], list) and len(geojson["centroid"]) == 2, (

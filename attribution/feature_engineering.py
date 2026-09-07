@@ -378,20 +378,25 @@ def build_features(
         if db_file.exists():
             try:
                 import sqlite3
-                con = sqlite3.connect(str(db_file))
+                con = sqlite3.connect(str(db_file), timeout=15.0)
                 con.row_factory = sqlite3.Row
-                cur = con.cursor()
-                cur.execute("SELECT mmsi, timestamp, lat, lon, sog, cog FROM ais_pings")
-                for r in cur.fetchall():
-                    mmsi_str = str(r["mmsi"])
-                    positions_by_vessel[mmsi_str].append({
-                        "t": r["timestamp"],
-                        "sog": r["sog"],
-                        "cog": r["cog"],
-                        "lat": r["lat"],
-                        "lon": r["lon"],
-                    })
-                con.close()
+                con.execute("PRAGMA journal_mode=WAL;")
+                con.execute("PRAGMA busy_timeout=10000;")
+                con.execute("PRAGMA synchronous=NORMAL;")
+                try:
+                    cur = con.cursor()
+                    cur.execute("SELECT mmsi, timestamp, lat, lon, sog, cog FROM ais_pings")
+                    for r in cur.fetchall():
+                        mmsi_str = str(r["mmsi"])
+                        positions_by_vessel[mmsi_str].append({
+                            "t": r["timestamp"],
+                            "sog": r["sog"],
+                            "cog": r["cog"],
+                            "lat": r["lat"],
+                            "lon": r["lon"],
+                        })
+                finally:
+                    con.close()
             except Exception:
                 pass
 

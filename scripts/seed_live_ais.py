@@ -16,10 +16,13 @@ CACHE_DIR = PROJECT_ROOT / "data" / "cache"
 
 def main():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(str(DB_PATH))
+    con = sqlite3.connect(str(DB_PATH), timeout=15.0)
     cur = con.cursor()
 
     cur.execute("PRAGMA journal_mode=WAL;")
+    cur.execute("PRAGMA busy_timeout=10000;")
+    cur.execute("PRAGMA synchronous=NORMAL;")
+    cur.execute("PRAGMA foreign_keys=ON;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS ais_pings (
             mmsi TEXT,

@@ -27,6 +27,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.responses import StreamingResponse
 
 from ..models import AttributionResult, Candidate, DetectionPredictRequest, EvidenceTrace, PipelineRunRequest, TopKRecovery
+from ..db import sqlite_connection
 
 logger = logging.getLogger("pipeline_router")
 router = APIRouter(tags=["pipeline"])
@@ -378,7 +379,7 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
         # Backward displacement: reverse velocity over 24h
         lat_rad = math.radians(lat)
         m_per_deg_lat = 110574.0
-        m_per_deg_lon = 111320.0 * math.cos(lat_rad)
+        m_per_deg_lon = 111320.0 * max(abs(math.cos(lat_rad)), 1e-4)
         dt_seconds = 24.0 * 3600.0
 
         # Backward advection (moving backwards in time against net flow)
@@ -461,71 +462,67 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
     pings_by_vessel: dict[str, list[dict]] = {}
     if ais_db_path.exists():
         try:
-            import sqlite3
-            con = sqlite3.connect(str(ais_db_path))
-            con.row_factory = sqlite3.Row
-            cur = con.cursor()
-            cur.execute("""
-                SELECT a.mmsi, a.ship_name, a.vessel_type,
-                       count(*) as ping_cnt,
-                       avg(a.lat) as mean_lat, avg(a.lon) as mean_lon,
-                       a.lat as last_lat, a.lon as last_lon,
-                       avg(a.sog) as mean_sog,
-                       a.timestamp as last_time
-                FROM ais_pings a
-                INNER JOIN (
-                    SELECT mmsi, max(timestamp) as max_ts
-                    FROM ais_pings
-                    WHERE lon BETWEEN ? AND ? AND lat BETWEEN ? AND ?
-                    GROUP BY mmsi
-                ) latest ON a.mmsi = latest.mmsi AND a.timestamp = latest.max_ts
-                GROUP BY a.mmsi
-                ORDER BY ping_cnt DESC
-                LIMIT 8;
-            """, (lon - 1.8, lon + 1.8, lat - 1.8, lat + 1.8))
-            rows = cur.fetchall()
-
-            for r in rows:
-                v_mmsi = str(r["mmsi"])
-                v_last_lon = float(r["last_lon"])
-                v_last_lat = float(r["last_lat"])
-                dist_km = _haversine_km(lon, lat, v_last_lon, v_last_lat)
-                mean_s = float(r["mean_sog"] or 0.0)
-                is_disch = 0.55 if (4.0 <= mean_s <= 8.0) else 0.08
-                pop[v_mmsi] = VesselFeatures(
-                    vessel_key=v_mmsi,
-                    presence_hours=float(r["ping_cnt"]) * 0.5,
-                    gap_count=1 if dist_km < 35.0 else 0,
-                    gap_duration_hours=2.5 if dist_km < 35.0 else 0.0,
-                    loitering_count=1 if mean_s < 2.5 else 0,
-                    discharge_speed_fraction=is_disch,
-                    last_lon=v_last_lon,
-                    last_lat=v_last_lat,
-                    last_timestamp=r["last_time"],
-                )
-                provenance_by_vessel[v_mmsi] = "real_aisstream_live"
-                name_by_vessel[v_mmsi] = r["ship_name"]
-
-                # Fetch historical track pings for this candidate
+            with sqlite_connection(ais_db_path) as con:
+                cur = con.cursor()
                 cur.execute("""
-                    SELECT timestamp, lon, lat, sog, cog
-                    FROM ais_pings
-                    WHERE mmsi = ?
-                    ORDER BY timestamp ASC
-                """, (v_mmsi,))
-                v_pings = []
-                for p_row in cur.fetchall():
-                    v_pings.append({
-                        "timestamp": p_row["timestamp"],
-                        "lon": float(p_row["lon"]),
-                        "lat": float(p_row["lat"]),
-                        "sog": float(p_row["sog"] or 0.0),
-                        "cog": float(p_row["cog"] or 0.0),
-                    })
-                if v_pings:
-                    pings_by_vessel[v_mmsi] = v_pings
+                    SELECT a.mmsi, a.ship_name, a.vessel_type,
+                           count(*) as ping_cnt,
+                           avg(a.lat) as mean_lat, avg(a.lon) as mean_lon,
+                           a.lat as last_lat, a.lon as last_lon,
+                           avg(a.sog) as mean_sog,
+                           a.timestamp as last_time
+                    FROM ais_pings a
+                    INNER JOIN (
+                        SELECT mmsi, max(timestamp) as max_ts
+                        FROM ais_pings
+                        WHERE lon BETWEEN ? AND ? AND lat BETWEEN ? AND ?
+                        GROUP BY mmsi
+                    ) latest ON a.mmsi = latest.mmsi AND a.timestamp = latest.max_ts
+                    GROUP BY a.mmsi
+                    ORDER BY ping_cnt DESC
+                    LIMIT 8;
+                """, (lon - 1.8, lon + 1.8, lat - 1.8, lat + 1.8))
+                rows = cur.fetchall()
 
-            con.close()
+                for r in rows:
+                    v_mmsi = str(r["mmsi"])
+                    v_last_lon = float(r["last_lon"])
+                    v_last_lat = float(r["last_lat"])
+                    dist_km = _haversine_km(lon, lat, v_last_lon, v_last_lat)
+                    mean_s = float(r["mean_sog"] or 0.0)
+                    is_disch = 0.55 if (4.0 <= mean_s <= 8.0) else 0.08
+                    pop[v_mmsi] = VesselFeatures(
+                        vessel_key=v_mmsi,
+                        presence_hours=float(r["ping_cnt"]) * 0.5,
+                        gap_count=1 if dist_km < 35.0 else 0,
+                        gap_duration_hours=2.5 if dist_km < 35.0 else 0.0,
+                        loitering_count=1 if mean_s < 2.5 else 0,
+                        discharge_speed_fraction=is_disch,
+                        last_lon=v_last_lon,
+                        last_lat=v_last_lat,
+                        last_timestamp=r["last_time"],
+                    )
+                    provenance_by_vessel[v_mmsi] = "real_aisstream_live"
+                    name_by_vessel[v_mmsi] = r["ship_name"]
+
+                    # Fetch historical track pings for this candidate
+                    cur.execute("""
+                        SELECT timestamp, lon, lat, sog, cog
+                        FROM ais_pings
+                        WHERE mmsi = ?
+                        ORDER BY timestamp ASC
+                    """, (v_mmsi,))
+                    v_pings = []
+                    for p_row in cur.fetchall():
+                        v_pings.append({
+                            "timestamp": p_row["timestamp"],
+                            "lon": float(p_row["lon"]),
+                            "lat": float(p_row["lat"]),
+                            "sog": float(p_row["sog"] or 0.0),
+                            "cog": float(p_row["cog"] or 0.0),
+                        })
+                    if v_pings:
+                        pings_by_vessel[v_mmsi] = v_pings
         except Exception as e:
             logger.debug("[pipeline] live_ais.db candidate lookup error: %s", e)
 

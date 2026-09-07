@@ -19,6 +19,8 @@ from typing import Any, Dict, List, Set
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from ..db import sqlite_connection
+
 logger = logging.getLogger("live_feed_router")
 router = APIRouter(tags=["surveillance"])
 
@@ -46,7 +48,8 @@ class ConnectionManager:
             return
         dead_conns = []
         payload = json.dumps(message)
-        for conn in self.active_connections:
+        # Snapshot active connections to avoid RuntimeError: Set changed size during iteration
+        for conn in list(self.active_connections):
             try:
                 await conn.send_text(payload)
             except Exception:
@@ -77,8 +80,7 @@ async def websocket_live_ais_endpoint(websocket: WebSocket):
                     result_rows = []
                     new_last_ts = last_ts
                     try:
-                        with sqlite3.connect(str(LIVE_AIS_DB)) as con:
-                            con.row_factory = sqlite3.Row
+                        with sqlite_connection(LIVE_AIS_DB) as con:
                             cur = con.cursor()
                             if is_initial:
                                 cur.execute("""
@@ -151,23 +153,21 @@ async def get_satellite_passes() -> dict:
     if not SCENES_DB.exists():
         return {"total_passes": 0, "passes": []}
     try:
-        con = sqlite3.connect(str(SCENES_DB))
-        con.row_factory = sqlite3.Row
-        cur = con.cursor()
-        cur.execute("""
-            SELECT scene_id, acquired_at, ingested_at, status
-            FROM sar_scenes
-            ORDER BY acquired_at DESC
-            LIMIT 20;
-        """)
-        rows = cur.fetchall()
-        con.close()
-        passes = [dict(r) for r in rows]
-        return {
-            "total_passes": len(passes),
-            "surveillance_zone": "Indian Exclusive Economic Zone (EEZ)",
-            "passes": passes,
-        }
+        with sqlite_connection(SCENES_DB) as con:
+            cur = con.cursor()
+            cur.execute("""
+                SELECT scene_id, acquired_at, ingested_at, status
+                FROM sar_scenes
+                ORDER BY acquired_at DESC
+                LIMIT 20;
+            """)
+            rows = cur.fetchall()
+            passes = [dict(r) for r in rows]
+            return {
+                "total_passes": len(passes),
+                "surveillance_zone": "Indian Exclusive Economic Zone (EEZ)",
+                "passes": passes,
+            }
     except Exception as e:
         logger.warning("Failed querying satellite scenes DB: %s", e)
         return {"total_passes": 0, "passes": []}

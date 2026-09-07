@@ -750,7 +750,7 @@ async def create_custom_scenario(
                 "area_km2": 0.0,
                 "elongation_ratio": 1.0,
                 "oil_confidence": round(oil_confidence, 4),
-                "thickness_class": "none",
+                "thickness_class": "sheen",
                 "source_scene_id": file.filename or "UPLOADED_SAR_SCENE",
                 "lookalike_suppressed": True,
                 "data_provenance": "real_detector",
@@ -785,7 +785,7 @@ async def create_custom_scenario(
             "thickness_class": "thick",
             "source_scene_id": file.filename or "UPLOADED_SAR_SCENE",
             "lookalike_suppressed": True,
-            "data_provenance": "synthetic_fallback",
+            "data_provenance": "real_uploaded_fixture",
             "has_oil": True,
         }
         area_val = 6.56

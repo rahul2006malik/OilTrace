@@ -373,11 +373,11 @@ def fast_forward_hypothesis(
         v_w_raw = v_w_raw[:, :, ::-1]
 
     m_per_deg_lat = 110574.0
-    m_per_deg_lon_init = 111320.0 * math.cos(math.radians(release_lat))
+    m_per_deg_lon_init = 111320.0 * max(0.001, abs(math.cos(math.radians(release_lat))))
     angles = rng.uniform(0, 2 * math.pi, n_particles)
     radii = 200.0 * np.sqrt(rng.uniform(0.1, 1.0, n_particles))
-    p_lons = release_lon + (radii * np.cos(angles)) / m_per_deg_lon_init
-    p_lats = release_lat + (radii * np.sin(angles)) / m_per_deg_lat
+    p_lons = (release_lon + (radii * np.cos(angles)) / m_per_deg_lon_init + 180.0) % 360.0 - 180.0
+    p_lats = np.clip(release_lat + (radii * np.sin(angles)) / m_per_deg_lat, -89.9, 89.9)
     windages = np.clip(rng.normal(0.030, 0.004, n_particles), 0.018, 0.048)
     diff_sigma = math.sqrt(2.0 * 10.0 * dt_seconds)
 
@@ -395,7 +395,8 @@ def fast_forward_hypothesis(
         u_w = _sample_bilinear(w_lats, w_lons, u_w_raw[t_w_idx], q_lats, q_lons)
         v_w = _sample_bilinear(w_lats, w_lons, v_w_raw[t_w_idx], q_lats, q_lons)
 
-        m_lon_scale = 111320.0 * np.cos(np.radians(q_lats))
+        # Forward velocity in deg/s
+        m_lon_scale = 111320.0 * np.maximum(np.cos(np.radians(np.clip(q_lats, -89.9, 89.9))), 1e-5)
         f_lon = (u_c + windages * u_w) / m_lon_scale
         f_lat = (v_c + windages * v_w) / m_per_deg_lat
         return f_lon, f_lat
@@ -423,12 +424,12 @@ def fast_forward_hypothesis(
         d_lon_rk4 = (dt_seconds / 6.0) * (k1_lon + 2.0 * k2_lon + 2.0 * k3_lon + k4_lon)
         d_lat_rk4 = (dt_seconds / 6.0) * (k1_lat + 2.0 * k2_lat + 2.0 * k3_lat + k4_lat)
 
-        m_lon_scale_curr = 111320.0 * np.cos(np.radians(p_lats))
+        m_lon_scale_curr = 111320.0 * np.maximum(np.cos(np.radians(np.clip(p_lats, -89.9, 89.9))), 1e-5)
         d_lon_diff = rng.normal(0, diff_sigma, n_particles) / m_lon_scale_curr
         d_lat_diff = rng.normal(0, diff_sigma, n_particles) / m_per_deg_lat
 
-        p_lons = p_lons + d_lon_rk4 + d_lon_diff
-        p_lats = p_lats + d_lat_rk4 + d_lat_diff
+        p_lats = np.clip(p_lats + d_lat_rk4 + d_lat_diff, -89.9, 89.9)
+        p_lons = (p_lons + d_lon_rk4 + d_lon_diff + 180.0) % 360.0 - 180.0
         curr_dt = t_next
 
     # Compute convex hull of final particle cloud
