@@ -1,0 +1,20 @@
+{
+  "spill_id": "SPILL-20260907-CUST-007",
+  "scenario_id": "scenario_spill_20260907_cust_007",
+  "estimated_onset_time": "2026-09-07T17:50:08.769347+00:00",
+  "origin_probability_cone": {
+    "type": "FeatureCollection",
+    "features": []
+  },
+  "age_estimate_hours": {
+    "value": 0.0,
+    "confidence_range": [
+      0.0,
+      0.0
+    ],
+    "method": "clean_sea_lookalike_suppressed"
+  },
+  "ensemble_members": [],
+  "forward_hypotheses": [],
+  "data_provenance": "real_detector"
+}

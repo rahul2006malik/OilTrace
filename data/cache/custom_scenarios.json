@@ -1,5 +1,308 @@
 [
   {
+    "scenario_id": "scenario_spill_20260907_cust_008",
+    "name": "00126",
+    "spill_id": "SPILL-20260907-CUST-008",
+    "location_name": "Custom Upload (71.61\u00b0E, 13.35\u00b0N)",
+    "bbox": [
+      70.81,
+      12.55,
+      72.41,
+      14.15
+    ],
+    "detected_at": "2026-09-07T17:51:12.934845+00:00",
+    "has_drift_ensemble": false,
+    "has_real_gfw": true,
+    "spill_area_km2": 0.0,
+    "suspect_count": 0,
+    "description": "SAR scene '00126.tif': Lookalike / Clean Waters Confirmed (confidence: 0.17%). Two-stage cascade correctly suppressed false alarm. No oil spill present.",
+    "tags": [
+      "CUSTOM SCENARIO",
+      "LOOKALIKE REJECTED",
+      "CLEAN SEA"
+    ],
+    "category": "custom",
+    "image_path": "C:\\WORK\\OilTrace\\data\\cache\\custom_uploads\\upload_20260907_175112_00126.tif",
+    "slick_geojson": {
+      "spill_id": "SPILL-20260907-CUST-008",
+      "detected_at": "2026-09-07T17:51:12.934845+00:00",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": []
+      },
+      "centroid": [
+        71.61,
+        13.35
+      ],
+      "area_km2": 0.0,
+      "elongation_ratio": 1.0,
+      "oil_confidence": 0.0017,
+      "thickness_class": "none",
+      "source_scene_id": "00126.tif",
+      "lookalike_suppressed": true,
+      "data_provenance": "real_detector",
+      "has_oil": false
+    }
+  },
+  {
+    "scenario_id": "scenario_spill_20260907_cust_007",
+    "name": "00062",
+    "spill_id": "SPILL-20260907-CUST-007",
+    "location_name": "Custom Upload (71.61\u00b0E, 17.46\u00b0N)",
+    "bbox": [
+      70.81,
+      16.66,
+      72.41,
+      18.26
+    ],
+    "detected_at": "2026-09-07T17:50:08.769347+00:00",
+    "has_drift_ensemble": false,
+    "has_real_gfw": true,
+    "spill_area_km2": 0.0,
+    "suspect_count": 0,
+    "description": "SAR scene '00062.tif': Lookalike / Clean Waters Confirmed (confidence: 0.00%). Two-stage cascade correctly suppressed false alarm. No oil spill present.",
+    "tags": [
+      "CUSTOM SCENARIO",
+      "LOOKALIKE REJECTED",
+      "CLEAN SEA"
+    ],
+    "category": "custom",
+    "image_path": "C:\\WORK\\OilTrace\\data\\cache\\custom_uploads\\upload_20260907_175008_00062.tif",
+    "slick_geojson": {
+      "spill_id": "SPILL-20260907-CUST-007",
+      "detected_at": "2026-09-07T17:50:08.769347+00:00",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": []
+      },
+      "centroid": [
+        71.61,
+        17.46
+      ],
+      "area_km2": 0.0,
+      "elongation_ratio": 1.0,
+      "oil_confidence": 0.0,
+      "thickness_class": "none",
+      "source_scene_id": "00062.tif",
+      "lookalike_suppressed": true,
+      "data_provenance": "real_detector",
+      "has_oil": false
+    }
+  },
+  {
+    "scenario_id": "scenario_spill_20260907_cust_006",
+    "name": "00051",
+    "spill_id": "SPILL-20260907-CUST-006",
+    "location_name": "Custom Upload (71.61\u00b0E, 17.53\u00b0N)",
+    "bbox": [
+      70.81,
+      16.73,
+      72.41,
+      18.33
+    ],
+    "detected_at": "2026-09-07T17:48:52.629050+00:00",
+    "has_drift_ensemble": true,
+    "has_real_gfw": true,
+    "spill_area_km2": 6.56,
+    "suspect_count": 3,
+    "description": "User-created custom incident from uploaded SAR imagery '00051.tif'. Live cascade inference confirmed oil slick.",
+    "tags": [
+      "CUSTOM SCENARIO",
+      "USER UPLOAD",
+      "LIVE CASCADE"
+    ],
+    "category": "custom",
+    "image_path": "C:\\WORK\\OilTrace\\data\\cache\\custom_uploads\\upload_20260907_174852_00051.tif",
+    "slick_geojson": {
+      "spill_id": "SPILL-20260907-CUST-006",
+      "detected_at": "2026-09-07T17:48:52.629050+00:00",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              71.57,
+              17.502
+            ],
+            [
+              71.642,
+              17.514
+            ],
+            [
+              71.65,
+              17.554
+            ],
+            [
+              71.602,
+              17.57
+            ],
+            [
+              71.574,
+              17.538
+            ],
+            [
+              71.57,
+              17.502
+            ]
+          ]
+        ]
+      },
+      "centroid": [
+        71.61,
+        17.53
+      ],
+      "area_km2": 6.56,
+      "elongation_ratio": 3.42,
+      "oil_confidence": 0.816,
+      "thickness_class": "thick",
+      "source_scene_id": "00051.tif",
+      "lookalike_suppressed": true,
+      "data_provenance": "real_detector"
+    }
+  },
+  {
+    "scenario_id": "scenario_spill_20260907_cust_005",
+    "name": "00042",
+    "spill_id": "SPILL-20260907-CUST-005",
+    "location_name": "Custom Upload (71.61\u00b0E, 14.55\u00b0N)",
+    "bbox": [
+      70.81,
+      13.75,
+      72.41,
+      15.35
+    ],
+    "detected_at": "2026-09-07T17:29:41.414285+00:00",
+    "has_drift_ensemble": true,
+    "has_real_gfw": true,
+    "spill_area_km2": 6.56,
+    "suspect_count": 3,
+    "description": "User-created custom incident from uploaded SAR imagery '00042.tif'. Live cascade inference confirmed oil slick.",
+    "tags": [
+      "CUSTOM SCENARIO",
+      "USER UPLOAD",
+      "LIVE CASCADE"
+    ],
+    "category": "custom",
+    "image_path": "C:\\WORK\\OilTrace\\data\\cache\\custom_uploads\\upload_20260907_172941_00042.tif",
+    "slick_geojson": {
+      "spill_id": "SPILL-20260907-CUST-005",
+      "detected_at": "2026-09-07T17:29:41.414285+00:00",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              71.57,
+              14.522
+            ],
+            [
+              71.642,
+              14.534
+            ],
+            [
+              71.65,
+              14.574
+            ],
+            [
+              71.602,
+              14.59
+            ],
+            [
+              71.574,
+              14.558
+            ],
+            [
+              71.57,
+              14.522
+            ]
+          ]
+        ]
+      },
+      "centroid": [
+        71.61,
+        14.55
+      ],
+      "area_km2": 6.56,
+      "elongation_ratio": 3.42,
+      "oil_confidence": 0.816,
+      "thickness_class": "thick",
+      "source_scene_id": "00042.tif",
+      "lookalike_suppressed": true,
+      "data_provenance": "real_detector"
+    }
+  },
+  {
+    "scenario_id": "scenario_spill_20260907_cust_004",
+    "name": "00047",
+    "spill_id": "SPILL-20260907-CUST-004",
+    "location_name": "Custom Upload (71.61\u00b0E, 15.50\u00b0N)",
+    "bbox": [
+      70.81,
+      14.7,
+      72.41,
+      16.3
+    ],
+    "detected_at": "2026-09-07T17:28:47.116062+00:00",
+    "has_drift_ensemble": true,
+    "has_real_gfw": true,
+    "spill_area_km2": 6.56,
+    "suspect_count": 3,
+    "description": "User-created custom incident from uploaded SAR imagery '00047.tif'. Live cascade inference confirmed oil slick.",
+    "tags": [
+      "CUSTOM SCENARIO",
+      "USER UPLOAD",
+      "LIVE CASCADE"
+    ],
+    "category": "custom",
+    "image_path": "C:\\WORK\\OilTrace\\data\\cache\\custom_uploads\\upload_20260907_172846_00047.tif",
+    "slick_geojson": {
+      "spill_id": "SPILL-20260907-CUST-004",
+      "detected_at": "2026-09-07T17:28:47.116062+00:00",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              71.57,
+              15.472
+            ],
+            [
+              71.642,
+              15.484
+            ],
+            [
+              71.65,
+              15.524
+            ],
+            [
+              71.602,
+              15.54
+            ],
+            [
+              71.574,
+              15.508
+            ],
+            [
+              71.57,
+              15.472
+            ]
+          ]
+        ]
+      },
+      "centroid": [
+        71.61,
+        15.5
+      ],
+      "area_km2": 6.56,
+      "elongation_ratio": 3.42,
+      "oil_confidence": 0.816,
+      "thickness_class": "thick",
+      "source_scene_id": "00047.tif",
+      "lookalike_suppressed": true,
+      "data_provenance": "real_detector"
+    }
+  },
+  {
     "scenario_id": "scenario_spill_20260907_cust_003",
     "name": "00173",
     "spill_id": "SPILL-20260907-CUST-003",
