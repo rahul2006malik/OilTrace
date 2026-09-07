@@ -318,7 +318,7 @@ def _generate_custom_scenario_artifacts(
     real_cone = None
 
     try:
-        from drift.backward_ensemble import fast_rk4_backward_ensemble
+        from drift.pipeline import run_backward_ensemble_pipeline
         from drift.buffer_manager import resolve_best_forcing
         import numpy as np
 
@@ -327,29 +327,22 @@ def _generate_custom_scenario_artifacts(
             forcing_dir = _get_project_cache_dir()
         ocean_nc, wind_nc = resolve_best_forcing(lon=lon, lat=lat, target_time=detected_at_dt, forcing_dir=str(forcing_dir))
         if ocean_nc and wind_nc:
-            ens_res = fast_rk4_backward_ensemble(
+            ens_res, raw_trajs = run_backward_ensemble_pipeline(
                 spill_id=spill_id,
-                slick_lon=lon,
-                slick_lat=lat,
-                detected_at=detected_at_dt,
-                ocean_nc_path=str(ocean_nc),
-                wind_nc_path=str(wind_nc),
-                duration_hours=24.0,
-                dt_seconds=900,
+                lon=lon,
+                lat=lat,
+                detection_time=detected_at_dt,
+                currents_path=str(ocean_nc),
+                winds_path=str(wind_nc),
+                area_km2=area_km2,
                 n_members=15,
+                backward_hours=24,
+                write_files=False,
             )
-            raw_trajs = ens_res.get("trajectories", [])
             if raw_trajs and len(raw_trajs) > 0:
-                for t in raw_trajs:
-                    trajectories.append({
-                        "member_id": t.get("member_id", 1),
-                        "lons": t.get("lons", []),
-                        "lats": t.get("lats", []),
-                        "times": t.get("times", []),
-                        "completed": True,
-                    })
-                ox = round(float(np.mean([t["lons"][0] for t in trajectories])), 6)
-                oy = round(float(np.mean([t["lats"][0] for t in trajectories])), 6)
+                trajectories = raw_trajs
+                ox = round(float(np.mean([t["lons"][-1] for t in trajectories if t.get("lons")])), 6)
+                oy = round(float(np.mean([t["lats"][-1] for t in trajectories if t.get("lats")])), 6)
                 real_cone = ens_res.get("origin_probability_cone")
                 used_real_rk4 = True
                 logger.info("[scenarios] Successfully generated real RK4 trajectories for custom scenario %s", scenario_id)
