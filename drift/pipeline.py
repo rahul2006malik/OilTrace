@@ -41,10 +41,11 @@ from datetime import timedelta
 
 
 def run_drift_backward(spill_id, lon, lat, detected_at,
-                        backward_hours=48, pad_deg=2.0,
+                        backward_hours=48, pad_deg=3.0,
                         n_members=25, out_dir="data/cache/forcing",
                         write_files=True, out_path="origin_ensemble.json",
-                        trajectory_out_path=None):
+                        trajectory_out_path=None,
+                        area_km2=None, elongation_ratio=None):
     """One-call real backward-drift run: fetch real forcing -> run ensemble
     -> KDE cone -> schema-conformant dict. Reuses cached NetCDFs on repeat
     calls with the same date range (fetch_currents/fetch_winds already
@@ -65,13 +66,47 @@ def run_drift_backward(spill_id, lon, lat, detected_at,
     end_dt = detection_time + timedelta(hours=6)
     bbox = [lon - pad_deg, lat - pad_deg, lon + pad_deg, lat + pad_deg]
 
-    currents_path = fetch_currents(bbox, start_dt, end_dt, out_dir)
-    winds_path = fetch_winds(bbox, start_dt, end_dt, out_dir)
+    try:
+        from .buffer_manager import resolve_best_forcing
+    except ImportError:
+        try:
+            from buffer_manager import resolve_best_forcing
+        except ImportError:
+            resolve_best_forcing = None
 
-    lons, lats, times, trajectories, diagnostics = run_ensemble(
-        lon, lat, detection_time, currents_path, winds_path,
-        n_members=n_members, backward_hours=backward_hours,
-    )
+    try:
+        currents_path = fetch_currents(bbox, start_dt, end_dt, out_dir)
+        winds_path = fetch_winds(bbox, start_dt, end_dt, out_dir)
+    except Exception as e:
+        if resolve_best_forcing:
+            currents_path, winds_path = resolve_best_forcing(lon, lat, detection_time, backward_hours=backward_hours, pad_deg=pad_deg, forcing_dir=out_dir)
+        else:
+            raise
+
+    if (not currents_path or not winds_path) and resolve_best_forcing:
+        c_alt, w_alt = resolve_best_forcing(lon, lat, detection_time, backward_hours=backward_hours, pad_deg=pad_deg, forcing_dir=out_dir)
+        currents_path = currents_path or c_alt
+        winds_path = winds_path or w_alt
+
+    try:
+        from .backward_ensemble import fast_rk4_backward_ensemble
+    except ImportError:
+        try:
+            from backward_ensemble import fast_rk4_backward_ensemble
+        except ImportError:
+            fast_rk4_backward_ensemble = None
+
+    use_fast = os.environ.get("OILTRACE_DRIFT_ENGINE", "fast_rk4") != "openoil"
+    if use_fast and fast_rk4_backward_ensemble:
+        lons, lats, times, trajectories, diagnostics = fast_rk4_backward_ensemble(
+            lon, lat, detection_time, currents_path, winds_path,
+            n_members=n_members, backward_hours=backward_hours,
+        )
+    else:
+        lons, lats, times, trajectories, diagnostics = run_ensemble(
+            lon, lat, detection_time, currents_path, winds_path,
+            n_members=n_members, backward_hours=backward_hours,
+        )
     if diagnostics["n_complete"] == 0:
         raise RuntimeError(
             f"All {diagnostics['n_members_requested']} ensemble members were "
@@ -100,7 +135,7 @@ def run_drift_backward(spill_id, lon, lat, detected_at,
                 for f in cone
             ],
         },
-        "age_estimate_hours": age_estimate_heuristic(),
+        "age_estimate_hours": age_estimate_heuristic(area_km2, elongation_ratio),
         "ensemble_members": ensemble_members,
         "forward_hypotheses": [],
     }

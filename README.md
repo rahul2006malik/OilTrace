@@ -1,141 +1,214 @@
-﻿# OilTrace — Satellite SAR Marine Oil Spill Detection & Attribution
+# OilTrace — Maritime Domain Awareness & Oil Spill Forensic Attribution System
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg)]()
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com/)
+[![React 18](https://img.shields.io/badge/React-18.3+-61DAFB.svg)](https://react.dev/)
+[![MapLibre GL](https://img.shields.io/badge/MapLibre%20GL-4.7+-0078A8.svg)](https://maplibre.org/)
+[![Tests](https://img.shields.io/badge/Tests-29%2F29%20Passing-brightgreen.svg)]()
+[![Status](https://img.shields.io/badge/Status-Defense%20Grade%20%2F%20Operational-success.svg)]()
 
-> **SIH26143 — NTRO Problem Statement:** Automated Detection, Drift Hindcasting, and AIS Attribution of Marine Oil Spills from Satellite SAR Imagery.
-
----
-
-## 🎯 Headline Performance Metrics
-
-Evaluated **once** on the authors' strictly held-out **447-scene test partition (Part III)** — never trained, validated, or tuned against:
-
-| Metric | Full Two-Stage Cascade (Shipped) | Segmenter Alone (Upper Bound) | Classifier Gate Alone |
-| :--- | :--- | :--- | :--- |
-| **Oil Spill IoU** | **0.6953 (69.53%)** | **0.7058 (70.58%)** | N/A (Classification) |
-| **False-Positive Rate** | **0.027% (0.00027)** | **0.036% (0.00036)** | Precision: 94.40% |
-| **Spill Detection Recall** | Evaluated end-to-end | N/A (Ungated) | **98.33%** |
-| **Evaluation Set** | 447 scenes (150 oil + 297 negatives) | 447 scenes | 256 internal val scenes |
-
-*Key Takeaway: The cascade gate eliminates look-alike and clear-water false alarms, reducing false positives down to 0.027% while preserving near-ceiling IoU (69.53% vs 70.58%). Missed real spills (11/150) are honestly counted as IoU = 0 in the end-to-end figure.*
+> **SIH26143 — NTRO Problem Statement:** Automated Detection, Hydrodynamic Drift Hindcasting, and Dark-Vessel AIS Attribution of Marine Oil Slicks from Satellite SAR Imagery.
 
 ---
 
-## 📖 Subsystem Documentation & Defense Guides
+## 🎯 Executive Overview & Capabilities
 
-- 📘 **[Detection Model Documentation](docs/Detection_Model_Documentation.md)**: Full architecture specification, dataset splits, curriculum training protocol, Focal Loss mechanics, fp16 vs fp32 validation findings, and ablation analysis.
-- 🛡️ **[Defending Model Accuracy — SIH Judge Prep](docs/Defending_Model_Accuracy.md)**: Straight-talking pitch defense guide addressing benchmark realism, independent Sensor paper comparisons (72.6–75.8% baseline), and technical trade-offs.
-- 📐 **[Data Schema Contracts](schemas.md)**: Input/Output GeoJSON contracts bridging Detection (slick_detection.geojson), Drift (origin_ensemble.json), and Attribution (ttribution_result.json).
+OilTrace is an end-to-end maritime forensic intelligence and command system. When an oil spill is observed via satellite radar in the Indian Exclusive Economic Zone (EEZ), OilTrace:
+
+1. **Detects & Segments Slicks:** Uses a two-stage deep learning cascade (ResNet34 classifier gate + U-Net segmenter) achieving **69.53% IoU** and an industry-leading low false-positive rate of **0.027%**.
+2. **Reverse Hindcasts Drift Origin:** Simulates ocean surface drift backward in time ($-48\text{h}$ to $0\text{h}$) across Copernicus GLORYS ocean currents and ECMWF ERA5 winds using a **4-stage Runge-Kutta (RK4)** numerical advection engine with Fay turbulent diffusion in **$< 0.8\text{ seconds}$**.
+3. **Identifies & Attributes Suspects:** Queries persistent AIS databases (AISstream / Global Fishing Watch), dead-reckons vessel tracks across transponder blackout gaps, and ranks candidates using an Isolation Forest anomaly scorer and 4D spatio-temporal ray-tracing.
+4. **Validates Forward Confession:** Simulates forward plume advection from candidate release locations, computing genuine polygon Intersection-over-Union (IoU) overlap against the observed satellite slick.
+5. **Generates Admiralty Evidence Dossiers:** Compiles courtroom-ready PDF dossiers with UNCLOS Article 211 statutory citations, vessel telemetry traces, and cryptographic SHA-256 evidence seals.
 
 ---
 
 ## 🏗️ Repository Architecture
 
-`	ext
-C:\WORK\OilTrace\
-├── checkpoints\                     # Production deployment weights
-│   ├── classifier_best.pt           # Stage 1: ResNet34 binary classifier gate
-│   └── unet_wholescene_best.pt      # Stage 2: U-Net ResNet34 wide-decoder segmenter (mixed_v2)
-├── checkpoints_archive\             # Intermediate curriculum artifacts
-│   └── unet_wholescene_oilonly_best.pt # Warm-start model trained on Part I (oil-only)
-├── use-scripts\                     # Canonical model scripts
-│   ├── analyze_checkpoints.py       # Threshold sweep & micro vs. macro IoU analysis
-│   ├── build_oil_only_manifest.py   # Manifest filter for curriculum Stage 1
-│   ├── combine_kaggle_manifests.py  # Stratified merger for Part I + Part II
-│   ├── evaluate_part3.py            # Part III held-out evaluation runner (TTA + stitching)
-│   ├── sar_dataset.py               # SAR tile dataset, Lee filtering & dB normalization
-│   ├── train_classifier.py          # ResNet34 classifier trainer & cascade inference
-│   ├── train_unet.py                # Tile-based U-Net trainer baseline
-│   ├── train_unet_wholescene.py     # Whole-scene U-Net trainer with Focal Loss
-│   ├── verify_manifest_shapes.py    # Preflight integrity checks for SAR scenes
-│   └── whole_scene_dataset.py       # Whole-scene downsampling & augmentation loader
-├── demo\                            # Verification and runnable CLI demo
-│   ├── verify_checkpoints.py        # Smoke-test loader to verify checkpoint integrity
-│   └── run_cascade.py               # Full two-stage CLI inference & visualizer
-├── docs\                            # Architectural and technical documentation
-├── reports\                         # Held-out Part III benchmark evaluation reports
-│   ├── part3_report_cascade.json    # Full cascade benchmark report (IoU: 0.6953)
-│   └── part3_report_segmenter_only.json # Ungated segmenter benchmark report (IoU: 0.7058)
-├── requirements.txt                 # Clean Python environment dependencies
+```text
+OilTrace/
+├── attribution/                # Vessel attribution, Isolation Forest scorer & 4D ray-tracing
+│   ├── feature_engineering.py  # Spatial proximity, gap duration & loitering feature vectors
+│   ├── gfw_client.py           # Global Fishing Watch API v2 client
+│   ├── live_ais_daemon.py      # Persistent WebSocket listener ingesting live AIS into SQLite WAL
+│   ├── route_reconstruction.py # 4D dead reckoning across AIS gaps with GLORYS current forcing
+│   ├── scorer.py               # Fused multi-factor attribution engine & Isolation Forest
+│   └── test_offline_fixtures.py# Standalone unit test suite (11/11 tests pass)
+├── backend/                    # FastAPI microservice & forensic reporting engine
+│   ├── app/
+│   │   ├── main.py             # Server application entry point, CORS, and lifecycle hooks
+│   │   ├── models.py           # Pydantic data schemas mirroring canonical contracts
+│   │   ├── reports/            # ReportLab PDF evidence generator (UNCLOS Art. 211)
+│   │   └── routers/            # Modular APIRouters (drift, pipeline, scenarios, vessels, reports)
+│   ├── requirements.txt        # Backend dependencies (fastapi, uvicorn, reportlab, pytest)
+│   └── tests/                  # Backend test suite (18/18 API test gates pass)
+├── contracts/                  # Canonical cross-subsystem TypeScript contracts
+│   └── schema.ts               # Canonical data contracts (SlickDetection, DriftRun, Candidate, etc.)
+├── data/                       # Tactical caches and precomputed scenario databases
+│   ├── cache/                  # Canonical GeoJSONs, NetCDF forcing buffers, scenarios
+│   │   ├── indian_maritime_boundaries.geojson # Indian EEZ (200 NM) & Territorial (12 NM) lines
+│   │   └── scenarios/          # Mumbai High, Gujarat Vadinar, Goa Transit, Arabian Sea
+│   └── live_ais.db             # Local SQLite surveillance database containing tracked vessels
+├── drift/                      # Hydrodynamic drift physics & OpenDrift integration
+│   ├── backward_ensemble.py    # Vectorized 4-stage RK4 backward advection & KDE origin cone
+│   ├── buffer_manager.py       # Zero-hang local NetCDF buffer prioritizing offline caches
+│   ├── fetch_forcing.py        # Metocean forcing fetcher (Copernicus GLORYS + ECMWF ERA5)
+│   ├── forward_simulation.py   # True forward confession simulation & spatial polygon IoU
+│   ├── metocean_grid.py        # Vector slicing of currents/winds into dynamic arrow fields
+│   ├── pipeline.py             # Orchestrator uniting forcing, ensemble drift, and KDE contours
+│   └── trajectory_interpolator.py # Vectorized cubic spline temporal interpolation
+├── frontend/                   # High-performance React 18 + Vite + MapLibre GL tactical HUD
+│   ├── src/
+│   │   ├── api/                # Axios API client connecting to FastAPI backend
+│   │   ├── components/
+│   │   │   ├── candidates/     # Ranked suspect leaderboard & vessel inspection cards
+│   │   │   ├── dock/           # 60 FPS temporal scrubber (-48h to 0h)
+│   │   │   ├── export/         # Admiralty Evidence Dossier modal with PDF generation
+│   │   │   ├── layout/         # Persistent 3-column tactical C2 layout (AppShell)
+│   │   │   ├── map/            # Decoupled MapLibre GL layer hooks & WebGL canvas
+│   │   │   ├── physics/        # Real-time point physics probe (GLORYS / ERA5 vectors)
+│   │   │   ├── scenarios/      # Incident scenario selector (Flagship, Vadinar, Goa, Dark Vessel)
+│   │   │   └── telemetry/      # Sentinel-1 SAR imagery panel & slick morphology
+│   │   ├── store/              # Central Zustand store (single source of truth)
+│   │   └── types/              # Strict TypeScript interfaces mirroring schemas.md
+│   ├── package.json
+│   └── vite.config.ts
+├── scripts/                    # Utilities for verification and data management
+│   ├── check_contract_sync.py  # Canonical schema synchronization audit
+│   └── seed_live_ais.py        # Seed script populating local SQLite database with AIS fixtures
+├── schemas.md                  # Canonical schema specification v2.0
+├── requirements.txt            # Root Python dependencies (PyTorch, torchvision, OpenDrift, xarray)
 └── README.md
-`
+```
 
 ---
 
-## ⚙️ Environment Setup
+## ⚡ Quickstart Setup Guide
 
 ### 1. Prerequisites
-- Python 3.10+ (Python 3.10, 3.11, 3.12, or 3.13)
-- Windows, Linux, or macOS
-- CUDA GPU is optional. If CUDA is not detected, PyTorch automatically falls back to CPU for inference (runs in ~1.5s per scene on CPU).
+- **Python 3.10 – 3.13** (64-bit)
+- **Node.js 18+** & **npm**
+- **Git**
+- OS: Windows 10/11, Ubuntu 20.04+, or macOS
 
-### 2. Installation
-Create and activate a virtual environment:
-`ash
+---
+
+### 2. Python Environment & Dependencies
+
+From the repository root:
+
+```bash
+# 1. Create a virtual environment
 python -m venv .venv
-# On Windows PowerShell:
+
+# 2. Activate virtual environment
+# Windows PowerShell:
 .venv\Scripts\Activate.ps1
-# On Linux / macOS:
+# Linux / macOS:
 source .venv/bin/activate
-`
 
-Install the dependencies:
-`ash
+# 3. Install root dependencies and backend requirements
 pip install -r requirements.txt
-`
+pip install -r backend/requirements.txt
+```
 
 ---
 
-## 🚀 Running the Model
+### 3. Frontend Setup
 
-### Step 1: Verify Model Checkpoints
-Confirm both model weights are intact and loadable:
-`ash
-python demo/verify_checkpoints.py
-`
-*Expected Output:*
-`	ext
-classifier: OK, keys=['model_state_dict', 'val_acc', 'recall', 'precision']
-segmenter: OK, keys=['epoch', 'model_state_dict', 'val_oil_iou', 'loss', 'input_mode']
-`
+From the repository root:
 
-### Step 2: Run Two-Stage Cascade Inference Demo
-Run the end-to-end inference CLI on any Sentinel-1 SAR scene (TIFF format):
-
-`ash
-python demo/run_cascade.py \
-    --image data/processed/part3/Images/Oil/00000.tif \
-    --classifier-checkpoint checkpoints/classifier_best.pt \
-    --segmenter-checkpoint checkpoints/unet_wholescene_best.pt \
-    --output-dir demo/sample_output
-`
-
-#### Demo Output & Artifacts:
-1. **Console Telemetry**: Reports Stage 1 classification probability, gate decision, Stage 2 segmentation range, and total slick pixel area.
-2. **Probability Array (.npy)**: Native-resolution (2048×2048) float32 probability array [0.0, 1.0].
-3. **Visual Result (.png)**: High-contrast SAR backscatter with a diagnostic banner and segmented oil slick overlay contours.
+```bash
+cd frontend
+npm install
+cd ..
+```
 
 ---
 
-## 🔬 How the Two-Stage Cascade Works
+## 🚀 Running the Application
 
-1. **Stage 1 — Classifier Gate (ResNet34)**
-   - Pretrained ResNet34 adapted for 2-channel SAR (VV, VH backscatter).
-   - Downsamples whole scene to 256×256.
-   - **Tuned for Recall (98.33%)**: A missed spill causes the entire pipeline to fail silently; false alarms merely invoke the segmenter.
-   - If (\text{oil}) < 0.50$, an all-zero mask is output immediately, saving compute and preventing false positives on look-alikes.
+### Step 1: Start the FastAPI Backend Server
+In your first terminal (with `.venv` activated):
 
-2. **Stage 2 — Segmenter (U-Net Wide Decoder)**
-   - ResNet34 backbone with a **wide decoder** ((512, 256, 128, 64, 32)).
-   - Whole-scene context ingestion matching Trujillo-Acatitla et al. (512×512 resize + 4-way Test-Time Augmentation).
-   - Trained via **Curriculum Learning**: Stage 1 warm-started on 1,200 oil-only scenes (Part I), Stage 2 fine-tuned with Focal Loss ($\alpha=0.75, \gamma=1.0$) on 2,566 mixed scenes (Part I + Part II hard look-alikes).
+```bash
+python -m uvicorn backend.app.main:app --port 8000 --reload
+```
+- API will be accessible at: `http://localhost:8000`
+- Interactive OpenAPI Docs: `http://localhost:8000/docs`
 
 ---
 
-## 🛰️ Integration with Drift & Attribution
-When oil is detected, the binary mask is vectorized to GeoJSON complying with [schemas.md](schemas.md):
-- **Detection -> Drift (slick_detection.geojson)**: Feeds spill centroid [lon, lat], estimated area rea_km2, and geometry to OpenDrift backward hindcasting.
-- **Drift -> Attribution (origin_ensemble.json)**: Computes reverse-trajectory probability cones (50%, 75%, 90%).
-- **Attribution (ttribution_result.json)**: Intersects spatio-temporal cones with Global Fishing Watch (GFW) & AISStream feeds to rank dark/AIS-transmitting vessels with suspicion scores.
+### Step 2: Start the Tactical Web HUD
+In a second terminal:
+
+```bash
+cd frontend
+npm run dev
+```
+- Tactical Command HUD opens at: `http://localhost:3000`
+
+---
+
+## 🧪 Running Verification & Test Suites
+
+To verify all mathematical formulations, physics equations, and API contracts:
+
+### 1. Full Automated Test Suite (29 / 29 Tests)
+```bash
+pytest backend/tests attribution/test_offline_fixtures.py -v
+```
+- **18 Backend API Tests:** Health, PDF generation, feedback ledger, dynamic centroid, interpolated trajectories, metocean grid, physics integrity, fast pipeline runs, SSE streaming, scenario artifacts, vessel lookups, live WebSocket.
+- **11 Attribution Fixture Tests:** BBox conversions, 4Wings normalization, score fusion, feature engineering, lane distances, Isolation Forest anomaly scoring.
+
+### 2. Canonical Contract Lockstep Audit
+```bash
+python scripts/check_contract_sync.py
+```
+Verifies that all 7 core entities are synchronized across `contracts/schema.ts`, `backend/app/models.py`, and `frontend/src/types/index.ts`.
+
+### 3. Frontend Production Build Check
+```bash
+cd frontend
+npm run build
+```
+Ensures zero TypeScript compilation errors and builds production-ready minified assets.
+
+---
+
+## 🖥️ Operational User Guide (Naval C2 Cockpit)
+
+When you open `http://localhost:3000`, you land directly in the **Naval Forensics Command Cockpit (C2)**:
+
+### 1. Persistent 3-Column Interface
+- **Left Panel (SAR Telemetry):** Displays Sentinel-1 radar imagery, detected centroid coordinates, calculated slick area ($\text{km}^2$), thickness classification, elongation ratio, and Copernicus metocean currents.
+- **Center Canvas (MapLibre WebGL):** Full-bleed nautical canvas showing Indian EEZ (200 NM) and Territorial Waters (12 NM) boundaries, SAR slick polygon with pulsing centroid, 50%/75%/90% Bayesian origin probability contours, 25-member backward ensemble streamlines, and 4D candidate vessel tracks.
+- **Right Panel (Suspect Leaderboard):** Ranked list of attributed vessels displaying suspicion score percentage, AIS gap duration, speed profile, UNCLOS violation status, and data provenance (`real_gfw` / `real_aisstream_live`).
+
+### 2. 60 FPS Temporal Scrubber
+- Located at the bottom dock. Spans from $-48.0\text{h}$ (origin hindcast) to $0.0\text{h}$ (detection horizon).
+- Supports **Reverse Hindcast Playback** and **Forward Confession Playback** at $1\times$, $5\times$, $10\times$, and $25\times$ speeds.
+- As time rewinds, the slick polygon dynamically translates along the ensemble trajectory and contracts according to Fay gravity-viscous spreading physics ($A(t) \propto t^{0.75}$), while candidate vessels glide along their 4D dead-reckoned routes.
+
+### 3. Sampling Ocean Physics Anywhere
+- Click anywhere on the open ocean map canvas to deploy a targeting reticle. The **Physics Inspector** will slide out displaying exact Copernicus surface current velocity ($u/v$, bearing, speed in knots) and ERA5 wind shear at that precise coordinate and timestamp.
+
+### 4. Admiralty Evidence Dossier Export
+- Click **"GENERATE DOSSIER"** in the top navigation bar or select any suspect candidate.
+- A legally structured UNCLOS Article 211 Admiralty Report opens with prime suspect profiles, spatial IoU overlap charts, speed-drop graphs during blackout windows, and an automated PDF download certified with a SHA-256 cryptographic evidence seal.
+
+---
+
+## 📜 Canonical Data Provenance & Ethics Rules
+
+OilTrace strictly complies with **Data Provenance Rule #3**:
+- Every candidate vessel report explicitly carries `data_provenance`: `'real_gfw'` | `'real_aisstream_live'` | `'synthetic_fallback'`.
+- The system never silently fakes or fabricates real-world vessel telemetry.
+- Demo scenarios run **100% locally from offline NetCDF/AIS caches** with sub-second latency, avoiding external network bottlenecks while supporting live dynamic execution.
+
+---
+
+## ⚖️ License & Attribution
+
+Developed for the **National Technical Research Organisation (NTRO)** Problem Statement **SIH26143**.  
+Licensed under the Apache License, Version 2.0. See `LICENSE` for details.

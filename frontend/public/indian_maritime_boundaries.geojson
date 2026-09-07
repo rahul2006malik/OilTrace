@@ -1,0 +1,205 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "boundary_type": "EEZ",
+        "name": "Indian Exclusive Economic Zone (200 NM)",
+        "authority": "Maritime Zones of India Act 1976 / UNCLOS III",
+        "stroke": "#F59E0B",
+        "stroke_width": 2,
+        "dash": [
+          6,
+          4
+        ]
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            65.75,
+            23.6
+          ],
+          [
+            65.4,
+            22.8
+          ],
+          [
+            65.65,
+            21.5
+          ],
+          [
+            66.2,
+            20.2
+          ],
+          [
+            67.1,
+            19.3
+          ],
+          [
+            67.9,
+            18.5
+          ],
+          [
+            68.8,
+            17.5
+          ],
+          [
+            69.7,
+            16.2
+          ],
+          [
+            70.5,
+            15.0
+          ],
+          [
+            71.1,
+            13.5
+          ],
+          [
+            71.5,
+            12.0
+          ],
+          [
+            71.3,
+            10.5
+          ],
+          [
+            71.8,
+            9.0
+          ],
+          [
+            73.2,
+            7.5
+          ],
+          [
+            75.5,
+            6.8
+          ],
+          [
+            77.3,
+            7.5
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "boundary_type": "TERRITORIAL",
+        "name": "Indian Territorial Waters (12 NM)",
+        "authority": "Sovereign Waters Jurisdiction",
+        "stroke": "#10B981",
+        "stroke_width": 1.5,
+        "dash": [
+          2,
+          2
+        ]
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            68.2,
+            23.3
+          ],
+          [
+            68.8,
+            22.5
+          ],
+          [
+            69.5,
+            21.8
+          ],
+          [
+            70.8,
+            20.6
+          ],
+          [
+            71.8,
+            19.8
+          ],
+          [
+            72.5,
+            19.0
+          ],
+          [
+            72.8,
+            18.2
+          ],
+          [
+            73.1,
+            17.0
+          ],
+          [
+            73.4,
+            15.8
+          ],
+          [
+            73.8,
+            14.5
+          ],
+          [
+            74.5,
+            13.0
+          ],
+          [
+            75.2,
+            11.8
+          ],
+          [
+            75.9,
+            10.5
+          ],
+          [
+            76.8,
+            9.2
+          ],
+          [
+            77.4,
+            8.2
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "boundary_type": "ODA_ZONE",
+        "name": "Mumbai High Offshore Development Area (ODA)",
+        "authority": "Indian Coast Guard Protected Maritime Zone",
+        "stroke": "#EF4444",
+        "stroke_width": 1.5,
+        "fill": "rgba(239, 68, 68, 0.08)"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              71.0,
+              19.1
+            ],
+            [
+              71.6,
+              19.8
+            ],
+            [
+              72.3,
+              19.6
+            ],
+            [
+              72.0,
+              18.9
+            ],
+            [
+              71.0,
+              19.1
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

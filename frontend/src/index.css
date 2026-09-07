@@ -1,57 +1,40 @@
-@import "maplibre-gl/dist/maplibre-gl.css";
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Spectral:wght@500;600&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
+@layer base {
+  body {
+    background-color: #060B11;
+    color: #F1F5F9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  @apply bg-chart-abyss text-ink-primary font-sans antialiased;
-  font-feature-settings: "tnum" 1;
-}
-
-/* Numeric / tabular data is always IBM Plex Mono per the ECDIS directive. */
-.font-tabular,
-[data-tabular="true"] {
-  @apply font-mono tabular-nums;
-}
-
-/* Hairline scrollbars consistent with the console's 1px contour language. */
+/* Crisp Tactical Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #0a121c;
+  background: #060B11;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #1d2e42;
+  background: #1D2E42;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #152334;
+  background: #2DD4BF;
 }
 
-/* Visible keyboard focus, never suppressed. */
-:focus-visible {
-  outline: 1px solid #38bdf8;
-  outline-offset: 1px;
+/* ECDIS S-52 High-Contrast Tokens */
+.ecdis-panel {
+  background-color: #0A121C;
+  border: 1px solid #1D2E42;
+}
+
+.ecdis-card {
+  background-color: #060B11;
+  border: 1px solid #1D2E42;
 }

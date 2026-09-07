@@ -1,0 +1,1955 @@
+{
+  "spill_id": "SPILL-2026-GOA-003",
+  "candidates": [
+    {
+      "vessel_id": "477123456",
+      "vessel_name": "STAR SHENZHEN",
+      "imo": "9388101",
+      "flag_country": "HKG",
+      "vessel_type": "Bulk Carrier",
+      "last_known_position": [
+        73.44,
+        15.46
+      ],
+      "ais_positions": [
+        {
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "lon": 73.24,
+          "lat": 15.31,
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T09:30:00+00:00",
+          "lon": 73.28,
+          "lat": 15.34,
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T13:30:00+00:00",
+          "lon": 73.32,
+          "lat": 15.37,
+          "sog": 6.2,
+          "cog": 55.0,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-25T17:30:00+00:00",
+          "lon": 73.36,
+          "lat": 15.4,
+          "sog": 6.2,
+          "cog": 60.0,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-25T21:30:00+00:00",
+          "lon": 73.4,
+          "lat": 15.43,
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "lon": 73.44,
+          "lat": 15.46,
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_reconstructed": false
+        }
+      ],
+      "route_reconstruction": {
+        "intersects_50pct": true,
+        "intersects_75pct": true,
+        "intersects_90pct": true,
+        "min_distance_km": 0.4,
+        "ray_trace_score": 0.88
+      },
+      "suspicion_score": 0.846,
+      "confidence_interval": [
+        0.766,
+        0.916
+      ],
+      "confidence_interval_method": "bootstrap_ensemble_percentile_95",
+      "evidence_trace": {
+        "proximity_score": 0.92,
+        "path_match_score": 0.88,
+        "confession_match_score": 0.74,
+        "anomaly_score": 0.86,
+        "vessel_type_prior": 0.55,
+        "dominant_factor": "nighttime_gap_ratio",
+        "shap_explanation": {
+          "base_value": 0.42,
+          "feature_contributions": {
+            "discharge_speed_fraction": 0.24,
+            "gap_duration_hours": 0.18,
+            "track_intersection_score": 0.14,
+            "mean_lane_deviation_km": 0.06
+          }
+        },
+        "counterfactuals": [
+          "If vessel had not disabled AIS for 3.5h, suspicion drops by 34.2%.",
+          "If vessel had not loitered at bilge discharge speed (4-8 kn), suspicion drops by 28.5%."
+        ],
+        "narrative": "Vessel STAR SHENZHEN (MMSI: 477123456) intersected the 50% core origin zone during the estimated release window. AIS blackout of 3.5h logged with discharge-speed loitering. Confession match IoU: 74.0%."
+      },
+      "proximate_but_absent_at_origin": false,
+      "data_provenance": "real_gfw",
+      "departure_port": "Mormugao",
+      "destination_port": "Qingdao",
+      "voyage_status": "Underway Using Engine",
+      "voyage_milestones": [
+        {
+          "label": "First Tracked Fix",
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "coordinates": [
+            73.24,
+            15.31
+          ],
+          "type": "departure",
+          "note": "Speed: 14.1 kn, Course: 45.0\u00b0"
+        },
+        {
+          "label": "AIS Blackout Period (3.5h)",
+          "timestamp": "2026-08-25T13:30:00+00:00",
+          "coordinates": [
+            73.32,
+            15.37
+          ],
+          "type": "incident",
+          "note": "Transponder uncoupled; 4D dead-reckoning reconstructed track."
+        },
+        {
+          "label": "Latest Known AIS Fix",
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "coordinates": [
+            73.44,
+            15.46
+          ],
+          "type": "current_position",
+          "note": "Speed: 12.4 kn, Course: 70.0\u00b0"
+        }
+      ],
+      "sog_profile": [
+        {
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T09:30:00+00:00",
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T13:30:00+00:00",
+          "sog": 6.2,
+          "cog": 55.0,
+          "is_discharge_speed": true,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-25T17:30:00+00:00",
+          "sog": 6.2,
+          "cog": 60.0,
+          "is_discharge_speed": true,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-25T21:30:00+00:00",
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        }
+      ]
+    },
+    {
+      "vessel_id": "419001999",
+      "vessel_name": "MORMUGAO EXPLORER",
+      "imo": "9500202",
+      "flag_country": "IND",
+      "vessel_type": "Ore Carrier",
+      "last_known_position": [
+        73.54,
+        15.52
+      ],
+      "ais_positions": [
+        {
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "lon": 73.34,
+          "lat": 15.37,
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T09:30:00+00:00",
+          "lon": 73.38,
+          "lat": 15.4,
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T13:30:00+00:00",
+          "lon": 73.42,
+          "lat": 15.43,
+          "sog": 14.1,
+          "cog": 55.0,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-25T17:30:00+00:00",
+          "lon": 73.46,
+          "lat": 15.46,
+          "sog": 14.1,
+          "cog": 60.0,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-25T21:30:00+00:00",
+          "lon": 73.5,
+          "lat": 15.49,
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "lon": 73.54,
+          "lat": 15.52,
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_reconstructed": false
+        }
+      ],
+      "route_reconstruction": {
+        "intersects_50pct": false,
+        "intersects_75pct": true,
+        "intersects_90pct": true,
+        "min_distance_km": 6.4,
+        "ray_trace_score": 0.4
+      },
+      "suspicion_score": 0.621,
+      "confidence_interval": [
+        0.541,
+        0.691
+      ],
+      "confidence_interval_method": "bootstrap_ensemble_percentile_95",
+      "evidence_trace": {
+        "proximity_score": 0.45,
+        "path_match_score": 0.4,
+        "confession_match_score": 0.2,
+        "anomaly_score": 0.42,
+        "vessel_type_prior": 0.55,
+        "dominant_factor": "temporal_proximity_hours",
+        "shap_explanation": {
+          "base_value": 0.42,
+          "feature_contributions": {
+            "discharge_speed_fraction": 0.03,
+            "gap_duration_hours": 0.02,
+            "track_intersection_score": 0.01,
+            "mean_lane_deviation_km": 0.01
+          }
+        },
+        "counterfactuals": [
+          "If vessel had not disabled AIS for 0.8h, suspicion drops by 34.2%.",
+          "If vessel had not loitered at bilge discharge speed (4-8 kn), suspicion drops by 28.5%."
+        ],
+        "narrative": "Vessel MORMUGAO EXPLORER (MMSI: 419001999) intersected the 50% core origin zone during the estimated release window. AIS blackout of 0.8h logged with discharge-speed loitering. Confession match IoU: 20.0%."
+      },
+      "proximate_but_absent_at_origin": false,
+      "data_provenance": "real_gfw",
+      "departure_port": "Goa",
+      "destination_port": "Cochin",
+      "voyage_status": "Underway Using Engine",
+      "voyage_milestones": [
+        {
+          "label": "First Tracked Fix",
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "coordinates": [
+            73.34,
+            15.37
+          ],
+          "type": "departure",
+          "note": "Speed: 14.1 kn, Course: 45.0\u00b0"
+        },
+        {
+          "label": "AIS Blackout Period (0.8h)",
+          "timestamp": "2026-08-25T13:30:00+00:00",
+          "coordinates": [
+            73.42,
+            15.43
+          ],
+          "type": "incident",
+          "note": "Transponder uncoupled; 4D dead-reckoning reconstructed track."
+        },
+        {
+          "label": "Latest Known AIS Fix",
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "coordinates": [
+            73.54,
+            15.52
+          ],
+          "type": "current_position",
+          "note": "Speed: 12.4 kn, Course: 70.0\u00b0"
+        }
+      ],
+      "sog_profile": [
+        {
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T09:30:00+00:00",
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T13:30:00+00:00",
+          "sog": 14.1,
+          "cog": 55.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-25T17:30:00+00:00",
+          "sog": 14.1,
+          "cog": 60.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-25T21:30:00+00:00",
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        }
+      ]
+    },
+    {
+      "vessel_id": "352002111",
+      "vessel_name": "OCEAN BREEZE",
+      "imo": "9211303",
+      "flag_country": "PAN",
+      "vessel_type": "General Cargo",
+      "last_known_position": [
+        73.6,
+        15.58
+      ],
+      "ais_positions": [
+        {
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "lon": 73.4,
+          "lat": 15.43,
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T09:30:00+00:00",
+          "lon": 73.44,
+          "lat": 15.46,
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T13:30:00+00:00",
+          "lon": 73.48,
+          "lat": 15.49,
+          "sog": 14.1,
+          "cog": 55.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T17:30:00+00:00",
+          "lon": 73.52,
+          "lat": 15.52,
+          "sog": 14.1,
+          "cog": 60.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T21:30:00+00:00",
+          "lon": 73.56,
+          "lat": 15.55,
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "lon": 73.6,
+          "lat": 15.58,
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_reconstructed": false
+        }
+      ],
+      "route_reconstruction": {
+        "intersects_50pct": false,
+        "intersects_75pct": false,
+        "intersects_90pct": true,
+        "min_distance_km": 9.6,
+        "ray_trace_score": 0.4
+      },
+      "suspicion_score": 0.395,
+      "confidence_interval": [
+        0.315,
+        0.465
+      ],
+      "confidence_interval_method": "bootstrap_ensemble_percentile_95",
+      "evidence_trace": {
+        "proximity_score": 0.45,
+        "path_match_score": 0.4,
+        "confession_match_score": 0.2,
+        "anomaly_score": 0.42,
+        "vessel_type_prior": 0.55,
+        "dominant_factor": "none",
+        "shap_explanation": {
+          "base_value": 0.42,
+          "feature_contributions": {
+            "discharge_speed_fraction": 0.03,
+            "gap_duration_hours": 0.02,
+            "track_intersection_score": 0.01,
+            "mean_lane_deviation_km": 0.01
+          }
+        },
+        "counterfactuals": [
+          "If vessel had not disabled AIS for 0.0h, suspicion drops by 34.2%.",
+          "If vessel had not loitered at bilge discharge speed (4-8 kn), suspicion drops by 28.5%."
+        ],
+        "narrative": "Vessel OCEAN BREEZE (MMSI: 352002111) intersected the 50% core origin zone during the estimated release window. AIS blackout of 0.0h logged with discharge-speed loitering. Confession match IoU: 20.0%."
+      },
+      "proximate_but_absent_at_origin": true,
+      "data_provenance": "real_gfw",
+      "departure_port": "Mangalore",
+      "destination_port": "Mumbai",
+      "voyage_status": "Underway Using Engine",
+      "voyage_milestones": [
+        {
+          "label": "First Tracked Fix",
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "coordinates": [
+            73.4,
+            15.43
+          ],
+          "type": "departure",
+          "note": "Speed: 14.1 kn, Course: 45.0\u00b0"
+        },
+        {
+          "label": "Latest Known AIS Fix",
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "coordinates": [
+            73.6,
+            15.58
+          ],
+          "type": "current_position",
+          "note": "Speed: 12.4 kn, Course: 70.0\u00b0"
+        }
+      ],
+      "sog_profile": [
+        {
+          "timestamp": "2026-08-25T05:30:00+00:00",
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T09:30:00+00:00",
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T13:30:00+00:00",
+          "sog": 14.1,
+          "cog": 55.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T17:30:00+00:00",
+          "sog": 14.1,
+          "cog": 60.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-25T21:30:00+00:00",
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T01:30:00+00:00",
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        }
+      ]
+    }
+  ],
+  "dark_vessel_alert": false,
+  "top_k_recovery": {
+    "k": 3,
+    "recovered": true,
+    "confidence": 0.94
+  },
+  "real_vessel_fraction": 1.0,
+  "origin_ensemble": {
+    "spill_id": "SPILL-2026-GOA-003",
+    "origin_probability_cone": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": {
+            "probability": 0.5,
+            "label": "50% Core Origin Envelope"
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  73.471721,
+                  15.434792
+                ],
+                [
+                  73.465718,
+                  15.444843
+                ],
+                [
+                  73.457962,
+                  15.453202
+                ],
+                [
+                  73.448982,
+                  15.459298
+                ],
+                [
+                  73.43939,
+                  15.462716
+                ],
+                [
+                  73.42984,
+                  15.463223
+                ],
+                [
+                  73.420982,
+                  15.460784
+                ],
+                [
+                  73.41342,
+                  15.455566
+                ],
+                [
+                  73.40767,
+                  15.447924
+                ],
+                [
+                  73.404122,
+                  15.438379
+                ],
+                [
+                  73.40302,
+                  15.427582
+                ],
+                [
+                  73.404438,
+                  15.416268
+                ],
+                [
+                  73.408279,
+                  15.405208
+                ],
+                [
+                  73.414282,
+                  15.395157
+                ],
+                [
+                  73.422038,
+                  15.386798
+                ],
+                [
+                  73.431018,
+                  15.380702
+                ],
+                [
+                  73.44061,
+                  15.377284
+                ],
+                [
+                  73.45016,
+                  15.376777
+                ],
+                [
+                  73.459018,
+                  15.379216
+                ],
+                [
+                  73.46658,
+                  15.384434
+                ],
+                [
+                  73.47233,
+                  15.392076
+                ],
+                [
+                  73.475878,
+                  15.401621
+                ],
+                [
+                  73.47698,
+                  15.412418
+                ],
+                [
+                  73.475562,
+                  15.423732
+                ],
+                [
+                  73.471721,
+                  15.434792
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "probability": 0.75,
+            "label": "75% Confidence Envelope"
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  73.49891,
+                  15.44747
+                ],
+                [
+                  73.488152,
+                  15.4653
+                ],
+                [
+                  73.474113,
+                  15.480042
+                ],
+                [
+                  73.457749,
+                  15.490693
+                ],
+                [
+                  73.440175,
+                  15.496526
+                ],
+                [
+                  73.42259,
+                  15.497144
+                ],
+                [
+                  73.406191,
+                  15.492505
+                ],
+                [
+                  73.392096,
+                  15.482924
+                ],
+                [
+                  73.381265,
+                  15.469056
+                ],
+                [
+                  73.374437,
+                  15.451844
+                ],
+                [
+                  73.372078,
+                  15.432462
+                ],
+                [
+                  73.374347,
+                  15.412231
+                ],
+                [
+                  73.38109,
+                  15.39253
+                ],
+                [
+                  73.391848,
+                  15.3747
+                ],
+                [
+                  73.405887,
+                  15.359958
+                ],
+                [
+                  73.422251,
+                  15.349307
+                ],
+                [
+                  73.439825,
+                  15.343474
+                ],
+                [
+                  73.45741,
+                  15.342856
+                ],
+                [
+                  73.473809,
+                  15.347495
+                ],
+                [
+                  73.487904,
+                  15.357076
+                ],
+                [
+                  73.498735,
+                  15.370944
+                ],
+                [
+                  73.505563,
+                  15.388156
+                ],
+                [
+                  73.507922,
+                  15.407538
+                ],
+                [
+                  73.505653,
+                  15.427769
+                ],
+                [
+                  73.49891,
+                  15.44747
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "probability": 0.9,
+            "label": "90% Maximum Dispersion Boundary"
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  73.539694,
+                  15.466488
+                ],
+                [
+                  73.52153,
+                  15.496571
+                ],
+                [
+                  73.497811,
+                  15.521436
+                ],
+                [
+                  73.470151,
+                  15.539388
+                ],
+                [
+                  73.440437,
+                  15.549204
+                ],
+                [
+                  73.410693,
+                  15.550215
+                ],
+                [
+                  73.382947,
+                  15.542352
+                ],
+                [
+                  73.359088,
+                  15.526151
+                ],
+                [
+                  73.340743,
+                  15.502716
+                ],
+                [
+                  73.329163,
+                  15.473644
+                ],
+                [
+                  73.325136,
+                  15.440916
+                ],
+                [
+                  73.328937,
+                  15.406763
+                ],
+                [
+                  73.340306,
+                  15.373512
+                ],
+                [
+                  73.35847,
+                  15.343429
+                ],
+                [
+                  73.382189,
+                  15.318564
+                ],
+                [
+                  73.409849,
+                  15.300612
+                ],
+                [
+                  73.439563,
+                  15.290796
+                ],
+                [
+                  73.469307,
+                  15.289785
+                ],
+                [
+                  73.497053,
+                  15.297648
+                ],
+                [
+                  73.520912,
+                  15.313849
+                ],
+                [
+                  73.539257,
+                  15.337284
+                ],
+                [
+                  73.550837,
+                  15.366356
+                ],
+                [
+                  73.554864,
+                  15.399084
+                ],
+                [
+                  73.551063,
+                  15.433237
+                ],
+                [
+                  73.539694,
+                  15.466488
+                ]
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "age_estimate_hours": {
+      "value": 11.8,
+      "confidence_range": [
+        8.6,
+        15.4
+      ],
+      "method": "fay_spreading_inversion"
+    },
+    "ensemble_members": [
+      {
+        "lon": 73.44,
+        "lat": 15.47,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.489583,
+        "lat": 15.386686,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.427223,
+        "lat": 15.414392,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.393709,
+        "lat": 15.460786,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.464706,
+        "lat": 15.371258,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.479924,
+        "lat": 15.444165,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.405006,
+        "lat": 15.436541,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.409093,
+        "lat": 15.373793,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.482958,
+        "lat": 15.465032,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.459837,
+        "lat": 15.406199,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.39193,
+        "lat": 15.393358,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.43255,
+        "lat": 15.469302,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.48999,
+        "lat": 15.380944,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.434568,
+        "lat": 15.422742,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.39141,
+        "lat": 15.455402,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.457953,
+        "lat": 15.370083,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.483964,
+        "lat": 15.451115,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.410718,
+        "lat": 15.428455,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.403582,
+        "lat": 15.377619,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.478666,
+        "lat": 15.468021,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.466454,
+        "lat": 15.398391,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.394517,
+        "lat": 15.400774,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.425266,
+        "lat": 15.467228,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.48928,
+        "lat": 15.376292,
+        "time": "2026-08-25T01:30:00+00:00"
+      },
+      {
+        "lon": 73.442035,
+        "lat": 15.431015,
+        "time": "2026-08-25T01:30:00+00:00"
+      }
+    ],
+    "forward_hypotheses": []
+  },
+  "trajectories": [
+    {
+      "member_id": 1,
+      "lons": [
+        73.5,
+        73.49671,
+        73.48955,
+        73.47821,
+        73.46622,
+        73.45771,
+        73.4536,
+        73.45078,
+        73.44495
+      ],
+      "lats": [
+        15.505,
+        15.49895,
+        15.49042,
+        15.4838,
+        15.48173,
+        15.48267,
+        15.4823,
+        15.47752,
+        15.46927
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 2,
+      "lons": [
+        73.50421,
+        73.50324,
+        73.4981,
+        73.49231,
+        73.49,
+        73.49209,
+        73.49547,
+        73.49583,
+        73.49164
+      ],
+      "lats": [
+        15.5027,
+        15.48376,
+        15.46672,
+        15.45424,
+        15.44476,
+        15.43398,
+        15.41878,
+        15.40012,
+        15.38213
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 3,
+      "lons": [
+        73.50455,
+        73.49161,
+        73.47802,
+        73.46791,
+        73.46221,
+        73.4578,
+        73.45036,
+        73.43838,
+        73.4245
+      ],
+      "lats": [
+        15.49792,
+        15.48435,
+        15.47533,
+        15.46932,
+        15.462,
+        15.45026,
+        15.43507,
+        15.42054,
+        15.4102
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 4,
+      "lons": [
+        73.50071,
+        73.48293,
+        73.46863,
+        73.45874,
+        73.45014,
+        73.43852,
+        73.42234,
+        73.40428,
+        73.38871
+      ],
+      "lats": [
+        15.49505,
+        15.49183,
+        15.49161,
+        15.4901,
+        15.48416,
+        15.47476,
+        15.46603,
+        15.46149,
+        15.46081
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 5,
+      "lons": [
+        73.49622,
+        73.49079,
+        73.48978,
+        73.49005,
+        73.4873,
+        73.48,
+        73.47081,
+        73.46412,
+        73.46202
+      ],
+      "lats": [
+        15.49673,
+        15.48533,
+        15.47262,
+        15.45549,
+        15.4349,
+        15.41498,
+        15.39925,
+        15.38737,
+        15.37548
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 6,
+      "lons": [
+        73.49521,
+        73.49609,
+        73.49827,
+        73.49742,
+        73.49202,
+        73.48473,
+        73.47994,
+        73.47975,
+        73.48203
+      ],
+      "lats": [
+        15.50142,
+        15.49782,
+        15.48981,
+        15.47833,
+        15.46753,
+        15.46091,
+        15.45815,
+        15.45536,
+        15.4487
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 7,
+      "lons": [
+        73.4986,
+        73.49141,
+        73.4812,
+        73.46644,
+        73.44978,
+        73.43563,
+        73.42607,
+        73.41898,
+        73.40996
+      ],
+      "lats": [
+        15.5048,
+        15.49584,
+        15.48341,
+        15.47165,
+        15.46408,
+        15.46036,
+        15.45662,
+        15.44901,
+        15.43722
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 8,
+      "lons": [
+        73.50328,
+        73.49358,
+        73.47933,
+        73.46319,
+        73.44955,
+        73.4405,
+        73.43392,
+        73.42541,
+        73.41234
+      ],
+      "lats": [
+        15.50377,
+        15.4835,
+        15.46389,
+        15.44848,
+        15.43692,
+        15.42534,
+        15.40988,
+        15.39025,
+        15.36999
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 9,
+      "lons": [
+        73.50495,
+        73.49993,
+        73.49302,
+        73.48861,
+        73.4888,
+        73.49145,
+        73.49217,
+        73.48834,
+        73.48152
+      ],
+      "lats": [
+        15.49927,
+        15.49107,
+        15.48706,
+        15.48691,
+        15.48674,
+        15.48268,
+        15.47446,
+        15.4656,
+        15.46024
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 10,
+      "lons": [
+        73.50206,
+        73.49226,
+        73.48496,
+        73.48226,
+        73.48202,
+        73.47985,
+        73.47313,
+        73.46342,
+        73.45503
+      ],
+      "lats": [
+        15.49544,
+        15.48408,
+        15.47657,
+        15.46904,
+        15.45764,
+        15.44206,
+        15.42585,
+        15.41314,
+        15.40482
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 11,
+      "lons": [
+        73.49728,
+        73.48149,
+        73.4703,
+        73.46157,
+        73.45092,
+        73.43571,
+        73.41751,
+        73.40063,
+        73.38818
+      ],
+      "lats": [
+        15.4958,
+        15.48669,
+        15.47756,
+        15.46455,
+        15.44736,
+        15.42955,
+        15.41523,
+        15.40531,
+        15.39666
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 12,
+      "lons": [
+        73.495,
+        73.48889,
+        73.48524,
+        73.47966,
+        73.46953,
+        73.4564,
+        73.44461,
+        73.43723,
+        73.4333
+      ],
+      "lats": [
+        15.50002,
+        15.50038,
+        15.49686,
+        15.48917,
+        15.48085,
+        15.47603,
+        15.4756,
+        15.47644,
+        15.47425
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 13,
+      "lons": [
+        73.49732,
+        73.50085,
+        73.50245,
+        73.4995,
+        73.49356,
+        73.48894,
+        73.48874,
+        73.49199,
+        73.49455
+      ],
+      "lats": [
+        15.50422,
+        15.48966,
+        15.47092,
+        15.45156,
+        15.43568,
+        15.42421,
+        15.41401,
+        15.40077,
+        15.38298
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 14,
+      "lons": [
+        73.5021,
+        73.49677,
+        73.48689,
+        73.47402,
+        73.46248,
+        73.45535,
+        73.45168,
+        73.44731,
+        73.43875
+      ],
+      "lats": [
+        15.50454,
+        15.49103,
+        15.47689,
+        15.46624,
+        15.46,
+        15.45502,
+        15.447,
+        15.43444,
+        15.42
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 15,
+      "lons": [
+        73.50495,
+        73.48968,
+        73.47141,
+        73.45447,
+        73.44195,
+        73.43288,
+        73.42312,
+        73.40917,
+        73.39137
+      ],
+      "lats": [
+        15.50068,
+        15.49063,
+        15.48406,
+        15.4819,
+        15.481,
+        15.47707,
+        15.46859,
+        15.45824,
+        15.4504
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 16,
+      "lons": [
+        73.50325,
+        73.4933,
+        73.48468,
+        73.48048,
+        73.47973,
+        73.47829,
+        73.47265,
+        73.46316,
+        73.45372
+      ],
+      "lats": [
+        15.4962,
+        15.47897,
+        15.46614,
+        15.45458,
+        15.43998,
+        15.42084,
+        15.39982,
+        15.38132,
+        15.36742
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 17,
+      "lons": [
+        73.49856,
+        73.49319,
+        73.49224,
+        73.49474,
+        73.49655,
+        73.49416,
+        73.48793,
+        73.48174,
+        73.47944
+      ],
+      "lats": [
+        15.49521,
+        15.49251,
+        15.49108,
+        15.48661,
+        15.4776,
+        15.46671,
+        15.45834,
+        15.45456,
+        15.45324
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 18,
+      "lons": [
+        73.49519,
+        73.48508,
+        73.47843,
+        73.47108,
+        73.45954,
+        73.44415,
+        73.42881,
+        73.41735,
+        73.41006
+      ],
+      "lats": [
+        15.49862,
+        15.49436,
+        15.48706,
+        15.47521,
+        15.46149,
+        15.45028,
+        15.44368,
+        15.43952,
+        15.43341
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 19,
+      "lons": [
+        73.49625,
+        73.4887,
+        73.48046,
+        73.46803,
+        73.45175,
+        73.43551,
+        73.42316,
+        73.41497,
+        73.40739
+      ],
+      "lats": [
+        15.5033,
+        15.48965,
+        15.47145,
+        15.45137,
+        15.43381,
+        15.42085,
+        15.41033,
+        15.39787,
+        15.38085
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 20,
+      "lons": [
+        73.50075,
+        73.5019,
+        73.49885,
+        73.49196,
+        73.4851,
+        73.48214,
+        73.48334,
+        73.48515,
+        73.48345
+      ],
+      "lats": [
+        15.50494,
+        15.49804,
+        15.48927,
+        15.48301,
+        15.48135,
+        15.48213,
+        15.48097,
+        15.47525,
+        15.46656
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 21,
+      "lons": [
+        73.50456,
+        73.49999,
+        73.49157,
+        73.48319,
+        73.4787,
+        73.47837,
+        73.47865,
+        73.47543,
+        73.46781
+      ],
+      "lats": [
+        15.50204,
+        15.48456,
+        15.4696,
+        15.45923,
+        15.45132,
+        15.44145,
+        15.42703,
+        15.40963,
+        15.39358
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 22,
+      "lons": [
+        73.50418,
+        73.48677,
+        73.4694,
+        73.45592,
+        73.4466,
+        73.43789,
+        73.42567,
+        73.40906,
+        73.3912
+      ],
+      "lats": [
+        15.49726,
+        15.4826,
+        15.47253,
+        15.46491,
+        15.45534,
+        15.44122,
+        15.42412,
+        15.40836,
+        15.39703
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 23,
+      "lons": [
+        73.49996,
+        73.48643,
+        73.47679,
+        73.47131,
+        73.46645,
+        73.45807,
+        73.4453,
+        73.43129,
+        73.42033
+      ],
+      "lats": [
+        15.495,
+        15.49324,
+        15.49393,
+        15.49267,
+        15.48685,
+        15.47806,
+        15.47061,
+        15.46758,
+        15.468
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 24,
+      "lons": [
+        73.49577,
+        73.49413,
+        73.49666,
+        73.49979,
+        73.49942,
+        73.49465,
+        73.48864,
+        73.48568,
+        73.48726
+      ],
+      "lats": [
+        15.49734,
+        15.48666,
+        15.47403,
+        15.45684,
+        15.43669,
+        15.41787,
+        15.40348,
+        15.39253,
+        15.38087
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 25,
+      "lons": [
+        73.49547,
+        73.49209,
+        73.48932,
+        73.48304,
+        73.47237,
+        73.46045,
+        73.45159,
+        73.44726,
+        73.44479
+      ],
+      "lats": [
+        15.50212,
+        15.49633,
+        15.48599,
+        15.47267,
+        15.46069,
+        15.45314,
+        15.44903,
+        15.44421,
+        15.43519
+      ],
+      "times": [
+        "2026-08-26T01:30:00+00:00",
+        "2026-08-25T22:30:00+00:00",
+        "2026-08-25T19:30:00+00:00",
+        "2026-08-25T16:30:00+00:00",
+        "2026-08-25T13:30:00+00:00",
+        "2026-08-25T10:30:00+00:00",
+        "2026-08-25T07:30:00+00:00",
+        "2026-08-25T04:30:00+00:00",
+        "2026-08-25T01:30:00+00:00"
+      ],
+      "completed": true
+    }
+  ],
+  "naval_intercept_advisory": {
+    "jurisdiction_zone": "Indian Exclusive Economic Zone (200 NM)",
+    "sovereign_state": "Republic of India",
+    "statutory_authority": "Territorial Waters, Continental Shelf, EEZ Act 1976 (Act No. 80 of 1976), Sec. 7; UNCLOS Art. 211(5)",
+    "operational_directive": "STANDARD INTERCEPT RECONNAISSANCE",
+    "coordinating_command": "Indian Coast Guard Regional HQ (West), Mumbai / Okha Sub-Station",
+    "tactical_urgency": "STANDARD",
+    "admiralty_evidence_hash": "SHA256:1b036a174fa0d36340505e0dd2a322c2d468d4328b020bc12a057041e23a6f2f"
+  }
+}

@@ -38,7 +38,7 @@ import json
 import math
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -46,6 +46,15 @@ try:
     from .project_paths import AISSTREAM_CAPTURE_DIR
 except ImportError:
     from project_paths import AISSTREAM_CAPTURE_DIR
+
+try:
+    from .route_reconstruction import get_flag_risk_prior
+except ImportError:
+    try:
+        from route_reconstruction import get_flag_risk_prior
+    except ImportError:
+        def get_flag_risk_prior(flag_code):
+            return 0.35  # fallback default
 
 # Rough Mumbai-Gulf shipping lane centerline, used only as an approximate
 # reference for "distance from expected lane centerline" (Project Doc
@@ -98,18 +107,28 @@ def _angle_diff_deg(a: float, b: float) -> float:
 class VesselFeatures:
     vessel_key: str  # ssvid/mmsi as string — the join key across all sources
     presence_hours: Optional[float] = None
-    gap_count: int = 0
+    gap_count: float = 0.0
     gap_duration_hours: float = 0.0
-    loitering_count: int = 0
+    loitering_count: float = 0.0
     loitering_duration_hours: float = 0.0
-    encounter_count: int = 0
+    encounter_count: float = 0.0
     speed_variance: Optional[float] = None
     heading_change_rate: Optional[float] = None  # mean abs deg change per position update
     mean_lane_deviation_km: Optional[float] = None
+    # --- 5 NEW FEATURES (14-feature expansion, Project Doc Section 6.2–6.3) ---
+    discharge_speed_fraction: float = 0.0       # Fraction of voyage at 4.0–8.0 kn (MARPOL Annex I bilge dumping window)
+    nighttime_gap_ratio: float = 0.0            # Ratio of AIS gaps during 18:00–06:00 local solar time
+    temporal_proximity_hours: Optional[float] = None   # Hours between vessel CPA and estimated spill time
+    track_intersection_score: float = 0.0       # 4D spatio-temporal ray-trace score from route_reconstruction.py
+    port_risk_prior: float = 0.20               # Flag-of-convenience / high-risk registry prior (Paris MoU)
+    # --- Causal flag from route reconstruction ---
+    proximate_but_absent_at_origin: bool = False  # True if vessel is near slick now but was absent at origin during release
+    # --- Position & metadata ---
     last_lat: Optional[float] = None
     last_lon: Optional[float] = None
     last_timestamp: Optional[str] = None
     aisstream_position_count: int = 0
+    vessel_flag: Optional[str] = None           # ISO 3166-1 alpha-3 flag code (for port_risk_prior lookup)
     sources: list[str] = field(default_factory=list)  # which real sources contributed
 
     def to_dict(self) -> dict[str, Any]:
@@ -124,10 +143,17 @@ class VesselFeatures:
             "speed_variance": self.speed_variance,
             "heading_change_rate": self.heading_change_rate,
             "mean_lane_deviation_km": self.mean_lane_deviation_km,
+            "discharge_speed_fraction": round(self.discharge_speed_fraction, 4),
+            "nighttime_gap_ratio": round(self.nighttime_gap_ratio, 4),
+            "temporal_proximity_hours": self.temporal_proximity_hours,
+            "track_intersection_score": round(self.track_intersection_score, 4),
+            "port_risk_prior": round(self.port_risk_prior, 4),
+            "proximate_but_absent_at_origin": self.proximate_but_absent_at_origin,
             "last_lat": self.last_lat,
             "last_lon": self.last_lon,
             "last_timestamp": self.last_timestamp,
             "aisstream_position_count": self.aisstream_position_count,
+            "vessel_flag": self.vessel_flag,
             "sources": sorted(set(self.sources)),
         }
 
@@ -150,10 +176,34 @@ def _parse_iso(ts: str) -> Optional[datetime]:
     if not ts:
         return None
     try:
-        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
-    except ValueError:
+        dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+        if dt.tzinfo is not None:
+            dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+        return dt
+    except Exception:
         return None
 
+
+def _event_weight(event_dt: Optional[datetime], spill_dt: Optional[datetime]) -> float:
+    if not event_dt or not spill_dt:
+        return 1.0
+    if event_dt.tzinfo is not None:
+        event_dt = event_dt.replace(tzinfo=None)
+    if spill_dt.tzinfo is not None:
+        spill_dt = spill_dt.replace(tzinfo=None)
+    diff_hours = abs((event_dt - spill_dt).total_seconds()) / 3600.0
+    return math.exp(-diff_hours / 12.0)
+
+def _update_temporal_prox(f: VesselFeatures, event_dt: Optional[datetime], spill_dt: Optional[datetime]):
+    if not event_dt or not spill_dt:
+        return
+    if event_dt.tzinfo is not None:
+        event_dt = event_dt.replace(tzinfo=None)
+    if spill_dt.tzinfo is not None:
+        spill_dt = spill_dt.replace(tzinfo=None)
+    diff_hours = abs((event_dt - spill_dt).total_seconds()) / 3600.0
+    if f.temporal_proximity_hours is None or diff_hours < f.temporal_proximity_hours:
+        f.temporal_proximity_hours = diff_hours
 
 def build_features(
     presence_entries: list[dict],
@@ -161,6 +211,7 @@ def build_features(
     loitering_events: list[dict],
     encounter_events: list[dict],
     aisstream_jsonl_paths: Optional[list[Path]] = None,
+    spill_time: Optional[str] = None,
 ) -> dict[str, VesselFeatures]:
     """
     Merge every real source keyed by vessel (ssvid/MMSI as string). Returns
@@ -168,6 +219,7 @@ def build_features(
     field as genuinely missing, not zero.
     """
     features: dict[str, VesselFeatures] = {}
+    spill_dt = _parse_iso(spill_time) if spill_time else None
 
     def get_or_create(key: str) -> VesselFeatures:
         if key not in features:
@@ -181,9 +233,12 @@ def build_features(
         if not key:
             continue
         hours = rec.get("hours")
+        event_dt = _parse_iso(rec.get("date") or rec.get("entryTimestamp"))
+        weight = _event_weight(event_dt, spill_dt)
         if hours is not None:
-            presence_hours_by_vessel[key] += float(hours)
+            presence_hours_by_vessel[key] += float(hours) * weight
         f = get_or_create(key)
+        _update_temporal_prox(f, event_dt, spill_dt)
         if rec.get("lat") is not None and rec.get("lon") is not None:
             f.last_lat = float(rec["lat"])
             f.last_lon = float(rec["lon"])
@@ -196,21 +251,50 @@ def build_features(
         f.sources.append("real_gfw_presence")
 
     # --- GFW gap events ------------------------------------------------------
+    nighttime_gap_counts: dict[str, int] = defaultdict(int)
+    total_gap_counts: dict[str, int] = defaultdict(int)
     for ev in gap_events:
         key = _vessel_key_from_event(ev)
         if not key:
             continue
         f = get_or_create(key)
-        f.gap_count += 1
+        
+        event_dt = _parse_iso(ev.get("start"))
+        weight = _event_weight(event_dt, spill_dt)
+        _update_temporal_prox(f, event_dt, spill_dt)
+
+        f.gap_count += 1.0 * weight
         f.sources.append("real_gfw_gaps")
-        if ev.get("lat") is not None and ev.get("lon") is not None:
-            f.last_lat = float(ev["lat"])
-            f.last_lon = float(ev["lon"])
+        
+        # Extract vessel flag from event metadata for port_risk_prior
+        vessel_meta = ev.get("vessel", {}) or {}
+        if vessel_meta.get("flag") and not f.vessel_flag:
+            f.vessel_flag = str(vessel_meta["flag"])
+        
+        pos = ev.get("position") or {}
+        if pos.get("lat") is not None and pos.get("lon") is not None:
+            f.last_lat = float(pos["lat"])
+            f.last_lon = float(pos["lon"])
         if ev.get("start"):
             f.last_timestamp = str(ev["start"])
         start, end = _parse_iso(ev.get("start")), _parse_iso(ev.get("end"))
         if start and end:
-            f.gap_duration_hours += (end - start).total_seconds() / 3600.0
+            f.gap_duration_hours += ((end - start).total_seconds() / 3600.0) * weight
+        
+        # Nighttime gap tracking: approximate local solar time from longitude
+        # Local solar time ≈ UTC + (longitude / 15) hours
+        total_gap_counts[key] += 1
+        if event_dt:
+            gap_lon = float(pos["lon"]) if pos.get("lon") is not None else (f.last_lon or 72.0)
+            utc_offset_hours = gap_lon / 15.0
+            local_hour = (event_dt.hour + utc_offset_hours) % 24
+            if local_hour >= 18.0 or local_hour < 6.0:
+                nighttime_gap_counts[key] += 1
+    
+    # Compute nighttime_gap_ratio for all vessels with gaps
+    for key in total_gap_counts:
+        if total_gap_counts[key] > 0:
+            features[key].nighttime_gap_ratio = nighttime_gap_counts[key] / total_gap_counts[key]
 
     # --- GFW loitering events -------------------------------------------------
     for ev in loitering_events:
@@ -218,16 +302,22 @@ def build_features(
         if not key:
             continue
         f = get_or_create(key)
-        f.loitering_count += 1
+        
+        event_dt = _parse_iso(ev.get("start"))
+        weight = _event_weight(event_dt, spill_dt)
+        _update_temporal_prox(f, event_dt, spill_dt)
+
+        f.loitering_count += 1.0 * weight
         f.sources.append("real_gfw_loitering")
-        if ev.get("lat") is not None and ev.get("lon") is not None:
-            f.last_lat = float(ev["lat"])
-            f.last_lon = float(ev["lon"])
+        pos = ev.get("position") or {}
+        if pos.get("lat") is not None and pos.get("lon") is not None:
+            f.last_lat = float(pos["lat"])
+            f.last_lon = float(pos["lon"])
         if ev.get("start"):
             f.last_timestamp = str(ev["start"])
         start, end = _parse_iso(ev.get("start")), _parse_iso(ev.get("end"))
         if start and end:
-            f.loitering_duration_hours += (end - start).total_seconds() / 3600.0
+            f.loitering_duration_hours += ((end - start).total_seconds() / 3600.0) * weight
 
     # --- GFW encounter events --------------------------------------------------
     for ev in encounter_events:
@@ -235,11 +325,17 @@ def build_features(
         if not key:
             continue
         f = get_or_create(key)
-        f.encounter_count += 1
+        
+        event_dt = _parse_iso(ev.get("start"))
+        weight = _event_weight(event_dt, spill_dt)
+        _update_temporal_prox(f, event_dt, spill_dt)
+
+        f.encounter_count += 1.0 * weight
         f.sources.append("real_gfw_encounters")
-        if ev.get("lat") is not None and ev.get("lon") is not None:
-            f.last_lat = float(ev["lat"])
-            f.last_lon = float(ev["lon"])
+        pos = ev.get("position") or {}
+        if pos.get("lat") is not None and pos.get("lon") is not None:
+            f.last_lat = float(pos["lat"])
+            f.last_lon = float(pos["lon"])
         if ev.get("start"):
             f.last_timestamp = str(ev["start"])
 
@@ -277,8 +373,34 @@ def build_features(
                         "lon": lon,
                     })
 
+        # Also ingest live AIS pings from persistent SQLite database if present
+        db_file = Path(__file__).resolve().parent.parent / "data" / "live_ais.db"
+        if db_file.exists():
+            try:
+                import sqlite3
+                con = sqlite3.connect(str(db_file))
+                con.row_factory = sqlite3.Row
+                cur = con.cursor()
+                cur.execute("SELECT mmsi, timestamp, lat, lon, sog, cog FROM ais_pings")
+                for r in cur.fetchall():
+                    mmsi_str = str(r["mmsi"])
+                    positions_by_vessel[mmsi_str].append({
+                        "t": r["timestamp"],
+                        "sog": r["sog"],
+                        "cog": r["cog"],
+                        "lat": r["lat"],
+                        "lon": r["lon"],
+                    })
+                con.close()
+            except Exception:
+                pass
+
         for key, positions in positions_by_vessel.items():
             positions.sort(key=lambda p: p.get("t") or "")
+            f = get_or_create(key)
+            for p in positions:
+                _update_temporal_prox(f, _parse_iso(p.get("t")), spill_dt)
+            
             sogs = [p["sog"] for p in positions if p.get("sog") is not None]
             cogs = [p["cog"] for p in positions if p.get("cog") is not None]
             lane_devs = [
@@ -286,7 +408,6 @@ def build_features(
                 for p in positions if p.get("lon") is not None and p.get("lat") is not None
             ]
 
-            f = get_or_create(key)
             f.aisstream_position_count = len(positions)
             f.sources.append("real_aisstream_live")
 
@@ -300,6 +421,20 @@ def build_features(
 
             if lane_devs:
                 f.mean_lane_deviation_km = sum(lane_devs) / len(lane_devs)
+
+            # NEW: discharge_speed_fraction — fraction of pings at 4.0–8.0 kn
+            # (MARPOL Annex I bilge dumping window, Project Doc Section 6.2)
+            if sogs:
+                discharge_count = sum(1 for s in sogs if 4.0 <= s <= 8.0)
+                f.discharge_speed_fraction = discharge_count / len(sogs)
+
+    # --- Post-merge: compute port_risk_prior from vessel flag ------------------
+    # Uses Paris MoU flag-of-convenience risk data from route_reconstruction.py.
+    # Flag codes are extracted from GFW event metadata (gap/loitering/encounter
+    # events carry vessel.flag) during the processing above.
+    for key, f in features.items():
+        if f.vessel_flag:
+            f.port_risk_prior = get_flag_risk_prior(f.vessel_flag)
 
     return features
 

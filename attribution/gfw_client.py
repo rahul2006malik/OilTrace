@@ -708,12 +708,41 @@ def resolve_vessel_identity(
         best = entries[0]
         self_reported = best.get("selfReportedInfo") or []
         info = self_reported[0] if self_reported else {}
+
+        # GFW v4: shiptype is NOT in selfReportedInfo — it's in
+        # combinedSourcesInfo[].shiptypes[].name.  Fall back through
+        # multiple paths to maximize resolution.
+        shiptype = None
+        combined = best.get("combinedSourcesInfo") or []
+        for csi in combined:
+            shiptypes = csi.get("shiptypes") or []
+            if shiptypes:
+                shiptype = shiptypes[-1].get("name")  # most recent year entry
+                if shiptype:
+                    break
+        # Secondary fallback: geartypes (e.g. "NON_FISHING", "TRAWLER")
+        if not shiptype:
+            for csi in combined:
+                geartypes = csi.get("geartypes") or []
+                if geartypes:
+                    shiptype = geartypes[-1].get("name")
+                    if shiptype:
+                        break
+        # Tertiary fallback: registryInfo geartypes
+        if not shiptype:
+            registry = best.get("registryInfo") or []
+            for reg in registry:
+                gt = reg.get("geartypes") or []
+                if gt:
+                    shiptype = gt[0] if isinstance(gt[0], str) else str(gt[0])
+                    break
+
         result = VesselIdentity(
             query=ssvid_or_mmsi, resolved=True,
             vessel_id=info.get("id"),
             shipname=info.get("shipname"),
             flag=info.get("flag"),
-            shiptype=info.get("shiptype"),
+            shiptype=shiptype,
             ssvid=info.get("ssvid"),
             raw=best,
         )

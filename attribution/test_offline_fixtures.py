@@ -13,6 +13,14 @@ Run: python attribution/test_offline_fixtures.py
 from __future__ import annotations
 
 import sys
+from pathlib import Path
+
+# Ensure attribution directory and project root are always in sys.path
+_ATTR_DIR = Path(__file__).resolve().parent
+_PROJ_ROOT = _ATTR_DIR.parent
+for _p in (str(_ATTR_DIR), str(_PROJ_ROOT)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 from gfw_client import _normalize_4wings_entries, bbox_to_geojson_polygon, DATASET_AIS_PRESENCE
 from aisstream_client import bbox_lonlat_to_aisstream_boxes, MUMBAI_GULF_BBOX_LONLAT
@@ -260,10 +268,15 @@ def test_scorer_with_synthetic_but_labeled_population():
               for i in range(len(results) - 1)))
     check("scorer: the vessel with real gaps+loitering scores highest",
           results[0]["vessel_id"] == "222222222", str(results[0]["vessel_id"]))
+    trace_keys = set(results[0]["evidence_trace"].keys())
+    trace_keys.discard("shap_explanation")
+    trace_keys.discard("z_scores")
+    trace_keys.discard("counterfactuals")
+    trace_keys.discard("narrative")
     check("scorer: evidence_trace has all schema fields",
-          set(results[0]["evidence_trace"].keys()) == {
+          trace_keys == {
               "proximity_score", "confession_match_score", "anomaly_score",
-              "vessel_type_prior", "dominant_factor",
+              "vessel_type_prior", "path_match_score", "dominant_factor",
           })
     check("scorer: pending fields are explicit, not silently omitted",
           "proximity_score (needs Drift subsystem)" in results[0]["_pending"][0]

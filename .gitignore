@@ -1,5 +1,5 @@
 # ==============================================================================
-# OilTrace — Git Ignore Configuration (SIH26143)
+# OilTrace — Git Ignore Configuration (SIH26143 / NTRO Problem Statement)
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 secrets/
 
 # ------------------------------------------------------------------------------
-# 2. Internal Strategy, Coordination & Workflow Documents (LOCAL ONLY - NEVER COMMIT)
+# 2. Internal Strategy, Agent Prompts & Scratch Notes (LOCAL ONLY)
 # ------------------------------------------------------------------------------
 AGENTS.md
 GEMINI.md
@@ -27,6 +27,12 @@ docs/*COORDINATOR*
 docs/PROJECT_STATE.md
 docs/SIH26143_FRONTEND_DESIGN_SPEC.md
 docs/SIH26143_Project_Document*
+docs/*Playbook*
+docs/*Execution*
+docs/*BUILD_ADDENDUM*
+docs/*Master_Project*
+docs/*WORLD_CLASS*
+docs/*UPGRADE_REPORT*
 
 # ------------------------------------------------------------------------------
 # 3. Python & Virtual Environments
@@ -77,10 +83,12 @@ htmlcov/
 */.ipynb_checkpoints/*
 
 # ------------------------------------------------------------------------------
-# 3. Node.js & Frontend Build Artifacts
+# 4. Node.js & Frontend Build Artifacts
 # ------------------------------------------------------------------------------
 node_modules/
 frontend/node_modules/
+frontend_v2/
+demo_front/
 frontend/dist/
 frontend/dist-ssr/
 frontend/.env.local
@@ -94,7 +102,16 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # ------------------------------------------------------------------------------
-# 4. Heavy Data & Raw Imagery (Sentinel-1 SAR, NetCDF, Copernicus, Zenodo)
+# 5. SQLite Runtime Journals & Temporary Cache
+# ------------------------------------------------------------------------------
+*.db-shm
+*.db-wal
+data/processed_scenes.db
+data/cache/custom_uploads/
+data/cache/analyst_feedback_ledger.jsonl
+
+# ------------------------------------------------------------------------------
+# 6. Heavy Data & Raw Satellite Imagery
 # ------------------------------------------------------------------------------
 data/raw/
 data/processed/
@@ -120,7 +137,7 @@ data/cache/forcing/*.nc4
 *.rar
 
 # ------------------------------------------------------------------------------
-# 5. Machine Learning Checkpoints, Weights & Large Models (>100MB)
+# 7. Machine Learning Checkpoints (>80MB)
 # ------------------------------------------------------------------------------
 *.pth
 *.pt
@@ -132,8 +149,15 @@ checkpoints/
 checkpoints_archive/
 
 # ------------------------------------------------------------------------------
-# 6. Temporary, Local Demos & Backup Files
+# 8. Screenshots, Visual Artifacts & Temporary Files
 # ------------------------------------------------------------------------------
+*.png
+*.jpg
+*.jpeg
+!frontend/public/**/*.png
+!frontend/public/**/*.jpg
+!frontend/public/**/*.svg
+insprition_photos/
 .backup/
 backup/
 demo/sample_output/
@@ -144,7 +168,7 @@ demo/sample_output/
 *.swo
 
 # ------------------------------------------------------------------------------
-# 7. Operating System & IDE Files
+# 9. Operating System & IDE Files
 # ------------------------------------------------------------------------------
 .DS_Store
 .DS_Store?

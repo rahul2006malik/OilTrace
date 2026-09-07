@@ -1,0 +1,46 @@
+{
+  "spill_id": "SPILL-20260907-CUST-001",
+  "detected_at": "2026-09-07T07:36:07.628137+00:00",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          71.81,
+          18.222
+        ],
+        [
+          71.882,
+          18.234
+        ],
+        [
+          71.89,
+          18.274
+        ],
+        [
+          71.842,
+          18.29
+        ],
+        [
+          71.814,
+          18.258
+        ],
+        [
+          71.81,
+          18.222
+        ]
+      ]
+    ]
+  },
+  "centroid": [
+    71.85,
+    18.25
+  ],
+  "area_km2": 6.56,
+  "elongation_ratio": 3.42,
+  "oil_confidence": 0.816,
+  "thickness_class": "thick",
+  "source_scene_id": "test_sar_scene.png",
+  "lookalike_suppressed": true,
+  "data_provenance": "real_detector"
+}

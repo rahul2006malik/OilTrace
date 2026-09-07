@@ -1,42 +1,55 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
-        // Base surfaces — deep oceanic slate navy, ECDIS S-52 night palette.
-        "chart-abyss": "#060B11",
-        "chart-surface": "#0A121C",
-        "chart-raised": "#0F1926",
-        "chart-hover": "#152334",
-        "chart-contour": "#1D2E42",
-
-        // Typography ink.
-        "ink-primary": "#E6EDF3",
-        "ink-secondary": "#8D9EA8",
-        "ink-tertiary": "#526573",
-
-        // Provenance badges — per-source data lineage, never a global disclaimer.
-        "prov-gfw": "#2DD4BF",
-        "prov-aisstream": "#38BDF8",
-        "prov-synthetic": "#927B56",
-
-        // Status signals.
-        "signal-attention": "#F59E0B",
-        "signal-alert": "#DC2626",
-        "signal-positive": "#10B981",
+        space: {
+          dark: '#070a13',
+          darker: '#04060c',
+          panel: '#0c1222',
+          surface: '#111827',
+          card: '#0f172a',
+          hover: '#1e293b',
+          border: '#1e293b',
+          borderLight: '#334155',
+        },
+        radar: {
+          cyan: '#06b6d4',
+          cyanDim: '#0891b2',
+          cyanGlow: 'rgba(6, 182, 212, 0.25)',
+        },
+        origin: {
+          gold: '#f59e0b',
+          goldDim: '#d97706',
+          orange: '#f97316',
+        },
+        tactical: {
+          emerald: '#10b981',
+          crimson: '#ef4444',
+          violet: '#a855f7',
+          sky: '#38bdf8',
+          amber: '#f59e0b',
+        }
       },
       fontFamily: {
-        sans: ["'IBM Plex Sans'", "system-ui", "sans-serif"],
-        mono: ["'IBM Plex Mono'", "ui-monospace", "SFMono-Regular", "monospace"],
-        serif: ["'Spectral'", "Georgia", "serif"],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
-      borderRadius: {
-        none: "0px",
-        sm: "2px",
-        DEFAULT: "2px",
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'radar-sweep': 'sweep 4s linear infinite',
       },
+      keyframes: {
+        sweep: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        }
+      }
     },
   },
   plugins: [],
-};
+}

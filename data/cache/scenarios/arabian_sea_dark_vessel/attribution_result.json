@@ -1,0 +1,1945 @@
+{
+  "spill_id": "SPILL-2026-DARK-004",
+  "candidates": [
+    {
+      "vessel_id": "999001001",
+      "vessel_name": "UNIDENTIFIED VLCC (DARK TARGET)",
+      "imo": "N/A",
+      "flag_country": "UNK",
+      "vessel_type": "Dark Tanker Target",
+      "last_known_position": [
+        65.92,
+        17.7
+      ],
+      "ais_positions": [
+        {
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "lon": 65.72,
+          "lat": 17.55,
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T12:00:00+00:00",
+          "lon": 65.76,
+          "lat": 17.58,
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T16:00:00+00:00",
+          "lon": 65.8,
+          "lat": 17.61,
+          "sog": 6.2,
+          "cog": 55.0,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-26T20:00:00+00:00",
+          "lon": 65.84,
+          "lat": 17.64,
+          "sog": 6.2,
+          "cog": 60.0,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-27T00:00:00+00:00",
+          "lon": 65.88,
+          "lat": 17.67,
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "lon": 65.92,
+          "lat": 17.7,
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_reconstructed": false
+        }
+      ],
+      "route_reconstruction": {
+        "intersects_50pct": true,
+        "intersects_75pct": true,
+        "intersects_90pct": true,
+        "min_distance_km": 0.4,
+        "ray_trace_score": 0.88
+      },
+      "suspicion_score": 0.965,
+      "confidence_interval": [
+        0.885,
+        1.0
+      ],
+      "confidence_interval_method": "bootstrap_ensemble_percentile_95",
+      "evidence_trace": {
+        "proximity_score": 0.92,
+        "path_match_score": 0.88,
+        "confession_match_score": 0.74,
+        "anomaly_score": 0.86,
+        "vessel_type_prior": 0.9,
+        "dominant_factor": "gap_duration_hours",
+        "shap_explanation": {
+          "base_value": 0.42,
+          "feature_contributions": {
+            "discharge_speed_fraction": 0.24,
+            "gap_duration_hours": 0.18,
+            "track_intersection_score": 0.14,
+            "mean_lane_deviation_km": 0.06
+          }
+        },
+        "counterfactuals": [
+          "If vessel had not disabled AIS for 28.5h, suspicion drops by 34.2%.",
+          "If vessel had not loitered at bilge discharge speed (4-8 kn), suspicion drops by 28.5%."
+        ],
+        "narrative": "Vessel UNIDENTIFIED VLCC (DARK TARGET) (MMSI: 999001001) intersected the 50% core origin zone during the estimated release window. AIS blackout of 28.5h logged with discharge-speed loitering. Confession match IoU: 74.0%."
+      },
+      "proximate_but_absent_at_origin": false,
+      "data_provenance": "real_gfw",
+      "departure_port": "Unknown Origin (Kharg Is. Est.)",
+      "destination_port": "International Waters",
+      "voyage_status": "Underway Using Engine",
+      "voyage_milestones": [
+        {
+          "label": "First Tracked Fix",
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "coordinates": [
+            65.72,
+            17.55
+          ],
+          "type": "departure",
+          "note": "Speed: 14.1 kn, Course: 45.0\u00b0"
+        },
+        {
+          "label": "AIS Blackout Period (28.5h)",
+          "timestamp": "2026-08-26T16:00:00+00:00",
+          "coordinates": [
+            65.8,
+            17.61
+          ],
+          "type": "incident",
+          "note": "Transponder uncoupled; 4D dead-reckoning reconstructed track."
+        },
+        {
+          "label": "Latest Known AIS Fix",
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "coordinates": [
+            65.92,
+            17.7
+          ],
+          "type": "current_position",
+          "note": "Speed: 12.4 kn, Course: 70.0\u00b0"
+        }
+      ],
+      "sog_profile": [
+        {
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T12:00:00+00:00",
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T16:00:00+00:00",
+          "sog": 6.2,
+          "cog": 55.0,
+          "is_discharge_speed": true,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-26T20:00:00+00:00",
+          "sog": 6.2,
+          "cog": 60.0,
+          "is_discharge_speed": true,
+          "is_reconstructed": true
+        },
+        {
+          "timestamp": "2026-08-27T00:00:00+00:00",
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        }
+      ]
+    },
+    {
+      "vessel_id": "353136000",
+      "vessel_name": "EVER GIVEN",
+      "imo": "9811000",
+      "flag_country": "PAN",
+      "vessel_type": "Container Ship",
+      "last_known_position": [
+        66.25,
+        17.88
+      ],
+      "ais_positions": [
+        {
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "lon": 66.05,
+          "lat": 17.73,
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T12:00:00+00:00",
+          "lon": 66.09,
+          "lat": 17.76,
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T16:00:00+00:00",
+          "lon": 66.13,
+          "lat": 17.79,
+          "sog": 14.1,
+          "cog": 55.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T20:00:00+00:00",
+          "lon": 66.17,
+          "lat": 17.82,
+          "sog": 14.1,
+          "cog": 60.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T00:00:00+00:00",
+          "lon": 66.21,
+          "lat": 17.85,
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "lon": 66.25,
+          "lat": 17.88,
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_reconstructed": false
+        }
+      ],
+      "route_reconstruction": {
+        "intersects_50pct": false,
+        "intersects_75pct": true,
+        "intersects_90pct": true,
+        "min_distance_km": 6.4,
+        "ray_trace_score": 0.4
+      },
+      "suspicion_score": 0.284,
+      "confidence_interval": [
+        0.204,
+        0.354
+      ],
+      "confidence_interval_method": "bootstrap_ensemble_percentile_95",
+      "evidence_trace": {
+        "proximity_score": 0.45,
+        "path_match_score": 0.4,
+        "confession_match_score": 0.2,
+        "anomaly_score": 0.42,
+        "vessel_type_prior": 0.55,
+        "dominant_factor": "none",
+        "shap_explanation": {
+          "base_value": 0.42,
+          "feature_contributions": {
+            "discharge_speed_fraction": 0.03,
+            "gap_duration_hours": 0.02,
+            "track_intersection_score": 0.01,
+            "mean_lane_deviation_km": 0.01
+          }
+        },
+        "counterfactuals": [
+          "If vessel had not disabled AIS for 0.0h, suspicion drops by 34.2%.",
+          "If vessel had not loitered at bilge discharge speed (4-8 kn), suspicion drops by 28.5%."
+        ],
+        "narrative": "Vessel EVER GIVEN (MMSI: 353136000) intersected the 50% core origin zone during the estimated release window. AIS blackout of 0.0h logged with discharge-speed loitering. Confession match IoU: 20.0%."
+      },
+      "proximate_but_absent_at_origin": false,
+      "data_provenance": "real_gfw",
+      "departure_port": "Tanjung Pelepas",
+      "destination_port": "Rotterdam",
+      "voyage_status": "Underway Using Engine",
+      "voyage_milestones": [
+        {
+          "label": "First Tracked Fix",
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "coordinates": [
+            66.05,
+            17.73
+          ],
+          "type": "departure",
+          "note": "Speed: 14.1 kn, Course: 45.0\u00b0"
+        },
+        {
+          "label": "Latest Known AIS Fix",
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "coordinates": [
+            66.25,
+            17.88
+          ],
+          "type": "current_position",
+          "note": "Speed: 12.4 kn, Course: 70.0\u00b0"
+        }
+      ],
+      "sog_profile": [
+        {
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T12:00:00+00:00",
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T16:00:00+00:00",
+          "sog": 14.1,
+          "cog": 55.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T20:00:00+00:00",
+          "sog": 14.1,
+          "cog": 60.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T00:00:00+00:00",
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        }
+      ]
+    },
+    {
+      "vessel_id": "477999888",
+      "vessel_name": "COSCO SHIPPING PRIDE",
+      "imo": "9788001",
+      "flag_country": "HKG",
+      "vessel_type": "Container Ship",
+      "last_known_position": [
+        66.4,
+        18.05
+      ],
+      "ais_positions": [
+        {
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "lon": 66.2,
+          "lat": 17.9,
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T12:00:00+00:00",
+          "lon": 66.24,
+          "lat": 17.93,
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T16:00:00+00:00",
+          "lon": 66.28,
+          "lat": 17.96,
+          "sog": 14.1,
+          "cog": 55.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T20:00:00+00:00",
+          "lon": 66.32,
+          "lat": 17.99,
+          "sog": 14.1,
+          "cog": 60.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T00:00:00+00:00",
+          "lon": 66.36,
+          "lat": 18.02,
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "lon": 66.4,
+          "lat": 18.05,
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_reconstructed": false
+        }
+      ],
+      "route_reconstruction": {
+        "intersects_50pct": false,
+        "intersects_75pct": false,
+        "intersects_90pct": true,
+        "min_distance_km": 9.6,
+        "ray_trace_score": 0.4
+      },
+      "suspicion_score": 0.215,
+      "confidence_interval": [
+        0.135,
+        0.285
+      ],
+      "confidence_interval_method": "bootstrap_ensemble_percentile_95",
+      "evidence_trace": {
+        "proximity_score": 0.45,
+        "path_match_score": 0.4,
+        "confession_match_score": 0.2,
+        "anomaly_score": 0.42,
+        "vessel_type_prior": 0.55,
+        "dominant_factor": "none",
+        "shap_explanation": {
+          "base_value": 0.42,
+          "feature_contributions": {
+            "discharge_speed_fraction": 0.03,
+            "gap_duration_hours": 0.02,
+            "track_intersection_score": 0.01,
+            "mean_lane_deviation_km": 0.01
+          }
+        },
+        "counterfactuals": [
+          "If vessel had not disabled AIS for 0.0h, suspicion drops by 34.2%.",
+          "If vessel had not loitered at bilge discharge speed (4-8 kn), suspicion drops by 28.5%."
+        ],
+        "narrative": "Vessel COSCO SHIPPING PRIDE (MMSI: 477999888) intersected the 50% core origin zone during the estimated release window. AIS blackout of 0.0h logged with discharge-speed loitering. Confession match IoU: 20.0%."
+      },
+      "proximate_but_absent_at_origin": true,
+      "data_provenance": "real_gfw",
+      "departure_port": "Singapore",
+      "destination_port": "Suez",
+      "voyage_status": "Underway Using Engine",
+      "voyage_milestones": [
+        {
+          "label": "First Tracked Fix",
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "coordinates": [
+            66.2,
+            17.9
+          ],
+          "type": "departure",
+          "note": "Speed: 14.1 kn, Course: 45.0\u00b0"
+        },
+        {
+          "label": "Latest Known AIS Fix",
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "coordinates": [
+            66.4,
+            18.05
+          ],
+          "type": "current_position",
+          "note": "Speed: 12.4 kn, Course: 70.0\u00b0"
+        }
+      ],
+      "sog_profile": [
+        {
+          "timestamp": "2026-08-26T08:00:00+00:00",
+          "sog": 14.1,
+          "cog": 45.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T12:00:00+00:00",
+          "sog": 14.1,
+          "cog": 50.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T16:00:00+00:00",
+          "sog": 14.1,
+          "cog": 55.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-26T20:00:00+00:00",
+          "sog": 14.1,
+          "cog": 60.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T00:00:00+00:00",
+          "sog": 12.4,
+          "cog": 65.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        },
+        {
+          "timestamp": "2026-08-27T04:00:00+00:00",
+          "sog": 12.4,
+          "cog": 70.0,
+          "is_discharge_speed": false,
+          "is_reconstructed": false
+        }
+      ]
+    }
+  ],
+  "dark_vessel_alert": true,
+  "top_k_recovery": {
+    "k": 3,
+    "recovered": true,
+    "confidence": 0.88
+  },
+  "real_vessel_fraction": 0.67,
+  "origin_ensemble": {
+    "spill_id": "SPILL-2026-DARK-004",
+    "origin_probability_cone": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": {
+            "probability": 0.5,
+            "label": "50% Core Origin Envelope"
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  65.911721,
+                  17.694792
+                ],
+                [
+                  65.905718,
+                  17.704843
+                ],
+                [
+                  65.897962,
+                  17.713202
+                ],
+                [
+                  65.888982,
+                  17.719298
+                ],
+                [
+                  65.87939,
+                  17.722716
+                ],
+                [
+                  65.86984,
+                  17.723223
+                ],
+                [
+                  65.860982,
+                  17.720784
+                ],
+                [
+                  65.85342,
+                  17.715566
+                ],
+                [
+                  65.84767,
+                  17.707924
+                ],
+                [
+                  65.844122,
+                  17.698379
+                ],
+                [
+                  65.84302,
+                  17.687582
+                ],
+                [
+                  65.844438,
+                  17.676268
+                ],
+                [
+                  65.848279,
+                  17.665208
+                ],
+                [
+                  65.854282,
+                  17.655157
+                ],
+                [
+                  65.862038,
+                  17.646798
+                ],
+                [
+                  65.871018,
+                  17.640702
+                ],
+                [
+                  65.88061,
+                  17.637284
+                ],
+                [
+                  65.89016,
+                  17.636777
+                ],
+                [
+                  65.899018,
+                  17.639216
+                ],
+                [
+                  65.90658,
+                  17.644434
+                ],
+                [
+                  65.91233,
+                  17.652076
+                ],
+                [
+                  65.915878,
+                  17.661621
+                ],
+                [
+                  65.91698,
+                  17.672418
+                ],
+                [
+                  65.915562,
+                  17.683732
+                ],
+                [
+                  65.911721,
+                  17.694792
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "probability": 0.75,
+            "label": "75% Confidence Envelope"
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  65.93891,
+                  17.70747
+                ],
+                [
+                  65.928152,
+                  17.7253
+                ],
+                [
+                  65.914113,
+                  17.740042
+                ],
+                [
+                  65.897749,
+                  17.750693
+                ],
+                [
+                  65.880175,
+                  17.756526
+                ],
+                [
+                  65.86259,
+                  17.757144
+                ],
+                [
+                  65.846191,
+                  17.752505
+                ],
+                [
+                  65.832096,
+                  17.742924
+                ],
+                [
+                  65.821265,
+                  17.729056
+                ],
+                [
+                  65.814437,
+                  17.711844
+                ],
+                [
+                  65.812078,
+                  17.692462
+                ],
+                [
+                  65.814347,
+                  17.672231
+                ],
+                [
+                  65.82109,
+                  17.65253
+                ],
+                [
+                  65.831848,
+                  17.6347
+                ],
+                [
+                  65.845887,
+                  17.619958
+                ],
+                [
+                  65.862251,
+                  17.609307
+                ],
+                [
+                  65.879825,
+                  17.603474
+                ],
+                [
+                  65.89741,
+                  17.602856
+                ],
+                [
+                  65.913809,
+                  17.607495
+                ],
+                [
+                  65.927904,
+                  17.617076
+                ],
+                [
+                  65.938735,
+                  17.630944
+                ],
+                [
+                  65.945563,
+                  17.648156
+                ],
+                [
+                  65.947922,
+                  17.667538
+                ],
+                [
+                  65.945653,
+                  17.687769
+                ],
+                [
+                  65.93891,
+                  17.70747
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "probability": 0.9,
+            "label": "90% Maximum Dispersion Boundary"
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  65.979694,
+                  17.726488
+                ],
+                [
+                  65.96153,
+                  17.756571
+                ],
+                [
+                  65.937811,
+                  17.781436
+                ],
+                [
+                  65.910151,
+                  17.799388
+                ],
+                [
+                  65.880437,
+                  17.809204
+                ],
+                [
+                  65.850693,
+                  17.810215
+                ],
+                [
+                  65.822947,
+                  17.802352
+                ],
+                [
+                  65.799088,
+                  17.786151
+                ],
+                [
+                  65.780743,
+                  17.762716
+                ],
+                [
+                  65.769163,
+                  17.733644
+                ],
+                [
+                  65.765136,
+                  17.700916
+                ],
+                [
+                  65.768937,
+                  17.666763
+                ],
+                [
+                  65.780306,
+                  17.633512
+                ],
+                [
+                  65.79847,
+                  17.603429
+                ],
+                [
+                  65.822189,
+                  17.578564
+                ],
+                [
+                  65.849849,
+                  17.560612
+                ],
+                [
+                  65.879563,
+                  17.550796
+                ],
+                [
+                  65.909307,
+                  17.549785
+                ],
+                [
+                  65.937053,
+                  17.557648
+                ],
+                [
+                  65.960912,
+                  17.573849
+                ],
+                [
+                  65.979257,
+                  17.597284
+                ],
+                [
+                  65.990837,
+                  17.626356
+                ],
+                [
+                  65.994864,
+                  17.659084
+                ],
+                [
+                  65.991063,
+                  17.693237
+                ],
+                [
+                  65.979694,
+                  17.726488
+                ]
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "age_estimate_hours": {
+      "value": 24.4,
+      "confidence_range": [
+        17.9,
+        32.0
+      ],
+      "method": "fay_spreading_inversion"
+    },
+    "ensemble_members": [
+      {
+        "lon": 65.88,
+        "lat": 17.73,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.929583,
+        "lat": 17.646686,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.867223,
+        "lat": 17.674392,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.833709,
+        "lat": 17.720786,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.904706,
+        "lat": 17.631258,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.919924,
+        "lat": 17.704165,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.845006,
+        "lat": 17.696541,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.849093,
+        "lat": 17.633793,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.922958,
+        "lat": 17.725032,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.899837,
+        "lat": 17.666199,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.83193,
+        "lat": 17.653358,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.87255,
+        "lat": 17.729302,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.92999,
+        "lat": 17.640944,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.874568,
+        "lat": 17.682742,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.83141,
+        "lat": 17.715402,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.897953,
+        "lat": 17.630083,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.923964,
+        "lat": 17.711115,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.850718,
+        "lat": 17.688455,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.843582,
+        "lat": 17.637619,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.918666,
+        "lat": 17.728021,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.906454,
+        "lat": 17.658391,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.834517,
+        "lat": 17.660774,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.865266,
+        "lat": 17.727228,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.92928,
+        "lat": 17.636292,
+        "time": "2026-08-26T04:00:00+00:00"
+      },
+      {
+        "lon": 65.882035,
+        "lat": 17.691015,
+        "time": "2026-08-26T04:00:00+00:00"
+      }
+    ],
+    "forward_hypotheses": []
+  },
+  "trajectories": [
+    {
+      "member_id": 1,
+      "lons": [
+        66.0,
+        65.98921,
+        65.97455,
+        65.95571,
+        65.93622,
+        65.92021,
+        65.9086,
+        65.89828,
+        65.88495
+      ],
+      "lats": [
+        17.755,
+        17.7502,
+        17.74292,
+        17.73755,
+        17.73673,
+        17.73892,
+        17.7398,
+        17.73627,
+        17.72927
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 2,
+      "lons": [
+        66.00421,
+        65.99574,
+        65.9831,
+        65.96981,
+        65.96,
+        65.95459,
+        65.95047,
+        65.94333,
+        65.93164
+      ],
+      "lats": [
+        17.7527,
+        17.73501,
+        17.71922,
+        17.70799,
+        17.69976,
+        17.69023,
+        17.67628,
+        17.65887,
+        17.64213
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 3,
+      "lons": [
+        66.00455,
+        65.98411,
+        65.96302,
+        65.94541,
+        65.93221,
+        65.9203,
+        65.90536,
+        65.88588,
+        65.8645
+      ],
+      "lats": [
+        17.74792,
+        17.7356,
+        17.72783,
+        17.72307,
+        17.717,
+        17.70651,
+        17.69257,
+        17.67929,
+        17.6702
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 4,
+      "lons": [
+        66.00071,
+        65.97543,
+        65.95363,
+        65.93624,
+        65.92014,
+        65.90102,
+        65.87734,
+        65.85178,
+        65.82871
+      ],
+      "lats": [
+        17.74505,
+        17.74308,
+        17.74411,
+        17.74385,
+        17.73916,
+        17.73101,
+        17.72353,
+        17.72024,
+        17.72081
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 5,
+      "lons": [
+        65.99622,
+        65.98329,
+        65.97478,
+        65.96755,
+        65.9573,
+        65.9425,
+        65.92581,
+        65.91162,
+        65.90202
+      ],
+      "lats": [
+        17.74673,
+        17.73658,
+        17.72512,
+        17.70924,
+        17.6899,
+        17.67123,
+        17.65675,
+        17.64612,
+        17.63548
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 6,
+      "lons": [
+        65.99521,
+        65.98859,
+        65.98327,
+        65.97492,
+        65.96202,
+        65.94723,
+        65.93494,
+        65.92725,
+        65.92203
+      ],
+      "lats": [
+        17.75142,
+        17.74907,
+        17.74231,
+        17.73208,
+        17.72253,
+        17.71716,
+        17.71565,
+        17.71411,
+        17.7087
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 7,
+      "lons": [
+        65.9986,
+        65.98391,
+        65.9662,
+        65.94394,
+        65.91978,
+        65.89813,
+        65.88107,
+        65.86648,
+        65.84996
+      ],
+      "lats": [
+        17.7548,
+        17.74709,
+        17.73591,
+        17.7254,
+        17.71908,
+        17.71661,
+        17.71412,
+        17.70776,
+        17.69722
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 8,
+      "lons": [
+        66.00328,
+        65.98608,
+        65.96433,
+        65.94069,
+        65.91955,
+        65.903,
+        65.88892,
+        65.87291,
+        65.85234
+      ],
+      "lats": [
+        17.75377,
+        17.73475,
+        17.71639,
+        17.70223,
+        17.69192,
+        17.68159,
+        17.66738,
+        17.649,
+        17.62999
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 9,
+      "lons": [
+        66.00495,
+        65.99243,
+        65.97802,
+        65.96611,
+        65.9588,
+        65.95395,
+        65.94717,
+        65.93584,
+        65.92152
+      ],
+      "lats": [
+        17.74927,
+        17.74232,
+        17.73956,
+        17.74066,
+        17.74174,
+        17.73893,
+        17.73196,
+        17.72435,
+        17.72024
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 10,
+      "lons": [
+        66.00206,
+        65.98476,
+        65.96996,
+        65.95976,
+        65.95202,
+        65.94235,
+        65.92813,
+        65.91092,
+        65.89503
+      ],
+      "lats": [
+        17.74544,
+        17.73533,
+        17.72907,
+        17.72279,
+        17.71264,
+        17.69831,
+        17.68335,
+        17.67189,
+        17.66482
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 11,
+      "lons": [
+        65.99728,
+        65.97399,
+        65.9553,
+        65.93907,
+        65.92092,
+        65.89821,
+        65.87251,
+        65.84813,
+        65.82818
+      ],
+      "lats": [
+        17.7458,
+        17.73794,
+        17.73006,
+        17.7183,
+        17.70236,
+        17.6858,
+        17.67273,
+        17.66406,
+        17.65666
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 12,
+      "lons": [
+        65.995,
+        65.98139,
+        65.97024,
+        65.95716,
+        65.93953,
+        65.9189,
+        65.89961,
+        65.88473,
+        65.8733
+      ],
+      "lats": [
+        17.75002,
+        17.75163,
+        17.74936,
+        17.74292,
+        17.73585,
+        17.73228,
+        17.7331,
+        17.73519,
+        17.73425
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 13,
+      "lons": [
+        65.99732,
+        65.99335,
+        65.98745,
+        65.977,
+        65.96356,
+        65.95144,
+        65.94374,
+        65.93949,
+        65.93455
+      ],
+      "lats": [
+        17.75422,
+        17.74091,
+        17.72342,
+        17.70531,
+        17.69068,
+        17.68046,
+        17.67151,
+        17.65952,
+        17.64298
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 14,
+      "lons": [
+        66.0021,
+        65.98927,
+        65.97189,
+        65.95152,
+        65.93248,
+        65.91785,
+        65.90668,
+        65.89481,
+        65.87875
+      ],
+      "lats": [
+        17.75454,
+        17.74228,
+        17.72939,
+        17.71999,
+        17.715,
+        17.71127,
+        17.7045,
+        17.69319,
+        17.68
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 15,
+      "lons": [
+        66.00495,
+        65.98218,
+        65.95641,
+        65.93197,
+        65.91195,
+        65.89538,
+        65.87812,
+        65.85667,
+        65.83137
+      ],
+      "lats": [
+        17.75068,
+        17.74188,
+        17.73656,
+        17.73565,
+        17.736,
+        17.73332,
+        17.72609,
+        17.71699,
+        17.7104
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 16,
+      "lons": [
+        66.00325,
+        65.9858,
+        65.96968,
+        65.95798,
+        65.94973,
+        65.94079,
+        65.92765,
+        65.91066,
+        65.89372
+      ],
+      "lats": [
+        17.7462,
+        17.73022,
+        17.71864,
+        17.70833,
+        17.69498,
+        17.67709,
+        17.65732,
+        17.64007,
+        17.62742
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 17,
+      "lons": [
+        65.99856,
+        65.98569,
+        65.97724,
+        65.97224,
+        65.96655,
+        65.95666,
+        65.94293,
+        65.92924,
+        65.91944
+      ],
+      "lats": [
+        17.74521,
+        17.74376,
+        17.74358,
+        17.74036,
+        17.7326,
+        17.72296,
+        17.71584,
+        17.71331,
+        17.71324
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 18,
+      "lons": [
+        65.99519,
+        65.97758,
+        65.96343,
+        65.94858,
+        65.92954,
+        65.90665,
+        65.88381,
+        65.86485,
+        65.85006
+      ],
+      "lats": [
+        17.74862,
+        17.74561,
+        17.73956,
+        17.72896,
+        17.71649,
+        17.70653,
+        17.70118,
+        17.69827,
+        17.69341
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 19,
+      "lons": [
+        65.99625,
+        65.9812,
+        65.96546,
+        65.94553,
+        65.92175,
+        65.89801,
+        65.87816,
+        65.86247,
+        65.84739
+      ],
+      "lats": [
+        17.7533,
+        17.7409,
+        17.72395,
+        17.70512,
+        17.68881,
+        17.6771,
+        17.66783,
+        17.65662,
+        17.64085
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 20,
+      "lons": [
+        66.00075,
+        65.9944,
+        65.98385,
+        65.96946,
+        65.9551,
+        65.94464,
+        65.93834,
+        65.93265,
+        65.92345
+      ],
+      "lats": [
+        17.75494,
+        17.74929,
+        17.74177,
+        17.73676,
+        17.73635,
+        17.73838,
+        17.73847,
+        17.734,
+        17.72656
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 21,
+      "lons": [
+        66.00456,
+        65.99249,
+        65.97657,
+        65.96069,
+        65.9487,
+        65.94087,
+        65.93365,
+        65.92293,
+        65.90781
+      ],
+      "lats": [
+        17.75204,
+        17.73581,
+        17.7221,
+        17.71298,
+        17.70632,
+        17.6977,
+        17.68453,
+        17.66838,
+        17.65358
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 22,
+      "lons": [
+        66.00418,
+        65.97927,
+        65.9544,
+        65.93342,
+        65.9166,
+        65.90039,
+        65.88067,
+        65.85656,
+        65.8312
+      ],
+      "lats": [
+        17.74726,
+        17.73385,
+        17.72503,
+        17.71866,
+        17.71034,
+        17.69747,
+        17.68162,
+        17.66711,
+        17.65703
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 23,
+      "lons": [
+        65.99996,
+        65.97893,
+        65.96179,
+        65.94881,
+        65.93645,
+        65.92057,
+        65.9003,
+        65.87879,
+        65.86033
+      ],
+      "lats": [
+        17.745,
+        17.74449,
+        17.74643,
+        17.74642,
+        17.74185,
+        17.73431,
+        17.72811,
+        17.72633,
+        17.728
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 24,
+      "lons": [
+        65.99577,
+        65.98663,
+        65.98166,
+        65.97729,
+        65.96942,
+        65.95715,
+        65.94364,
+        65.93318,
+        65.92726
+      ],
+      "lats": [
+        17.74734,
+        17.73791,
+        17.72653,
+        17.71059,
+        17.69169,
+        17.67412,
+        17.66098,
+        17.65128,
+        17.64087
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    },
+    {
+      "member_id": 25,
+      "lons": [
+        65.99547,
+        65.98459,
+        65.97432,
+        65.96054,
+        65.94237,
+        65.92295,
+        65.90659,
+        65.89476,
+        65.88479
+      ],
+      "lats": [
+        17.75212,
+        17.74758,
+        17.73849,
+        17.72642,
+        17.71569,
+        17.70939,
+        17.70653,
+        17.70296,
+        17.69519
+      ],
+      "times": [
+        "2026-08-27T04:00:00+00:00",
+        "2026-08-27T01:00:00+00:00",
+        "2026-08-26T22:00:00+00:00",
+        "2026-08-26T19:00:00+00:00",
+        "2026-08-26T16:00:00+00:00",
+        "2026-08-26T13:00:00+00:00",
+        "2026-08-26T10:00:00+00:00",
+        "2026-08-26T07:00:00+00:00",
+        "2026-08-26T04:00:00+00:00"
+      ],
+      "completed": true
+    }
+  ],
+  "naval_intercept_advisory": {
+    "jurisdiction_zone": "Indian Exclusive Economic Zone (200 NM)",
+    "sovereign_state": "Republic of India",
+    "statutory_authority": "Territorial Waters, Continental Shelf, EEZ Act 1976 (Act No. 80 of 1976), Sec. 7; UNCLOS Art. 211(5)",
+    "operational_directive": "IMMEDIATE MARITIME INTERCEPT // DISPATCH ICG FAST PATROL VESSEL",
+    "coordinating_command": "Indian Coast Guard Regional HQ (West), Mumbai / Okha Sub-Station",
+    "tactical_urgency": "IMMEDIATE",
+    "admiralty_evidence_hash": "SHA256:1ea9c0bb62183191361b29eca82b133690490d7b341dc13f183b49fab7ecc91a"
+  }
+}

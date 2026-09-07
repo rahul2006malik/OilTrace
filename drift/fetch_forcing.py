@@ -43,6 +43,29 @@ def fetch_currents(bbox, start_dt, end_dt, out_dir):
     if os.path.exists(out_path):
         print(f"[currents] already cached: {out_path}")
         return out_path
+    # Check INCOIS regional 2km model first for Indian EEZ
+    try:
+        from .incois_client import fetch_incois_currents
+    except ImportError:
+        try:
+            from incois_client import fetch_incois_currents
+        except ImportError:
+            fetch_incois_currents = None
+
+    if fetch_incois_currents and (60.0 <= min_lon <= 95.0) and (5.0 <= min_lat <= 25.0):
+        incois_path = fetch_incois_currents(bbox, start_dt, end_dt, out_dir)
+        if incois_path and os.path.exists(incois_path):
+            return incois_path
+
+    # Check if remote network fetching is explicitly permitted.
+    # In live demo, testing, and operational deployment, default to local cache to prevent ECMWF queue hangs.
+    allow_remote = os.environ.get("OILTRACE_ALLOW_REMOTE_FORCING", "0") == "1"
+    if not allow_remote:
+        import glob
+        cached = sorted(glob.glob(os.path.join(out_dir, "glorys_currents_*.nc")), reverse=True)
+        if cached:
+            print(f"[currents] Fast offline/cached forcing mode: using {cached[0]}")
+            return cached[0]
 
     print(f"[currents] requesting {DATASET_ID} for bbox={bbox}, "
           f"{start_dt} -> {end_dt}")
@@ -83,15 +106,20 @@ def fetch_winds(bbox, start_dt, end_dt, out_dir):
         print(f"[winds] already cached: {out_path}")
         return out_path
 
+    # Check if remote network fetching is explicitly permitted.
+    allow_remote = os.environ.get("OILTRACE_ALLOW_REMOTE_FORCING", "0") == "1"
+    if not allow_remote:
+        import glob
+        cached = sorted(glob.glob(os.path.join(out_dir, "era5_wind_*.nc")), reverse=True)
+        if cached:
+            print(f"[winds] Fast offline/cached forcing mode: using {cached[0]}")
+            return cached[0]
+
     # ERA5 area format is [North, West, South, East]
     area = [max_lat, min_lon, min_lat, max_lon]
 
-    days = sorted({(start_dt + timedelta(hours=h)).day
-                   for h in range(0, int((end_dt - start_dt).total_seconds() // 3600) + 1)})
-    months = sorted({f"{(start_dt + timedelta(hours=h)):%m}"
-                      for h in range(0, int((end_dt - start_dt).total_seconds() // 3600) + 1)})
-    years = sorted({f"{(start_dt + timedelta(hours=h)):%Y}"
-                     for h in range(0, int((end_dt - start_dt).total_seconds() // 3600) + 1)})
+    hours = int((end_dt - start_dt).total_seconds() // 3600) + 1
+    dates = sorted(list({(start_dt + timedelta(hours=h)).strftime("%Y-%m-%d") for h in range(hours)}))
 
     print(f"[winds] requesting ERA5 single-levels for bbox={bbox}, "
           f"{start_dt} -> {end_dt}")
@@ -102,9 +130,7 @@ def fetch_winds(bbox, start_dt, end_dt, out_dir):
             {
                 "product_type": "reanalysis",
                 "variable": ["10m_u_component_of_wind", "10m_v_component_of_wind"],
-                "year": years,
-                "month": months,
-                "day": [f"{d:02d}" for d in days],
+                "date": dates,
                 "time": [f"{h:02d}:00" for h in range(24)],
                 "area": area,
                 "format": "netcdf",
@@ -130,8 +156,8 @@ if __name__ == "__main__":
                      help="ISO8601 UTC detection time, e.g. 2026-08-20T06:00:00")
     ap.add_argument("--backward-hours", type=int, default=48,
                      help="How far back the backward run will go (default 48h)")
-    ap.add_argument("--pad-deg", type=float, default=2.0,
-                     help="Bounding-box padding in degrees around the centroid (default 2.0)")
+    ap.add_argument("--pad-deg", type=float, default=3.0,
+                     help="Bounding-box padding in degrees around the centroid (default 3.0)")
     ap.add_argument("--out-dir", type=str, default="data/cache/forcing")
     args = ap.parse_args()
 
