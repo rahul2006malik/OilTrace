@@ -1,4 +1,4 @@
-﻿# OilTrace Audit & Fortification Plan (Round 1)
+# OilTrace Audit & Fortification Plan (Round 1)
 
 ## Executive Summary
 Comprehensive audit and fortification of the **OilTrace** repository covering:
@@ -22,19 +22,20 @@ Comprehensive audit and fortification of the **OilTrace** repository covering:
 ## Phase Breakdown
 
 ### Phase 1: Baseline Verification & Environment Sanity
-- [ ] Run backend `pytest` to establish the baseline failure/pass state. *(Adversarial-QA)*
-- [ ] Run frontend type-check / build (`npm run build`) to identify compilation or lint errors. *(Adversarial-QA)*
+- [ ] Run backend `pytest` to establish the baseline failure/pass state across all 29 tests. *(Adversarial-QA)*
+- [ ] Run frontend type-check / build (`npm run build` in `frontend/`) to identify compilation or lint errors. *(Adversarial-QA)*
 - [ ] Verify test database fixtures and schema synchronization scripts (`scripts/check_contract_sync.py`). *(Forensic-Auditor)*
 
-### Phase 2: SQLite Concurrency & Transaction Integrity Audit
-- [ ] Audit SQLite database engine initialization in `backend/`:
+### Phase 2: SQLite Concurrency & Backend Resilience Audit
+- [ ] Audit SQLite database engine initialization in `backend/` and `data/live_ais.db`:
   - Enforce `PRAGMA journal_mode=WAL;` (Write-Ahead Logging for concurrent readers/single writer).
   - Enforce `PRAGMA busy_timeout=10000;` (10s busy wait instead of immediate failure).
   - Enforce `PRAGMA synchronous=NORMAL;` (Optimal balance of durability and speed in WAL mode).
   - Enforce foreign keys `PRAGMA foreign_keys=ON;`.
   - Verify SQLAlchemy / SQLite `connect_args={"timeout": 15}` and check pool class (`NullPool` vs `QueuePool` for multi-threaded Uvicorn). *(Systems-Architect)*
 - [ ] Audit FastAPI session lifecycle (`get_db` dependency / scoped sessions) to prevent thread contention, unclosed sessions, or leaky transactions across async endpoints. *(Systems-Architect)*
-- [ ] Check background task runners (simulation jobs, AIS ingestion) for isolated DB connections to avoid cross-thread session reuse and lockups. *(Systems-Architect)*
+- [ ] Check background task runners (simulation jobs, AIS ingestion in `data/live_ais.db`) for isolated DB connections to avoid cross-thread session reuse and lockups. *(Systems-Architect)*
+- [ ] Audit WebSocket resilience in FastAPI backend: streaming updates, connection manager lifecycle, disconnect handling, and lock contention. *(Systems-Architect)*
 - [ ] Concurrency stress validation: verify database behavior under simultaneous read and write API operations. *(Systems-Architect & Adversarial-QA)*
 
 ### Phase 3: Data Contract Compliance Audit (`schemas.md` v1.1 / Canonical)
@@ -61,23 +62,23 @@ Comprehensive audit and fortification of the **OilTrace** repository covering:
   - Out-of-bounds geographic coordinates during backward drift integration (polar regions, antimeridian crossing).
   - Missing or incomplete ocean current / wind forcing datasets fallback behavior. *(Systems-Architect)*
 - [ ] **Attribution Subsystem**:
-  - Missing AIS vessel pings or temporal gaps.
+  - Missing AIS vessel pings or temporal gaps in `data/live_ais.db`.
   - Empty candidate vessel set handling (graceful empty array response rather than 500 error).
   - Confidence score clamping in range `[0.0, 1.0]`. *(Forensic-Auditor)*
 
 ### Phase 5: Verification & Full Suite Execution
-- [ ] Re-run full backend `pytest` suite ensuring all tests pass cleanly. *(Adversarial-QA)*
-- [ ] Run full frontend production build (`npm run build`) in `frontend/`. *(Adversarial-QA)*
+- [ ] Re-run full backend `pytest` suite ensuring all 29 tests pass cleanly with zero failures. *(Adversarial-QA)*
+- [ ] Run full frontend production build (`npm run build` in `frontend/`) ensuring zero errors. *(Adversarial-QA)*
 - [ ] Validate final audit report and document any fixes made. *(All Members)*
 
 ---
 
 ## Detailed Task Checklist
 
-- [ ] **T1.1**: Run baseline `pytest` and log failing test signatures.
+- [ ] **T1.1**: Run baseline `pytest` and log failing test signatures across all 29 tests.
 - [ ] **T1.2**: Run baseline `frontend` build check (`npm run build` / `npm run type-check`).
-- [ ] **T2.1**: Audit SQLite connection strings, PRAGMA settings (`WAL`, `busy_timeout`), and connection pooling across backend database configuration.
-- [ ] **T2.2**: Audit async session concurrency and cleanup in FastAPI route handlers and background tasks.
+- [ ] **T2.1**: Audit SQLite connection strings, PRAGMA settings (`WAL`, `busy_timeout`) in backend and `data/live_ais.db`.
+- [ ] **T2.2**: Audit async session concurrency and cleanup in FastAPI route handlers, background tasks, and WebSocket endpoints.
 - [ ] **T2.3**: Verify SQLite locking resilience under concurrent request patterns.
 - [ ] **T3.1**: Inspect `schemas.md` v1.1 specifications against Pydantic schemas in `backend/app/models.py`.
 - [ ] **T3.2**: Inspect TypeScript interfaces in `frontend/src/types/` and `contracts/` against `schemas.md` v1.1.
@@ -85,6 +86,6 @@ Comprehensive audit and fortification of the **OilTrace** repository covering:
 - [ ] **T4.1**: Check edge cases in backward ensemble drift calculations (zero time steps, missing grids, polar/antimeridian limits).
 - [ ] **T4.2**: Check edge cases in polygon centroid and geodesic area calculation (polar/antimeridian/zero vertices).
 - [ ] **T4.3**: Check vessel attribution scoring when zero candidate vessels match time-space window.
-- [ ] **T5.1**: Execute comprehensive test suite (`pytest -v`).
-- [ ] **T5.2**: Execute frontend build (`cd frontend && npm run build`).
+- [ ] **T5.1**: Execute comprehensive test suite (`pytest -v`) and ensure all 29 tests pass.
+- [ ] **T5.2**: Execute frontend build (`cd frontend && npm run build`) with zero errors.
 - [ ] **T5.3**: Compile audit summary report.
