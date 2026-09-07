@@ -16,6 +16,7 @@ This document establishes the strategic, architectural, and verification roadmap
 | **Maritime Attribution Auditor** | `@Maritime-Attribution-Auditor` | `[CLAIMED]` | Bayesian attribution scoring, dark vessel detection, AIS gap identification, route reconstruction audit, 100% provenance verification (`real_gfw`, `real_aisstream_live`, `synthetic_fallback`) |
 | **FullStack Contract Guardian** | `@FullStack-Contract-Guardian` | `[CLAIMED]` | `schemas.md` v1.1 validation, backend Pydantic models vs TypeScript interface consistency, API contract parity, strict field checks |
 | **Backend Pipeline Optimizer** | `@Backend-Pipeline-Optimizer` | `[CLAIMED]` | SQLite WAL concurrency (`journal_mode=WAL`, `busy_timeout=15000`), WebSocket streaming resilience, heartbeat/reconnect lifecycle, query optimization |
+| **Adversarial Chaos Tester** | `@Adversarial-Chaos-Tester` | `[CLAIMED]` | Chaos fault injection, WebSocket drop/reconnect resilience, edge-case corrupt telemetry handling |
 | **Admiralty Legal Reporter** | `@Admiralty-Legal-Reporter` | `[CLAIMED]` | UNCLOS & MARPOL Annex I compliance dossier generation, cryptographic chain-of-custody audit trail (SHA-256), exportable legal evidence packet |
 | **Chief Systems Orchestrator** | `@Chief-Systems-Orchestrator` | `[CLAIMED]` | Test suite gating (`pytest backend/tests attribution/test_offline_fixtures.py`), frontend production build (`npm run build`), regression audit |
 
