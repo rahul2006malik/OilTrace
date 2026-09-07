@@ -292,6 +292,57 @@ def _generate_custom_scenario_artifacts(
     slick_path = scen_dir / "slick_detection.geojson"
     slick_path.write_text(json.dumps(slick_geojson, indent=2), encoding="utf-8")
 
+    has_oil = slick_geojson.get("has_oil", True) and (slick_geojson.get("area_km2", 0) > 0)
+    if not has_oil:
+        # Negative / lookalike / clean sea: no spill to hindcast or attribute
+        traj_path = scen_dir / "trajectories.json"
+        traj_path.write_text(json.dumps({
+            "spill_id": spill_id,
+            "scenario_id": scenario_id,
+            "trajectories": [],
+        }, indent=2), encoding="utf-8")
+
+        origin_ensemble = {
+            "spill_id": spill_id,
+            "scenario_id": scenario_id,
+            "estimated_onset_time": detected_at_str,
+            "origin_probability_cone": {
+                "type": "FeatureCollection",
+                "features": [],
+            },
+            "age_estimate_hours": {
+                "value": 0.0,
+                "confidence_range": [0.0, 0.0],
+                "method": "clean_sea_lookalike_suppressed",
+            },
+            "ensemble_members": [],
+            "forward_hypotheses": [],
+            "data_provenance": slick_geojson.get("data_provenance", "real_detector"),
+        }
+        origin_path = scen_dir / "origin_ensemble.json"
+        origin_path.write_text(json.dumps(origin_ensemble, indent=2), encoding="utf-8")
+
+        attribution_result = {
+            "spill_id": spill_id,
+            "scenario_id": scenario_id,
+            "generated_at": datetime.now(tz=timezone.utc).isoformat(),
+            "candidates": [],
+            "dark_vessel_alert": False,
+            "top_k_recovery": {
+                "k": 0,
+                "ground_truth_vessel_id": None,
+                "recovered_rank": None,
+                "rank_is_top_1": False,
+                "rank_is_top_3": False,
+                "rank_is_top_5": False,
+            },
+            "data_provenance": slick_geojson.get("data_provenance", "real_detector"),
+            "notes": "No spill detected. Lookalike or clean sea verified by ResNet34 classifier and U-Net segmenter.",
+        }
+        attr_path = scen_dir / "attribution_result.json"
+        attr_path.write_text(json.dumps(attribution_result, indent=2), encoding="utf-8")
+        return attribution_result
+
     # 2. Backward Drift Trajectories & Origin Calculation
     lat_rad = math.radians(lat)
     m_per_deg_lat = 110574.0
@@ -318,7 +369,7 @@ def _generate_custom_scenario_artifacts(
     real_cone = None
 
     try:
-        from drift.pipeline import run_backward_ensemble_pipeline
+        from drift.backward_ensemble import fast_rk4_backward_ensemble, kde_probability_cone
         from drift.buffer_manager import resolve_best_forcing
         import numpy as np
 
@@ -327,23 +378,31 @@ def _generate_custom_scenario_artifacts(
             forcing_dir = _get_project_cache_dir()
         ocean_nc, wind_nc = resolve_best_forcing(lon=lon, lat=lat, target_time=detected_at_dt, forcing_dir=str(forcing_dir))
         if ocean_nc and wind_nc:
-            ens_res, raw_trajs = run_backward_ensemble_pipeline(
-                spill_id=spill_id,
+            lons_end, lats_end, times_end, raw_trajs, diagnostics = fast_rk4_backward_ensemble(
                 lon=lon,
                 lat=lat,
                 detection_time=detected_at_dt,
                 currents_path=str(ocean_nc),
                 winds_path=str(wind_nc),
-                area_km2=area_km2,
                 n_members=15,
                 backward_hours=24,
-                write_files=False,
             )
-            if raw_trajs and len(raw_trajs) > 0:
+            if raw_trajs and len(raw_trajs) > 0 and len(lons_end) > 0:
                 trajectories = raw_trajs
-                ox = round(float(np.mean([t["lons"][-1] for t in trajectories if t.get("lons")])), 6)
-                oy = round(float(np.mean([t["lats"][-1] for t in trajectories if t.get("lats")])), 6)
-                real_cone = ens_res.get("origin_probability_cone")
+                ox = round(float(np.mean(lons_end)), 6)
+                oy = round(float(np.mean(lats_end)), 6)
+                cone_levels = kde_probability_cone(lons_end, lats_end)
+                real_cone = {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": {"probability": f["probability"]},
+                            "geometry": f["geometry"],
+                        }
+                        for f in cone_levels
+                    ],
+                }
                 used_real_rk4 = True
                 logger.info("[scenarios] Successfully generated real RK4 trajectories for custom scenario %s", scenario_id)
     except Exception as e:
@@ -619,49 +678,121 @@ async def create_custom_scenario(
     spill_id = f"SPILL-{datetime.now(tz=timezone.utc).strftime('%Y%m%d')}-CUST-{len(_CUSTOM_SCENARIOS)+1:03d}"
     scenario_id = f"scenario_{spill_id.lower().replace('-', '_')}"
 
-    half_w = 0.04
-    slick_geojson = {
-        "spill_id": spill_id,
-        "detected_at": detected_at_val,
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [[
-                [round(lon - half_w, 4), round(lat - half_w * 0.7, 4)],
-                [round(lon + half_w * 0.8, 4), round(lat - half_w * 0.4, 4)],
-                [round(lon + half_w, 4), round(lat + half_w * 0.6, 4)],
-                [round(lon - half_w * 0.2, 4), round(lat + half_w, 4)],
-                [round(lon - half_w * 0.9, 4), round(lat + half_w * 0.2, 4)],
-                [round(lon - half_w, 4), round(lat - half_w * 0.7, 4)],
-            ]],
-        },
-        "centroid": [round(lon, 4), round(lat, 4)],
-        "area_km2": 6.56,
-        "elongation_ratio": 3.42,
-        "oil_confidence": 0.816,
-        "thickness_class": "thick",
-        "source_scene_id": file.filename or "UPLOADED_SAR_SCENE",
-        "lookalike_suppressed": True,
-        "data_provenance": "real_detector",
-    }
+    file_ext = Path(file.filename or "").suffix.lower()
+    img_for_detector = file_path
+    temp_converted_tif = None
 
-    if DETECTION_AVAILABLE and (file.filename.lower().endswith(".tif") or file.filename.lower().endswith(".tiff")):
+    if file_ext in [".png", ".jpg", ".jpeg", ".bmp"]:
+        try:
+            import cv2
+            import numpy as np
+            import tifffile
+            img_mat = cv2.imread(str(file_path), cv2.IMREAD_GRAYSCALE)
+            if img_mat is not None:
+                img_dual = np.stack([img_mat, img_mat], axis=-1)
+                temp_converted_tif = upload_dir / f"conv_{safe_filename}.tif"
+                tifffile.imwrite(str(temp_converted_tif), img_dual)
+                img_for_detector = temp_converted_tif
+        except Exception as e:
+            logger.warning("[create-custom] Could not convert %s to TIFF: %s", file_ext, e)
+
+    has_oil = False
+    oil_confidence = 0.0
+    detected_geojson = None
+    used_real_detector = False
+
+    if DETECTION_AVAILABLE and (img_for_detector.suffix.lower() in [".tif", ".tiff"]):
         try:
             detector = getattr(request.app.state, "detector", None) or OilSpillDetector()
             res = await run_in_threadpool(
                 detector.predict,
-                str(file_path),
+                str(img_for_detector),
                 geo_bounds=None,
                 center_lonlat=(lon, lat),
                 spill_id=spill_id,
                 detected_at=detected_at_val,
             )
-            if res.get("has_oil") and res.get("geojson"):
-                slick_geojson = res["geojson"]
-                slick_geojson["source_scene_id"] = file.filename
-                slick_geojson["lookalike_suppressed"] = True
-                slick_geojson["data_provenance"] = "real_detector"
+            has_oil = bool(res.get("has_oil", False))
+            oil_confidence = float(res.get("oil_confidence", 0.0))
+            detected_geojson = res.get("geojson")
+            used_real_detector = True
+            logger.info("[create-custom] Detector result for %s: has_oil=%s, conf=%.4f", file.filename, has_oil, oil_confidence)
         except Exception as e:
             logger.warning("[create-custom] Detector inference failed: %s", e)
+        finally:
+            if temp_converted_tif and temp_converted_tif.exists():
+                try:
+                    temp_converted_tif.unlink()
+                except Exception:
+                    pass
+
+    if used_real_detector:
+        if has_oil and detected_geojson:
+            slick_geojson = detected_geojson
+            slick_geojson["source_scene_id"] = file.filename
+            slick_geojson["lookalike_suppressed"] = True
+            slick_geojson["data_provenance"] = "real_detector"
+            slick_geojson["has_oil"] = True
+            area_val = float(slick_geojson.get("area_km2", 6.56))
+            tags = ["CUSTOM SCENARIO", "REAL DETECTOR", "OIL CONFIRMED"]
+            desc = f"SAR scene '{file.filename}': Live cascade confirmed oil slick ({oil_confidence*100:.1f}% confidence, {area_val:.2f} km²)."
+            suspect_count = 3
+            has_drift_ensemble = True
+        else:
+            slick_geojson = {
+                "spill_id": spill_id,
+                "detected_at": detected_at_val,
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [],
+                },
+                "centroid": [round(lon, 4), round(lat, 4)],
+                "area_km2": 0.0,
+                "elongation_ratio": 1.0,
+                "oil_confidence": round(oil_confidence, 4),
+                "thickness_class": "none",
+                "source_scene_id": file.filename or "UPLOADED_SAR_SCENE",
+                "lookalike_suppressed": True,
+                "data_provenance": "real_detector",
+                "has_oil": False,
+            }
+            area_val = 0.0
+            tags = ["CUSTOM SCENARIO", "LOOKALIKE REJECTED", "CLEAN SEA"]
+            desc = f"SAR scene '{file.filename}': Lookalike / Clean Waters Confirmed (confidence: {oil_confidence*100:.2f}%). Two-stage cascade correctly suppressed false alarm. No oil spill present."
+            suspect_count = 0
+            has_drift_ensemble = False
+    else:
+        # Fallback when detector checkpoints are completely missing
+        half_w = 0.04
+        slick_geojson = {
+            "spill_id": spill_id,
+            "detected_at": detected_at_val,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[
+                    [round(lon - half_w, 4), round(lat - half_w * 0.7, 4)],
+                    [round(lon + half_w * 0.8, 4), round(lat - half_w * 0.4, 4)],
+                    [round(lon + half_w, 4), round(lat + half_w * 0.6, 4)],
+                    [round(lon - half_w * 0.2, 4), round(lat + half_w, 4)],
+                    [round(lon - half_w * 0.9, 4), round(lat + half_w * 0.2, 4)],
+                    [round(lon - half_w, 4), round(lat - half_w * 0.7, 4)],
+                ]],
+            },
+            "centroid": [round(lon, 4), round(lat, 4)],
+            "area_km2": 6.56,
+            "elongation_ratio": 3.42,
+            "oil_confidence": 0.816,
+            "thickness_class": "thick",
+            "source_scene_id": file.filename or "UPLOADED_SAR_SCENE",
+            "lookalike_suppressed": True,
+            "data_provenance": "synthetic_fallback",
+            "has_oil": True,
+        }
+        area_val = 6.56
+        tags = ["CUSTOM SCENARIO", "SYNTHETIC FALLBACK"]
+        desc = f"User-created custom incident from '{file.filename}' (Synthetic fallback: detector models not found)."
+        suspect_count = 3
+        has_drift_ensemble = True
 
     slick_cache_path = upload_dir / f"{spill_id}_slick.geojson"
     with open(slick_cache_path, "w", encoding="utf-8") as f:
@@ -681,7 +812,6 @@ async def create_custom_scenario(
         scen_dir=scen_dir,
     )
 
-    area_val = slick_geojson.get("area_km2", 6.56)
     delta_bbox = 0.8
     new_scenario = {
         "scenario_id": scenario_id,
@@ -690,12 +820,12 @@ async def create_custom_scenario(
         "location_name": f"Custom Upload ({lon:.2f}°E, {lat:.2f}°N)",
         "bbox": [round(lon - delta_bbox, 4), round(lat - delta_bbox, 4), round(lon + delta_bbox, 4), round(lat + delta_bbox, 4)],
         "detected_at": detected_at_val,
-        "has_drift_ensemble": True,
+        "has_drift_ensemble": has_drift_ensemble,
         "has_real_gfw": True,
         "spill_area_km2": round(area_val, 2),
-        "suspect_count": 3,
-        "description": f"User-created custom incident from uploaded SAR imagery '{file.filename}'. Live cascade inference confirmed oil slick.",
-        "tags": ["CUSTOM SCENARIO", "USER UPLOAD", "LIVE CASCADE"],
+        "suspect_count": suspect_count,
+        "description": desc,
+        "tags": tags,
         "category": "custom",
         "image_path": str(file_path),
         "slick_geojson": slick_geojson,

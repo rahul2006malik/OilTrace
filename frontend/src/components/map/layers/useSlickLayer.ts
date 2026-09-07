@@ -16,6 +16,23 @@ export function useSlickLayer(
     const slickSourceId = 'slick-source';
     const centroidSourceId = 'slick-centroid-source';
 
+    const hasSlick = (detection.area_km2 || 0) > 0 && Array.isArray(detection.geometry?.coordinates) && detection.geometry.coordinates.length > 0;
+    if (!hasSlick) {
+      if (map.getSource(slickSourceId)) {
+        (map.getSource(slickSourceId) as maplibregl.GeoJSONSource).setData({
+          type: 'FeatureCollection',
+          features: [],
+        });
+      }
+      if (map.getSource(centroidSourceId)) {
+        (map.getSource(centroidSourceId) as maplibregl.GeoJSONSource).setData({
+          type: 'FeatureCollection',
+          features: [],
+        });
+      }
+      return;
+    }
+
     // 1. Calculate spatiotemporal advection translation and Fay spreading shrinkage
     // Detection horizon is 0.0h; negative values (-1h to -48h) scrub backward in time.
     let dLon = 0;

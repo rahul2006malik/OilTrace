@@ -3,3 +3,6 @@ uvicorn[standard]>=0.32
 pydantic>=2.9
 reportlab>=4.0.0
 pytest>=8.0.0
+imagecodecs>=2024.1.1
+tifffile>=2024.1.1
+

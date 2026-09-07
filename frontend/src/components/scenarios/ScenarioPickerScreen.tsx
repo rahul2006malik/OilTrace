@@ -87,6 +87,9 @@ export const ScenarioPickerScreen: React.FC = () => {
   };
 
   const getPriorityBadge = (s: ScenarioItem) => {
+    if (s.tags?.includes('LOOKALIKE REJECTED') || s.tags?.includes('CLEAN SEA') || s.spill_area_km2 === 0) {
+      return { label: 'Lookalike Veto', color: 'bg-emerald-600 text-white' };
+    }
     if (s.tags?.includes('FLAGSHIP')) return { label: 'High Priority', color: 'bg-rose-500 text-white' };
     if (s.tags?.includes('DARK VESSEL')) return { label: 'Dark Vessel', color: 'bg-amber-500 text-[#060B11]' };
     if (s.tags?.includes('CAUSAL VETO')) return { label: 'Training', color: 'bg-sky-500 text-white' };
@@ -94,6 +97,9 @@ export const ScenarioPickerScreen: React.FC = () => {
   };
 
   const getStatusChip = (s: ScenarioItem) => {
+    if (s.tags?.includes('LOOKALIKE REJECTED') || s.tags?.includes('CLEAN SEA') || s.spill_area_km2 === 0) {
+      return { label: 'Clean / Lookalike Suppressed', color: 'text-emerald-400 border-emerald-500/40' };
+    }
     if (s.tags?.includes('FLAGSHIP')) return { label: 'Oil Slick Detected', color: 'text-[#2DD4BF] border-[#2DD4BF]/40' };
     if (s.tags?.includes('DARK VESSEL')) return { label: 'Under Analysis', color: 'text-amber-300 border-amber-400/40' };
     return { label: 'Slick Detected', color: 'text-[#2DD4BF] border-[#2DD4BF]/40' };
