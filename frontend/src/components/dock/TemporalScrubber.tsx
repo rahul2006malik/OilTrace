@@ -192,9 +192,9 @@ export const TemporalScrubber: React.FC = () => {
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
 
-        {/* Playback Multipliers (1x, 5x, 10x, 25x) */}
+        {/* Playback Multipliers (1x, 4x, 16x, 64x) */}
         <div className="flex items-center space-x-0.5 bg-[#0D1522] border border-[#1E2C3F] p-0.5 rounded-sm">
-          {[1, 5, 10, 25].map((spd) => (
+          {[1, 4, 16, 64].map((spd) => (
             <button
               key={spd}
               onClick={() => setPlaybackSpeed(spd)}
