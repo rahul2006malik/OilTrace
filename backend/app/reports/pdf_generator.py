@@ -13,6 +13,7 @@ import json
 import logging
 import os
 from datetime import datetime, timezone
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -41,8 +42,9 @@ def generate_admiralty_pdf_report(
     report_filename = f"RPT-{spill_id}.pdf"
     pdf_path = out_dir / report_filename
 
+    buffer = BytesIO()
     doc = SimpleDocTemplate(
-        str(pdf_path),
+        buffer,
         pagesize=A4,
         leftMargin=36,
         rightMargin=36,
@@ -272,7 +274,9 @@ def generate_admiralty_pdf_report(
     )
     story.append(Paragraph(legal_text, legal_style))
 
-    # Build PDF document
+    # Build PDF document in-memory and write atomically to disk
     doc.build(story)
-    logger.info("Successfully rendered Admiralty Forensics PDF: %s", pdf_path)
+    pdf_bytes = buffer.getvalue()
+    pdf_path.write_bytes(pdf_bytes)
+    logger.info("Successfully rendered Admiralty Forensics PDF: %s (%d bytes)", pdf_path, len(pdf_bytes))
     return str(pdf_path)

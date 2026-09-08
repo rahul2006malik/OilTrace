@@ -2,8 +2,19 @@ import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import { AttributionResult, SlickDetection } from '../../../types';
 
+function catmullRom1D(p0: number, p1: number, p2: number, p3: number, t: number): number {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return 0.5 * (
+    (2 * p1) +
+    (-p0 + p2) * t +
+    (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+    (-p0 + 3 * p1 - 3 * p2 + p3) * t3
+  );
+}
+
 function getVesselPositionAtTime(
-  positions: { timestamp: string; lon: number; lat: number }[] | undefined,
+  positions: { timestamp: string; lon: number; lat: number; is_reconstructed?: boolean }[] | undefined,
   targetTimeMs: number,
   fallback: [number, number]
 ): [number, number] {
@@ -11,7 +22,12 @@ function getVesselPositionAtTime(
   if (positions.length === 1) return [positions[0].lon, positions[0].lat];
 
   const parsed = positions
-    .map((p) => ({ lon: p.lon, lat: p.lat, timeMs: new Date(p.timestamp).getTime() }))
+    .map((p) => ({
+      lon: p.lon,
+      lat: p.lat,
+      timeMs: new Date(p.timestamp).getTime(),
+      is_reconstructed: Boolean(p.is_reconstructed),
+    }))
     .filter((p) => !isNaN(p.timeMs))
     .sort((a, b) => a.timeMs - b.timeMs);
 
@@ -30,6 +46,17 @@ function getVesselPositionAtTime(
     if (targetTimeMs >= p1.timeMs && targetTimeMs <= p2.timeMs) {
       const span = p2.timeMs - p1.timeMs;
       const ratio = span > 0 ? (targetTimeMs - p1.timeMs) / span : 0;
+
+      // Use Catmull-Rom spline if we have enough neighboring points and not across an AIS blackout gap
+      if (parsed.length >= 4 && !p1.is_reconstructed && !p2.is_reconstructed) {
+        const p0 = parsed[i > 0 ? i - 1 : 0];
+        const p3 = parsed[i + 2 < parsed.length ? i + 2 : i + 1];
+        const smoothLon = catmullRom1D(p0.lon, p1.lon, p2.lon, p3.lon, ratio);
+        const smoothLat = catmullRom1D(p0.lat, p1.lat, p2.lat, p3.lat, ratio);
+        return [smoothLon, smoothLat];
+      }
+
+      // Linear interpolation fallback for short tracks or blackout gaps
       return [
         p1.lon + ratio * (p2.lon - p1.lon),
         p1.lat + ratio * (p2.lat - p1.lat),

@@ -38,6 +38,7 @@ export const TopBar: React.FC<{ onDossierOpen?: () => void }> = ({ onDossierOpen
   useEffect(() => {
     let ws: WebSocket | null = null;
     let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+    let pingInterval: ReturnType<typeof setInterval> | null = null;
     let backoff = 2000;
     let isCancelled = false;
 
@@ -52,6 +53,12 @@ export const TopBar: React.FC<{ onDossierOpen?: () => void }> = ({ onDossierOpen
         ws.onopen = () => {
           setWsConnected(true);
           backoff = 2000;
+          if (pingInterval) clearInterval(pingInterval);
+          pingInterval = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'ping', sequence_id: Date.now() }));
+            }
+          }, 15000);
         };
         ws.onmessage = (event) => {
           try {
@@ -67,6 +74,10 @@ export const TopBar: React.FC<{ onDossierOpen?: () => void }> = ({ onDossierOpen
         };
         ws.onclose = () => {
           setWsConnected(false);
+          if (pingInterval) {
+            clearInterval(pingInterval);
+            pingInterval = null;
+          }
           if (!isCancelled) {
             reconnectTimeout = setTimeout(connect, backoff);
             backoff = Math.min(backoff * 1.5, 15000);
@@ -92,6 +103,7 @@ export const TopBar: React.FC<{ onDossierOpen?: () => void }> = ({ onDossierOpen
     return () => {
       isCancelled = true;
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (pingInterval) clearInterval(pingInterval);
       if (ws) ws.close();
     };
   }, []);
