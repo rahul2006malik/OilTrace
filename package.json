@@ -1,0 +1,11 @@
+﻿{
+  "name": "oiltrace",
+  "version": "2.4.1",
+  "private": true,
+  "description": "OilTrace - Satellite SAR Oil Spill Detection & Attribution Intelligence Platform",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview"
+  }
+}

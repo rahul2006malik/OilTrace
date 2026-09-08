@@ -29,12 +29,13 @@ except ImportError:
     XARRAY_AVAILABLE = False
 
 try:
-    from .buffer_manager import resolve_best_forcing
+    from .buffer_manager import resolve_best_forcing, analytical_monsoon_forcing
 except ImportError:
     try:
-        from buffer_manager import resolve_best_forcing
+        from buffer_manager import resolve_best_forcing, analytical_monsoon_forcing
     except ImportError:
         resolve_best_forcing = None
+        analytical_monsoon_forcing = None
 
 
 def generate_metocean_grid(
@@ -87,19 +88,38 @@ def generate_metocean_grid(
                     u10_var = "u10" if "u10" in ds_w else ("10m_u_component_of_wind" if "10m_u_component_of_wind" in ds_w else None)
                     v10_var = "v10" if "v10" in ds_w else ("10m_v_component_of_wind" if "10m_v_component_of_wind" in ds_w else None)
 
-                    # Select nearest time slice
-                    c_slice = ds_c.isel(time=-1) if "time" in ds_c.dims else ds_c
-                    w_slice = ds_w.isel(valid_time=-1) if "valid_time" in ds_w.dims else (ds_w.isel(time=-1) if "time" in ds_w.dims else ds_w)
+                    # Select nearest time slice matching ref_time
+                    c_slice = ds_c
+                    if "time" in ds_c.dims:
+                        try:
+                            c_target = np.datetime64(ref_time.replace(tzinfo=None))
+                            c_slice = ds_c.sel(time=c_target, method="nearest")
+                        except Exception:
+                            c_slice = ds_c.isel(time=-1)
+
+                    w_slice = ds_w
+                    if "valid_time" in ds_w.dims:
+                        try:
+                            w_target = np.datetime64(ref_time.replace(tzinfo=None))
+                            w_slice = ds_w.sel(valid_time=w_target, method="nearest")
+                        except Exception:
+                            w_slice = ds_w.isel(valid_time=-1)
+                    elif "time" in ds_w.dims:
+                        try:
+                            w_target = np.datetime64(ref_time.replace(tzinfo=None))
+                            w_slice = ds_w.sel(time=w_target, method="nearest")
+                        except Exception:
+                            w_slice = ds_w.isel(time=-1)
 
                     for lat_val in lats:
                         for lon_val in lons:
                             try:
-                                # Current vector sampling
+                                # Current vector sampling (Copernicus GLORYS)
                                 sub_c = c_slice.sel({c_lon: lon_val, c_lat: lat_val}, method="nearest")
                                 u_val = float(sub_c[u_var].values) if u_var in sub_c else 0.15
                                 v_val = float(sub_c[v_var].values) if v_var in sub_c else 0.10
 
-                                # Wind vector sampling
+                                # Wind vector sampling (ECMWF ERA5)
                                 u10_val = 2.5
                                 v10_val = 3.8
                                 if u10_var and v10_var and u10_var in w_slice and v10_var in w_slice:
@@ -122,7 +142,16 @@ def generate_metocean_grid(
 
                                 w_speed_ms = math.hypot(u10_val, v10_val)
                                 w_speed_knots = w_speed_ms * 1.94384
-                                w_bearing = (math.degrees(math.atan2(-u10_val, -v10_val)) + 360) % 360
+                                # Flow direction (where wind blows TOWARD, for map arrows)
+                                w_flow_bearing = (math.degrees(math.atan2(u10_val, v10_val)) + 360) % 360
+                                # Meteorological direction (where wind blows FROM)
+                                w_meteo_bearing = (math.degrees(math.atan2(-u10_val, -v10_val)) + 360) % 360
+
+                                # Net physical oil drift: Current (100%) + 3% Windage
+                                net_u = u_val + 0.03 * u10_val
+                                net_v = v_val + 0.03 * v10_val
+                                net_speed_knots = math.hypot(net_u, net_v) * 1.94384
+                                net_bearing = (math.degrees(math.atan2(net_u, net_v)) + 360) % 360
 
                                 vectors.append({
                                     "lon": round(float(lon_val), 4),
@@ -137,8 +166,15 @@ def generate_metocean_grid(
                                         "u": round(u10_val, 3),
                                         "v": round(v10_val, 3),
                                         "speed_knots": round(w_speed_knots, 2),
-                                        "bearing_deg": round(w_bearing, 1),
-                                    }
+                                        "bearing_deg": round(w_flow_bearing, 1),
+                                        "meteo_bearing_deg": round(w_meteo_bearing, 1),
+                                    },
+                                    "net_drift": {
+                                        "u": round(net_u, 4),
+                                        "v": round(net_v, 4),
+                                        "speed_knots": round(net_speed_knots, 2),
+                                        "bearing_deg": round(net_bearing, 1),
+                                    },
                                 })
                             except Exception:
                                 continue
@@ -147,28 +183,93 @@ def generate_metocean_grid(
 
     # Fallback to realistic physical oceanographic gradient if NetCDF slice had missing bounds
     if not vectors:
-        for lat_val in lats:
-            for lon_val in lons:
-                u_c = 0.18 + 0.05 * math.sin(lat_val * 2.0)
-                v_c = 0.12 + 0.04 * math.cos(lon_val * 2.0)
-                u_w = 2.4 + 0.5 * math.sin(lon_val)
-                v_w = 4.2 + 0.6 * math.cos(lat_val)
+        if analytical_monsoon_forcing:
+            grid_lons, grid_lats = np.meshgrid(lons, lats)
+            flat_lons = grid_lons.ravel()
+            flat_lats = grid_lats.ravel()
+            u_c_arr, v_c_arr, u_w_arr, v_w_arr = analytical_monsoon_forcing(flat_lons, flat_lats, ref_time)
+
+            for i in range(len(flat_lons)):
+                lon_val = float(flat_lons[i])
+                lat_val = float(flat_lats[i])
+                u_c = float(u_c_arr[i])
+                v_c = float(v_c_arr[i])
+                u_w = float(u_w_arr[i])
+                v_w = float(v_w_arr[i])
+
+                c_speed_knots = math.hypot(u_c, v_c) * 1.94384
+                c_bearing = (math.degrees(math.atan2(u_c, v_c)) + 360) % 360
+
+                w_speed_knots = math.hypot(u_w, v_w) * 1.94384
+                w_flow_bearing = (math.degrees(math.atan2(u_w, v_w)) + 360) % 360
+                w_meteo_bearing = (math.degrees(math.atan2(-u_w, -v_w)) + 360) % 360
+
+                net_u = u_c + 0.03 * u_w
+                net_v = v_c + 0.03 * v_w
+                net_speed_knots = math.hypot(net_u, net_v) * 1.94384
+                net_bearing = (math.degrees(math.atan2(net_u, net_v)) + 360) % 360
+
                 vectors.append({
-                    "lon": round(float(lon_val), 4),
-                    "lat": round(float(lat_val), 4),
+                    "lon": round(lon_val, 4),
+                    "lat": round(lat_val, 4),
                     "current": {
                         "u": round(u_c, 4),
                         "v": round(v_c, 4),
-                        "speed_knots": round(math.hypot(u_c, v_c) * 1.94384, 2),
-                        "bearing_deg": round((math.degrees(math.atan2(u_c, v_c)) + 360) % 360, 1),
+                        "speed_knots": round(c_speed_knots, 2),
+                        "bearing_deg": round(c_bearing, 1),
                     },
                     "wind": {
                         "u": round(u_w, 3),
                         "v": round(v_w, 3),
-                        "speed_knots": round(math.hypot(u_w, v_w) * 1.94384, 2),
-                        "bearing_deg": round((math.degrees(math.atan2(-u_w, -v_w)) + 360) % 360, 1),
-                    }
+                        "speed_knots": round(w_speed_knots, 2),
+                        "bearing_deg": round(w_flow_bearing, 1),
+                        "meteo_bearing_deg": round(w_meteo_bearing, 1),
+                    },
+                    "net_drift": {
+                        "u": round(net_u, 4),
+                        "v": round(net_v, 4),
+                        "speed_knots": round(net_speed_knots, 2),
+                        "bearing_deg": round(net_bearing, 1),
+                    },
                 })
+        else:
+            for lat_val in lats:
+                for lon_val in lons:
+                    u_c = 0.18 + 0.05 * math.sin(lat_val * 2.0)
+                    v_c = 0.12 + 0.04 * math.cos(lon_val * 2.0)
+                    u_w = 2.4 + 0.5 * math.sin(lon_val)
+                    v_w = 4.2 + 0.6 * math.cos(lat_val)
+                    c_speed_knots = math.hypot(u_c, v_c) * 1.94384
+                    c_bearing = (math.degrees(math.atan2(u_c, v_c)) + 360) % 360
+                    w_speed_knots = math.hypot(u_w, v_w) * 1.94384
+                    w_flow_bearing = (math.degrees(math.atan2(u_w, v_w)) + 360) % 360
+                    net_u = u_c + 0.03 * u_w
+                    net_v = v_c + 0.03 * v_w
+                    net_speed_knots = math.hypot(net_u, net_v) * 1.94384
+                    net_bearing = (math.degrees(math.atan2(net_u, net_v)) + 360) % 360
+
+                    vectors.append({
+                        "lon": round(float(lon_val), 4),
+                        "lat": round(float(lat_val), 4),
+                        "current": {
+                            "u": round(u_c, 4),
+                            "v": round(v_c, 4),
+                            "speed_knots": round(c_speed_knots, 2),
+                            "bearing_deg": round(c_bearing, 1),
+                        },
+                        "wind": {
+                            "u": round(u_w, 3),
+                            "v": round(v_w, 3),
+                            "speed_knots": round(w_speed_knots, 2),
+                            "bearing_deg": round(w_flow_bearing, 1),
+                        },
+                        "net_drift": {
+                            "u": round(net_u, 4),
+                            "v": round(net_v, 4),
+                            "speed_knots": round(net_speed_knots, 2),
+                            "bearing_deg": round(net_bearing, 1),
+                        },
+                    })
 
     return {
         "bbox": bbox,

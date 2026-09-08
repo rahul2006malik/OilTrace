@@ -208,14 +208,18 @@ export const MapControls: React.FC<MapControlsProps> = ({
               <button
                 onClick={() => onToggleLayer('wind')}
                 className={`w-full flex items-center justify-between px-2 py-1 text-left transition-colors rounded-sm ${
-                  activeLayers.wind ? 'bg-sky-500/10 text-slate-100 font-semibold' : 'text-slate-500 opacity-60 hover:opacity-100'
+                  activeLayers.wind ? 'bg-[#2DD4BF]/10 text-slate-100 font-semibold' : 'text-slate-500 opacity-60 hover:opacity-100'
                 }`}
               >
                 <div className="flex items-center space-x-2">
-                  <span className="w-2 h-2 rounded-full bg-[#38BDF8]" />
-                  <span>ERA5/GLORYS Vector Field</span>
+                  <div className="flex -space-x-1">
+                    <span className="w-2 h-2 rounded-full bg-[#2DD4BF]" title="Currents (GLORYS)" />
+                    <span className="w-2 h-2 rounded-full bg-[#F59E0B]" title="Winds (ERA5)" />
+                    <span className="w-2 h-2 rounded-full bg-[#A855F7]" title="Net Drift" />
+                  </div>
+                  <span>Vectors (Current/Wind/Drift)</span>
                 </div>
-                {activeLayers.wind ? <Eye className="w-3 h-3 text-[#38BDF8]" /> : <EyeOff className="w-3 h-3" />}
+                {activeLayers.wind ? <Eye className="w-3 h-3 text-[#2DD4BF]" /> : <EyeOff className="w-3 h-3" />}
               </button>
             </div>
 
