@@ -133,7 +133,7 @@ export const useOilTraceStore = create<OilTraceState>((set, get) => ({
 
   playbackTimeHours: -24.0,
   isPlaying: false,
-  playbackSpeed: 5,
+  playbackSpeed: 4,
 
   isLoadingPipeline: false,
   pipelineError: null,
