@@ -1,0 +1,20 @@
+{
+  "spill_id": "SPILL-20260908-CUST-011",
+  "scenario_id": "scenario_spill_20260908_cust_011",
+  "estimated_onset_time": "2026-09-08T07:08:25.274937+00:00",
+  "origin_probability_cone": {
+    "type": "FeatureCollection",
+    "features": []
+  },
+  "age_estimate_hours": {
+    "value": 0.0,
+    "confidence_range": [
+      0.0,
+      0.0
+    ],
+    "method": "clean_sea_lookalike_suppressed"
+  },
+  "ensemble_members": [],
+  "forward_hypotheses": [],
+  "data_provenance": "real_detector"
+}

@@ -52,7 +52,7 @@ export interface DriftOriginZone {
   p90: { type: 'Polygon'; coordinates: number[][][] };
   estimated_onset_time: string;
   estimated_onset_spread_hours: number;
-  age_method: 'fay_spreading_inversion';
+  age_method: 'fay_spreading_inversion' | string;
 }
 
 export interface DriftRun {

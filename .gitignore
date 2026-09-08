@@ -17,22 +17,14 @@
 secrets/
 
 # ------------------------------------------------------------------------------
-# 2. Internal Strategy, Agent Prompts & Scratch Notes (LOCAL ONLY)
+# 2. Local Notes, Draft Documentation & Scratch Files
 # ------------------------------------------------------------------------------
-AGENTS.md
-GEMINI.md
-REVIEW_NOTES*.md
-docs/*Claude*
-docs/*COORDINATOR*
-docs/PROJECT_STATE.md
-docs/SIH26143_FRONTEND_DESIGN_SPEC.md
-docs/SIH26143_Project_Document*
-docs/*Playbook*
-docs/*Execution*
-docs/*BUILD_ADDENDUM*
-docs/*Master_Project*
-docs/*WORLD_CLASS*
-docs/*UPGRADE_REPORT*
+scratch/
+drafts/
+*.draft.md
+*.scratch.*
+notes/
+local/
 
 # ------------------------------------------------------------------------------
 # 3. Python & Virtual Environments
@@ -156,8 +148,6 @@ checkpoints_archive/
 *.jpeg
 !frontend/public/**/*.png
 !frontend/public/**/*.jpg
-!frontend/public/**/*.svg
-insprition_photos/
 .backup/
 backup/
 demo/sample_output/

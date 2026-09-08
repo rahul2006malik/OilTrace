@@ -18,14 +18,12 @@ import { ModelGovernanceScreen } from '../settings/ModelGovernanceScreen';
 import { VesselsScreen } from '../vessels/VesselsScreen';
 
 export const AppShell: React.FC = () => {
-  const {
-    init,
-    activeScreen,
-    setActiveScreen,
-    togglePlayback,
-    playbackTimeHours,
-    setPlaybackTime,
-  } = useOilTraceStore();
+  const init = useOilTraceStore((s) => s.init);
+  const activeScreen = useOilTraceStore((s) => s.activeScreen);
+  const setActiveScreen = useOilTraceStore((s) => s.setActiveScreen);
+  const togglePlayback = useOilTraceStore((s) => s.togglePlayback);
+  const setPlaybackTime = useOilTraceStore((s) => s.setPlaybackTime);
+
   const [isDossierOpen, setIsDossierOpen] = useState(false);
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
 
@@ -41,15 +39,16 @@ export const AppShell: React.FC = () => {
         return;
       }
 
+      const curTime = useOilTraceStore.getState().playbackTimeHours;
       if (e.code === 'Space') {
         e.preventDefault();
         togglePlayback();
       } else if (e.code === 'ArrowLeft') {
         e.preventDefault();
-        setPlaybackTime(Math.max(-48.0, playbackTimeHours - 1.0));
+        setPlaybackTime(Math.max(-48.0, curTime - 1.0));
       } else if (e.code === 'ArrowRight') {
         e.preventDefault();
-        setPlaybackTime(Math.min(0.0, playbackTimeHours + 1.0));
+        setPlaybackTime(Math.min(0.0, curTime + 1.0));
       } else if (e.code === 'Home') {
         e.preventDefault();
         setPlaybackTime(0.0);
@@ -66,7 +65,7 @@ export const AppShell: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [togglePlayback, setPlaybackTime, playbackTimeHours, activeScreen, setActiveScreen]);
+  }, [togglePlayback, setPlaybackTime, activeScreen, setActiveScreen]);
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#060B11] text-[#F1F5F9] overflow-hidden select-none">

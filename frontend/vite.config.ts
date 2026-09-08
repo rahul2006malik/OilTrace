@@ -49,4 +49,16 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'maplibre-vendor': ['maplibre-gl'],
+          'export-vendor': ['html2canvas', 'dompurify'],
+          'ui-vendor': ['lucide-react'],
+        },
+      },
+    },
+  },
 });

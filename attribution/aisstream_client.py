@@ -100,6 +100,14 @@ except ImportError:
 # Project's standard bbox convention: [minLon, minLat, maxLon, maxLat]
 MUMBAI_GULF_BBOX_LONLAT = [60.0, 15.0, 73.0, 22.0]
 
+# Pan-India Extended Maritime Domain:
+# Covers the entire Indian Subcontinent maritime theater:
+# - Western EEZ & Arabian Sea (Gujarat, Mumbai, Goa, Kochi, Lakshadweep)
+# - Southern SLOC (Sri Lanka international tanker transit highway)
+# - Eastern EEZ & Bay of Bengal (Chennai, Vizag, Paradip, Kolkata, Haldia)
+# - Andaman & Nicobar Islands (Malacca Strait approach)
+PAN_INDIA_MARITIME_BBOX_LONLAT = [58.0, 4.0, 98.0, 25.0]
+
 DEFAULT_MESSAGE_TYPES = ["PositionReport", "ShipStaticData"]
 
 
@@ -114,6 +122,10 @@ def bbox_lonlat_to_aisstream_boxes(bbox: list[float]) -> list[list[list[float]]]
 
 def mumbai_gulf_bounding_boxes() -> list[list[list[float]]]:
     return bbox_lonlat_to_aisstream_boxes(MUMBAI_GULF_BBOX_LONLAT)
+
+
+def pan_india_bounding_boxes() -> list[list[list[float]]]:
+    return bbox_lonlat_to_aisstream_boxes(PAN_INDIA_MARITIME_BBOX_LONLAT)
 
 
 def _get_api_key() -> str:
@@ -143,7 +155,7 @@ class AISStreamCapture:
         message_types: Optional[list[str]] = None,
         mmsi_filter: Optional[list[str]] = None,
     ):
-        self.bounding_boxes = bounding_boxes or mumbai_gulf_bounding_boxes()
+        self.bounding_boxes = bounding_boxes or pan_india_bounding_boxes()
         self.message_types = message_types or DEFAULT_MESSAGE_TYPES
         self.mmsi_filter = mmsi_filter
         self._stop = asyncio.Event()
@@ -257,7 +269,7 @@ class AISStreamCapture:
                 )
             elif self._message_count % 25 == 0:
                 logger.info(
-                    "\U0001F4E6 [%d packets captured] %d unique vessels tracked in Mumbai-Gulf corridor. Latest: '%s' (MMSI: %s)",
+                    "\U0001F4E6 [%d packets captured] %d unique vessels tracked across Pan-India Maritime Domain. Latest: '%s' (MMSI: %s)",
                     self._message_count, len(self._vessels_seen), ship_name, mmsi
                 )
         except UnicodeEncodeError:

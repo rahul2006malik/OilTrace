@@ -5,4 +5,9 @@ reportlab>=4.0.0
 pytest>=8.0.0
 imagecodecs>=2024.1.1
 tifffile>=2024.1.1
+numpy>=1.26.0
+shapely>=2.0.0
+xarray>=2024.1.0
+netCDF4>=1.6.5
+pandas>=2.2.0
 

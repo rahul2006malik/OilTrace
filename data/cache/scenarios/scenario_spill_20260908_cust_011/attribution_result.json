@@ -1,0 +1,17 @@
+{
+  "spill_id": "SPILL-20260908-CUST-011",
+  "scenario_id": "scenario_spill_20260908_cust_011",
+  "generated_at": "2026-09-08T07:08:25.841437+00:00",
+  "candidates": [],
+  "dark_vessel_alert": false,
+  "top_k_recovery": {
+    "k": 0,
+    "ground_truth_vessel_id": null,
+    "recovered_rank": null,
+    "rank_is_top_1": false,
+    "rank_is_top_3": false,
+    "rank_is_top_5": false
+  },
+  "data_provenance": "real_detector",
+  "notes": "No spill detected. Lookalike or clean sea verified by ResNet34 classifier and U-Net segmenter."
+}

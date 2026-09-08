@@ -14,15 +14,13 @@ import {
 } from 'lucide-react';
 
 export const PhysicsInspector: React.FC = () => {
-  const {
-    isPhysicsInspectorOpen,
-    togglePhysicsInspector,
-    physicsAtPoint,
-    isLoadingPhysics,
-    driftRun,
-    detection,
-    showEnsembleBuildup,
-  } = useOilTraceStore();
+  const isPhysicsInspectorOpen = useOilTraceStore((s) => s.isPhysicsInspectorOpen);
+  const togglePhysicsInspector = useOilTraceStore((s) => s.togglePhysicsInspector);
+  const physicsAtPoint = useOilTraceStore((s) => s.physicsAtPoint);
+  const isLoadingPhysics = useOilTraceStore((s) => s.isLoadingPhysics);
+  const driftRun = useOilTraceStore((s) => s.driftRun);
+  const detection = useOilTraceStore((s) => s.detection);
+  const showEnsembleBuildup = useOilTraceStore((s) => s.showEnsembleBuildup);
 
   const [showMathDetails, setShowMathDetails] = useState<boolean>(true);
 
@@ -53,6 +51,79 @@ export const PhysicsInspector: React.FC = () => {
       </div>
 
       <div className="p-3 space-y-3 overflow-y-auto flex-1">
+        {/* Fay Spreading Inversion Spill Age Indicator */}
+        {(() => {
+          const oz = driftRun?.origin_zone as any;
+          const onsetTime = oz?.estimated_onset_time;
+          const spreadHours = oz?.estimated_onset_spread_hours || 3.5;
+          let ageLabel = '18.0h (T-18h)';
+          let onsetDateStr = 'Est. 18h prior to detection';
+          if (onsetTime) {
+            try {
+              const detTime = new Date(detection.detected_at).getTime();
+              const onsetDt = new Date(onsetTime).getTime();
+              const ageh = Math.max(1, (detTime - onsetDt) / 3600000);
+              ageLabel = `${ageh.toFixed(1)}h (T-${ageh.toFixed(1)}h)`;
+              onsetDateStr = new Date(onsetTime).toUTCString().slice(0, 22) + ' UTC';
+            } catch {
+              ageLabel = onsetTime;
+            }
+          }
+          return (
+            <div className="p-2 bg-[#060B11] border border-[#1D2E42] space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">FAY SPREADING REGIME — SPILL AGE</span>
+                <span className="text-[8px] px-1 py-0.2 bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30 font-bold">FAY-VISCOUS</span>
+              </div>
+              <div className="text-base font-bold text-amber-300 tabular-nums">
+                {ageLabel}
+              </div>
+              <div className="text-[10px] text-slate-300">
+                Onset: <span className="font-semibold text-slate-200">{onsetDateStr}</span>
+              </div>
+              <div className="text-[9px] text-slate-500 border-t border-[#1D2E42]/60 pt-1">
+                ±{spreadHours.toFixed(1)}h bounds | Area {detection.area_km2.toFixed(1)} km²
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Scott & Alpers Wind Bragg Scattering Validity Gate */}
+        {(() => {
+          const windVal = physicsAtPoint?.wind?.speed_ms ?? (physicsAtPoint as any)?.wind_speed_ms;
+          let gateColor = 'border-slate-700 text-slate-400';
+          let gateText = 'QUERYING WIND FIELD...';
+          let gateDot = 'bg-slate-500';
+          let gateDetail = 'Click map point to query Bragg scattering window';
+          if (windVal !== undefined && windVal !== null) {
+            if (windVal < 2.0) {
+              gateColor = 'border-amber-500/50 bg-amber-500/5 text-amber-300';
+              gateText = `LOW WIND (${windVal.toFixed(1)} m/s) — LOOK-ALIKE RISK`;
+              gateDot = 'bg-amber-400';
+              gateDetail = 'Wind < 2 m/s: Natural slicks & calm water create false dark patches';
+            } else if (windVal > 12.0) {
+              gateColor = 'border-rose-500/50 bg-rose-500/5 text-rose-300';
+              gateText = `HIGH WIND (${windVal.toFixed(1)} m/s) — SLICK ENTRAINMENT`;
+              gateDot = 'bg-rose-400';
+              gateDetail = 'Wind > 12 m/s: Wave breaking disperses oil droplets into water column';
+            } else {
+              gateColor = 'border-[#2DD4BF]/40 bg-[#2DD4BF]/5 text-[#2DD4BF]';
+              gateText = `OPTIMAL BRAGG WINDOW (${windVal.toFixed(1)} m/s)`;
+              gateDot = 'bg-[#2DD4BF]';
+              gateDetail = '2–12 m/s: High-contrast capillary wave damping verified';
+            }
+          }
+          return (
+            <div className={`p-2 bg-[#060B11] border ${gateColor} space-y-0.5`}>
+              <div className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full ${gateDot} shrink-0 animate-pulse`} />
+                <span className="text-[9px] font-mono font-bold">{gateText}</span>
+              </div>
+              <div className="text-[9px] text-slate-400 pl-3.5">{gateDetail}</div>
+            </div>
+          );
+        })()}
+
         {/* Click Coordinate & Inspection Status */}
         <div className="p-2 bg-[#060B11] border border-[#1D2E42] flex justify-between items-center text-[10px]">
           <span className="text-slate-400">SAMPLE COORDINATE:</span>

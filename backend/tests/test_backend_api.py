@@ -302,5 +302,44 @@ class TestOilTraceBackendAPI(unittest.TestCase):
                 self.assertIn("lon", first_ping)
 
 
+    # -----------------------------------------------------------------------
+    # 8. Dynamic Metocean Vector Grid & Drift Physics
+    # -----------------------------------------------------------------------
+    def test_metocean_grid_vector_alignment(self):
+        """Verifies /api/metocean/grid returns authentic physics vectors aligned with scenarios."""
+        # Query metocean grid for Mumbai
+        resp_mumbai = self.client.get(
+            "/api/metocean/grid?min_lon=71.0&min_lat=17.5&max_lon=73.5&max_lat=20.0&grid_res=6&time=2026-08-25T03:45:00Z&scenario_id=mumbai_gulf_flagship"
+        )
+        self.assertEqual(resp_mumbai.status_code, 200)
+        mumbai_data = resp_mumbai.json()
+        self.assertIn("vectors", mumbai_data)
+        self.assertGreater(len(mumbai_data["vectors"]), 0)
+
+        v_mumbai = mumbai_data["vectors"][0]
+        self.assertIn("current", v_mumbai)
+        self.assertIn("wind", v_mumbai)
+        self.assertIn("net_drift", v_mumbai)
+        self.assertGreater(v_mumbai["current"]["speed_knots"], 0.0)
+        self.assertGreater(v_mumbai["wind"]["speed_knots"], 0.0)
+        self.assertGreater(v_mumbai["net_drift"]["speed_knots"], 0.0)
+
+        # Query metocean grid for Gujarat Vadinar
+        resp_gujarat = self.client.get(
+            "/api/metocean/grid?min_lon=68.5&min_lat=21.5&max_lon=70.5&max_lat=23.5&grid_res=6&time=2026-08-24T06:00:00Z&scenario_id=gujarat_vadinar_corridor"
+        )
+        self.assertEqual(resp_gujarat.status_code, 200)
+        gujarat_data = resp_gujarat.json()
+        v_gujarat = gujarat_data["vectors"][0]
+
+        # Verify Mumbai and Gujarat have distinct authentic vectors (not identical static fallbacks)
+        self.assertNotEqual(
+            (v_mumbai["current"]["bearing_deg"], v_mumbai["wind"]["bearing_deg"]),
+            (v_gujarat["current"]["bearing_deg"], v_gujarat["wind"]["bearing_deg"]),
+            "Metocean vectors across distinct regional scenarios must not be identical static fallbacks!"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
+

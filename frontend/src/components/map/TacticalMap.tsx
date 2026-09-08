@@ -13,19 +13,16 @@ import { MapboxKeyModal } from './controls/MapboxKeyModal';
 import { ActiveLayersState } from './types';
 
 export const TacticalMap: React.FC = () => {
-  const {
-    detection,
-    driftRun,
-    attribution,
-    selectedCandidateId,
-    selectCandidate,
-    fetchPhysics,
-    togglePhysicsInspector,
-    playbackTimeHours,
-    activeMapTab,
-    activeScenarioId,
-    availableScenarios,
-  } = useOilTraceStore();
+  const detection = useOilTraceStore((s) => s.detection);
+  const driftRun = useOilTraceStore((s) => s.driftRun);
+  const attribution = useOilTraceStore((s) => s.attribution);
+  const selectedCandidateId = useOilTraceStore((s) => s.selectedCandidateId);
+  const selectCandidate = useOilTraceStore((s) => s.selectCandidate);
+  const fetchPhysics = useOilTraceStore((s) => s.fetchPhysics);
+  const togglePhysicsInspector = useOilTraceStore((s) => s.togglePhysicsInspector);
+  const activeMapTab = useOilTraceStore((s) => s.activeMapTab);
+  const activeScenarioId = useOilTraceStore((s) => s.activeScenarioId);
+  const availableScenarios = useOilTraceStore((s) => s.availableScenarios);
 
   const {
     mapContainer,
@@ -71,9 +68,9 @@ export const TacticalMap: React.FC = () => {
   // Layer Controllers
   const map = mapRef.current;
   useMaritimeBoundariesLayer(map, mapLoaded, activeLayers.eez);
-  useSlickLayer(map, mapLoaded, detection, driftRun, playbackTimeHours, activeLayers.slick);
-  useOriginConeLayer(map, mapLoaded, driftRun, detection, playbackTimeHours, activeLayers.cones);
-  useStreamlinesLayer(map, mapLoaded, driftRun, playbackTimeHours, activeLayers.streamlines);
+  useSlickLayer(map, mapLoaded, detection, driftRun, activeLayers.slick);
+  useOriginConeLayer(map, mapLoaded, driftRun, detection, activeLayers.cones);
+  useStreamlinesLayer(map, mapLoaded, driftRun, activeLayers.streamlines);
   useVesselTracksLayer(
     map,
     mapLoaded,
@@ -81,11 +78,10 @@ export const TacticalMap: React.FC = () => {
     detection,
     selectedCandidateId,
     selectCandidate,
-    playbackTimeHours,
     activeLayers.vessels,
     activeLayers.routes
   );
-  useMetoceanVectorsLayer(map, mapLoaded, detection, playbackTimeHours, activeLayers.wind);
+  useMetoceanVectorsLayer(map, mapLoaded, detection, activeLayers.wind);
   usePhysicsProbeLayer(map, mapLoaded, detection, fetchPhysics, togglePhysicsInspector);
 
   // Mapbox Key Save Handler

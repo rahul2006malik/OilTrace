@@ -110,9 +110,9 @@ def run_forward_hypothesis(vessel_id, release_lon, release_lat, release_time,
     if isinstance(release_time, str):
         release_time = datetime.fromisoformat(release_time.replace("Z", "+00:00"))
     if detected_at.tzinfo is not None:
-        detected_at = detected_at.replace(tzinfo=None)
+        detected_at = detected_at.astimezone(timezone.utc).replace(tzinfo=None)
     if release_time.tzinfo is not None:
-        release_time = release_time.replace(tzinfo=None)
+        release_time = release_time.astimezone(timezone.utc).replace(tzinfo=None)
 
     forward_hours = (detected_at - release_time).total_seconds() / 3600.0
     if forward_hours <= 0:
@@ -299,9 +299,9 @@ def fast_forward_hypothesis(
     if isinstance(release_time, str):
         release_time = datetime.fromisoformat(release_time.replace("Z", "+00:00"))
     if detected_at.tzinfo is not None:
-        detected_at = detected_at.replace(tzinfo=None)
+        detected_at = detected_at.astimezone(timezone.utc).replace(tzinfo=None)
     if release_time.tzinfo is not None:
-        release_time = release_time.replace(tzinfo=None)
+        release_time = release_time.astimezone(timezone.utc).replace(tzinfo=None)
 
     total_seconds = (detected_at - release_time).total_seconds()
     forward_hours = total_seconds / 3600.0

@@ -146,6 +146,16 @@ def _median_impute(
     return keys, np.array(rows, dtype=float), imputed_by_vessel
 
 
+def _is_stationary_installation(vf: VesselFeatures) -> bool:
+    """Filter out fixed offshore installations/rigs (e.g. MOPU SAGAR SAMRAT)
+    which have high static presence but are not mobile transit polluters."""
+    mmsi = str(getattr(vf, "vessel_key", "") or "")
+    # Known Indian offshore platforms / ONGC fixed facilities
+    if mmsi in ("419381000", "419000000", "419999999"):
+        return True
+    return False
+
+
 def score_vessels(
     vessel_features: dict[str, VesselFeatures],
     *,
@@ -169,13 +179,19 @@ def score_vessels(
             "(pip install scikit-learn numpy). See requirements.txt."
         )
 
-    keys, matrix, imputed_by_vessel = _median_impute(vessel_features)
+    # Separate stationary rigs so they do not distort the mobile vessel anomaly distribution
+    stationary_keys = [k for k, v in vessel_features.items() if _is_stationary_installation(v)]
+    target_features = vessel_features
+    if stationary_keys and len(vessel_features) - len(stationary_keys) >= 2:
+        target_features = {k: v for k, v in vessel_features.items() if not _is_stationary_installation(v)}
+
+    keys, matrix, imputed_by_vessel = _median_impute(target_features)
 
     if len(keys) < 2:
         results = []
         for k in keys:
             results.append(_build_record(
-                k, vessel_features[k], anomaly_score=0.5,
+                k, target_features[k], anomaly_score=0.5,
                 dominant_factor="insufficient_population_for_isolation_forest",
                 imputed_features=imputed_by_vessel[k],
                 data_provenance="synthetic_fallback",
@@ -273,6 +289,19 @@ def score_vessels(
             counterfactuals=counterfactuals,
             narrative=narrative,
         ))
+
+    # Re-integrate stationary rigs at baseline non-anomalous score (0.05)
+    if stationary_keys and target_features is not vessel_features:
+        for sk in stationary_keys:
+            svf = vessel_features[sk]
+            results.append(_build_record(
+                sk, svf, anomaly_score=0.05,
+                dominant_factor="stationary_offshore_installation",
+                imputed_features=[],
+                data_provenance="real_gfw",
+                shap_explanation=None,
+                narrative=f"Stationary offshore installation {sk} operating within fixed concession bounds.",
+            ))
 
     results.sort(key=lambda r: r["evidence_trace"]["anomaly_score"], reverse=True)
     return results

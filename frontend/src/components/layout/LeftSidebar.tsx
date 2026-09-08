@@ -27,7 +27,9 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export const LeftSidebar: React.FC = () => {
-  const { activeScreen, setActiveScreen, logout } = useOilTraceStore();
+  const activeScreen = useOilTraceStore((s) => s.activeScreen);
+  const setActiveScreen = useOilTraceStore((s) => s.setActiveScreen);
+  const logout = useOilTraceStore((s) => s.logout);
 
   const handleNavClick = (screen: ScreenType) => {
     setActiveScreen(screen);

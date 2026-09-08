@@ -210,12 +210,13 @@ export const MapControls: React.FC<MapControlsProps> = ({
                 className={`w-full flex items-center justify-between px-2 py-1 text-left transition-colors rounded-sm ${
                   activeLayers.wind ? 'bg-[#2DD4BF]/10 text-slate-100 font-semibold' : 'text-slate-500 opacity-60 hover:opacity-100'
                 }`}
+                title="Metocean Vectors: Teal = Ocean Surface Current (100% advection), Amber = Surface Wind (3% leeway), Purple = Resultant Net Oil Drift"
               >
                 <div className="flex items-center space-x-2">
                   <div className="flex -space-x-1">
-                    <span className="w-2 h-2 rounded-full bg-[#2DD4BF]" title="Currents (GLORYS)" />
-                    <span className="w-2 h-2 rounded-full bg-[#F59E0B]" title="Winds (ERA5)" />
-                    <span className="w-2 h-2 rounded-full bg-[#A855F7]" title="Net Drift" />
+                    <span className="w-2 h-2 rounded-full bg-[#2DD4BF] ring-1 ring-[#0D1522]" title="Teal: Ocean Current (100% advection)" />
+                    <span className="w-2 h-2 rounded-full bg-[#F59E0B] ring-1 ring-[#0D1522]" title="Amber: Surface Wind (3% leeway)" />
+                    <span className="w-2 h-2 rounded-full bg-[#A855F7] ring-1 ring-[#0D1522]" title="Purple: Net Drift Vector" />
                   </div>
                   <span>Vectors (Current/Wind/Drift)</span>
                 </div>

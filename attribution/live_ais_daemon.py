@@ -159,7 +159,7 @@ async def run_ais_daemon(
     # AISstream requires [[lat1, lon1], [lat2, lon2]] order
     if not bounding_boxes:
         bounding_boxes = [
-            [[10.0, 60.0], [25.0, 78.0]]  # Arabian Sea & Indian EEZ
+            [[4.0, 58.0], [25.0, 98.0]]  # Full Pan-India: Arabian Sea, Bay of Bengal, Andaman Sea & Sri Lanka SLOC
         ]
 
     subscribe_msg = {
@@ -172,7 +172,7 @@ async def run_ais_daemon(
     batch: List[Dict[str, Any]] = []
     backoff = 2
 
-    logger.info("Starting Persistent Live AIS Streamer for Indian EEZ (%s)...", db_path)
+    logger.info("Starting Persistent Live AIS Streamer for Pan-India Maritime Domain (%s)...", db_path)
 
     while True:
         try:

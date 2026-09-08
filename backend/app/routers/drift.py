@@ -37,6 +37,9 @@ router = APIRouter(tags=["drift"])
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
+_METOCEAN_GRID_CACHE: Dict[tuple, dict] = {}
+_METOCEAN_GRID_CACHE_MAX = 128
+
 
 def _get_project_cache_dir() -> Path:
     curr = Path(__file__).resolve().parent.parent.parent
@@ -185,6 +188,7 @@ async def get_metocean_grid_endpoint(
     max_lat: float = Query(21.0, description="Bounding box maximum latitude"),
     grid_res: int = Query(12, ge=4, le=30, description="Grid points per axis"),
     time: Optional[str] = Query(None, description="ISO8601 UTC timestamp"),
+    scenario_id: Optional[str] = Query(None, description="Active Scenario ID for drift trajectory alignment"),
 ) -> dict:
     """
     Slices the active GLORYS current and ERA5 wind NetCDFs to generate
@@ -204,6 +208,18 @@ async def get_metocean_grid_endpoint(
     cache_dir = _get_project_cache_dir()
     forcing_dir = str(cache_dir / "forcing")
 
+    cache_key = (
+        round(min_lon, 3),
+        round(min_lat, 3),
+        round(max_lon, 3),
+        round(max_lat, 3),
+        grid_res,
+        time or "none",
+        scenario_id or "none",
+    )
+    if cache_key in _METOCEAN_GRID_CACHE:
+        return _METOCEAN_GRID_CACHE[cache_key]
+
     grid_result = await run_in_threadpool(
         generate_metocean_grid,
         bbox=[min_lon, min_lat, max_lon, max_lat],
@@ -211,7 +227,14 @@ async def get_metocean_grid_endpoint(
         grid_points_x=grid_res,
         grid_points_y=grid_res,
         forcing_dir=forcing_dir,
+        scenario_id=scenario_id,
     )
+
+    if len(_METOCEAN_GRID_CACHE) >= _METOCEAN_GRID_CACHE_MAX:
+        first_key = next(iter(_METOCEAN_GRID_CACHE))
+        _METOCEAN_GRID_CACHE.pop(first_key, None)
+    _METOCEAN_GRID_CACHE[cache_key] = grid_result
+
     return grid_result
 
 

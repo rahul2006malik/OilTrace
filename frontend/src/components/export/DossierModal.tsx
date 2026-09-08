@@ -18,6 +18,13 @@ export const DossierModal: React.FC<{ isOpen: boolean; onClose: () => void }> = 
   useEffect(() => {
     if (!isOpen || !attribution) return;
 
+    // Prioritize canonical immutable backend hash for 100% evidentiary consistency
+    const canonicalHash = attribution.naval_intercept_advisory?.admiralty_evidence_hash;
+    if (canonicalHash) {
+      setSha256Hash(canonicalHash);
+      return;
+    }
+
     const payload = {
       spill_id: detection.spill_id,
       detected_at: detection.detected_at,

@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
 import maplibregl from 'maplibre-gl';
 import { DriftRun, SlickDetection } from '../../../types';
+import { useOilTraceStore } from '../../../store/useOilTraceStore';
 
 export function useSlickLayer(
   map: maplibregl.Map | null,
   mapLoaded: boolean,
   detection: SlickDetection,
   driftRun: DriftRun | null,
-  playbackTimeHours: number,
   isVisible: boolean
 ) {
+  const playbackTimeHours = useOilTraceStore((s) => s.playbackTimeHours);
   useEffect(() => {
     if (!map || !mapLoaded || !detection) return;
 
@@ -41,12 +42,41 @@ export function useSlickLayer(
     let opacityMultiplier = 1.0;
     let effectiveArea = detection.area_km2;
 
-    const onsetHours = 20.0; // Standard hindcast estimated onset horizon
+    let onsetHours = 20.0;
+    if (driftRun?.origin_zone?.estimated_onset_time && detection?.detected_at) {
+      const onsetMs = new Date(driftRun.origin_zone.estimated_onset_time).getTime();
+      const detMs = new Date(detection.detected_at).getTime();
+      if (!isNaN(onsetMs) && !isNaN(detMs) && detMs > onsetMs) {
+        const diffHours = (detMs - onsetMs) / (3600 * 1000);
+        if (diffHours >= 1.0 && diffHours <= 48.0) {
+          onsetHours = Math.round(diffHours * 10) / 10;
+        }
+      }
+    }
 
     if (playbackTimeHours < -0.01) {
+      // Calculate dynamic simulation window from forcing or trajectory timestamps
+      let simWindowHours = 48.0;
+      if (driftRun?.forcing?.window_start && driftRun?.forcing?.window_end) {
+        const startMs = new Date(driftRun.forcing.window_start).getTime();
+        const endMs = new Date(driftRun.forcing.window_end).getTime();
+        if (!isNaN(startMs) && !isNaN(endMs) && endMs > startMs) {
+          simWindowHours = Math.max(6.0, (endMs - startMs) / (3600 * 1000));
+        }
+      } else {
+        const firstTrack = driftRun?.members?.[0]?.backward_track;
+        if (firstTrack && firstTrack.length >= 2) {
+          const t0 = new Date(firstTrack[0].t).getTime();
+          const tEnd = new Date(firstTrack[firstTrack.length - 1].t).getTime();
+          if (!isNaN(t0) && !isNaN(tEnd) && tEnd > t0) {
+            simWindowHours = Math.max(6.0, (tEnd - t0) / (3600 * 1000));
+          }
+        }
+      }
+
       if (driftRun?.members?.length) {
-        // Normalization: -48.0h (origin) -> 0.0, 0.0h (detection horizon) -> 1.0
-        const timeFraction = Math.max(0.0, Math.min(1.0, (playbackTimeHours + 48.0) / 48.0));
+        // Normalization: -simWindowHours (origin) -> 0.0, 0.0h (detection horizon) -> 1.0
+        const timeFraction = Math.max(0.0, Math.min(1.0, (playbackTimeHours + simWindowHours) / simWindowHours));
         
         let sumDlon = 0;
         let sumDlat = 0;
@@ -76,21 +106,22 @@ export function useSlickLayer(
           dLat = sumDlat / validMembers;
         }
       } else {
-        const progress = Math.min(1.0, Math.abs(playbackTimeHours) / 24.0);
+        const progress = Math.min(1.0, Math.abs(playbackTimeHours) / simWindowHours);
         dLon = -0.15 * progress;
         dLat = -0.10 * progress;
       }
 
       // Fay spreading shrinkage looking backwards in time
       if (playbackTimeHours <= -onsetHours) {
-        scale = 0.01;
-        opacityMultiplier = 0.0;
-        effectiveArea = 0.0;
+        // Point release / nascent slick at vessel manifold
+        scale = 0.18;
+        opacityMultiplier = 0.25;
+        effectiveArea = Math.max(0.2, detection.area_km2 * 0.05);
       } else {
         const hoursSinceDischarge = playbackTimeHours + onsetHours;
         const timeFracSinceDischarge = Math.max(0.05, Math.min(1.0, hoursSinceDischarge / onsetHours));
         scale = 0.25 + 0.75 * Math.pow(timeFracSinceDischarge, 0.375);
-        opacityMultiplier = Math.min(1.0, timeFracSinceDischarge * 1.5);
+        opacityMultiplier = Math.min(1.0, 0.25 + timeFracSinceDischarge * 0.75);
         effectiveArea = detection.area_km2 * Math.pow(timeFracSinceDischarge, 0.75);
       }
     }

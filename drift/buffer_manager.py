@@ -11,14 +11,17 @@ before launching RK4 ensemble runs.
 
 from __future__ import annotations
 
+import functools
 import glob
 import logging
 import os
+import threading
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, Tuple
 
 logger = logging.getLogger("drift_buffer_manager")
+_INSPECT_LOCK = threading.Lock()
 
 try:
     import xarray as xr
@@ -27,37 +30,39 @@ except ImportError:
     XARRAY_AVAILABLE = False
 
 
+@functools.lru_cache(maxsize=128)
 def _inspect_netcdf(filepath: str) -> Optional[dict]:
     """Inspects spatial and temporal bounds of a forcing NetCDF."""
     if not XARRAY_AVAILABLE or not os.path.exists(filepath):
         return None
     try:
-        with xr.open_dataset(filepath) as ds:
-            lon_name = "longitude" if "longitude" in ds else ("lon" if "lon" in ds else None)
-            lat_name = "latitude" if "latitude" in ds else ("lat" if "lat" in ds else None)
-            time_name = "time" if "time" in ds else ("valid_time" if "valid_time" in ds else None)
+        with _INSPECT_LOCK:
+            with xr.open_dataset(filepath) as ds:
+                lon_name = "longitude" if "longitude" in ds else ("lon" if "lon" in ds else None)
+                lat_name = "latitude" if "latitude" in ds else ("lat" if "lat" in ds else None)
+                time_name = "time" if "time" in ds else ("valid_time" if "valid_time" in ds else None)
 
-            if not lon_name or not lat_name or not time_name:
-                return None
+                if not lon_name or not lat_name or not time_name:
+                    return None
 
-            lon_min = float(ds[lon_name].min())
-            lon_max = float(ds[lon_name].max())
-            lat_min = float(ds[lat_name].min())
-            lat_max = float(ds[lat_name].max())
+                lon_min = float(ds[lon_name].min())
+                lon_max = float(ds[lon_name].max())
+                lat_min = float(ds[lat_name].min())
+                lat_max = float(ds[lat_name].max())
 
-            t_vals = ds[time_name].values
-            t_min = str(t_vals[0])[:19]
-            t_max = str(t_vals[-1])[:19]
+                t_vals = ds[time_name].values
+                t_min = str(t_vals[0])[:19]
+                t_max = str(t_vals[-1])[:19]
 
-            return {
-                "filepath": filepath,
-                "lon_min": lon_min,
-                "lon_max": lon_max,
-                "lat_min": lat_min,
-                "lat_max": lat_max,
-                "t_min": t_min,
-                "t_max": t_max,
-            }
+                return {
+                    "filepath": filepath,
+                    "lon_min": lon_min,
+                    "lon_max": lon_max,
+                    "lat_min": lat_min,
+                    "lat_max": lat_max,
+                    "t_min": t_min,
+                    "t_max": t_max,
+                }
     except Exception as e:
         logger.debug("Failed inspecting %s: %s", filepath, e)
         return None

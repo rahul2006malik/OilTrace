@@ -12,6 +12,7 @@ import hashlib
 import json
 import logging
 import math
+import shutil
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -152,7 +153,7 @@ async def get_scenario(scenario_id: str) -> dict:
 
     if not scen_dir.exists():
         # User requested live computation for non-flagship scenarios
-        catalog = list_scenarios().get("scenarios", [])
+        catalog = (await list_scenarios()).get("scenarios", [])
         matched = [s for s in catalog if s.get("scenario_id") == scenario_id]
         if matched:
             s_info = matched[0]
@@ -161,26 +162,28 @@ async def get_scenario(scenario_id: str) -> dict:
             c_lat = round((bbox[1] + bbox[3]) / 2.0, 4)
             spill_id = s_info.get("spill_id", f"SPILL-{scenario_id.upper()}")
             det_str = s_info.get("detected_at", datetime.now(tz=timezone.utc).isoformat())
-            slick_geo = {
-                "type": "Feature",
-                "properties": {
-                    "spill_id": spill_id,
-                    "area_km2": s_info.get("spill_area_km2", 12.5),
-                    "oil_confidence": 0.91,
-                    "data_provenance": "real_gfw" if s_info.get("has_real_gfw") else "synthetic_fallback",
-                    "has_real_gfw": s_info.get("has_real_gfw", True),
-                },
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[
-                        [c_lon - 0.04, c_lat - 0.02],
-                        [c_lon + 0.05, c_lat - 0.01],
-                        [c_lon + 0.03, c_lat + 0.03],
-                        [c_lon - 0.03, c_lat + 0.02],
-                        [c_lon - 0.04, c_lat - 0.02],
-                    ]]
+            slick_geo = s_info.get("slick_geojson")
+            if not slick_geo:
+                slick_geo = {
+                    "type": "Feature",
+                    "properties": {
+                        "spill_id": spill_id,
+                        "area_km2": s_info.get("spill_area_km2", 12.5),
+                        "oil_confidence": 0.91,
+                        "data_provenance": "real_gfw" if s_info.get("has_real_gfw") else "synthetic_fallback",
+                        "has_real_gfw": s_info.get("has_real_gfw", True),
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [c_lon - 0.04, c_lat - 0.02],
+                            [c_lon + 0.05, c_lat - 0.01],
+                            [c_lon + 0.03, c_lat + 0.03],
+                            [c_lon - 0.03, c_lat + 0.02],
+                            [c_lon - 0.04, c_lat - 0.02],
+                        ]]
+                    }
                 }
-            }
             scen_dir.mkdir(parents=True, exist_ok=True)
             _generate_custom_scenario_artifacts(
                 spill_id=spill_id,
@@ -255,6 +258,64 @@ async def compare_scenario_baseline(scenario_id: str) -> dict:
     }
 
 
+@router.delete("/scenarios/{scenario_id}")
+@router.delete("/api/scenarios/{scenario_id}")
+async def delete_scenario(scenario_id: str) -> dict:
+    """
+    Deletes a scenario from catalog and purges all its cached artifacts from disk:
+    - Removes from _CUSTOM_SCENARIOS and updates custom_scenarios.json
+    - Deletes data/cache/scenarios/{scenario_id} directory and all child files
+    - Deletes any scenario-specific trajectory or metadata caches
+    """
+    global _CUSTOM_SCENARIOS
+    cache_dir = _get_project_cache_dir()
+
+    # Prevent deleting the core flagship benchmark scenario
+    if scenario_id == "mumbai_gulf_flagship":
+        raise HTTPException(status_code=400, detail="Cannot delete core flagship benchmark scenario.")
+
+    # 1. Purge disk cache directory if it exists
+    deleted_files_count = 0
+    scen_dir = cache_dir / "scenarios" / scenario_id
+    if scen_dir.exists() and scen_dir.is_dir():
+        try:
+            for p in scen_dir.glob("**/*"):
+                if p.is_file():
+                    deleted_files_count += 1
+            shutil.rmtree(scen_dir)
+            logger.info("[scenarios] Purged cache directory: %s", scen_dir)
+        except Exception as e:
+            logger.warning("[scenarios] Error purging cache directory %s: %s", scen_dir, e)
+
+    # 2. Purge loose cached trajectory or report files
+    for loose_file in [
+        cache_dir / f"{scenario_id}_trajectories.json",
+        cache_dir / "reports" / f"NTRO_Admiralty_Report_{scenario_id}.pdf",
+    ]:
+        if loose_file.exists():
+            try:
+                loose_file.unlink()
+                deleted_files_count += 1
+            except Exception:
+                pass
+
+    # 3. Remove from custom scenarios list if present
+    was_custom = any(s.get("scenario_id") == scenario_id for s in _CUSTOM_SCENARIOS)
+    if was_custom:
+        _CUSTOM_SCENARIOS = [s for s in _CUSTOM_SCENARIOS if s.get("scenario_id") != scenario_id]
+        _save_persisted_custom_scenarios(_CUSTOM_SCENARIOS)
+
+    logger.info("[scenarios] Deleted scenario %s (custom=%s, files_purged=%d)",
+                scenario_id, was_custom, deleted_files_count)
+
+    return {
+        "status": "DELETED",
+        "scenario_id": scenario_id,
+        "files_purged": deleted_files_count,
+        "message": f"Scenario {scenario_id} and all associated cache artifacts deleted successfully.",
+    }
+
+
 def _make_ellipse(cx: float, cy: float, rx: float, ry: float, points: int = 24) -> List[List[float]]:
     pts = []
     for i in range(points):
@@ -292,7 +353,12 @@ def _generate_custom_scenario_artifacts(
     slick_path = scen_dir / "slick_detection.geojson"
     slick_path.write_text(json.dumps(slick_geojson, indent=2), encoding="utf-8")
 
-    has_oil = slick_geojson.get("has_oil", True) and (slick_geojson.get("area_km2", 0) > 0)
+    area_km2 = (
+        slick_geojson.get("area_km2")
+        or slick_geojson.get("properties", {}).get("area_km2")
+        or 0.0
+    )
+    has_oil = slick_geojson.get("has_oil", True) and (area_km2 > 0)
     if not has_oil:
         # Negative / lookalike / clean sea: no spill to hindcast or attribute
         traj_path = scen_dir / "trajectories.json"
@@ -546,7 +612,7 @@ def _generate_custom_scenario_artifacts(
                 "label": "Discharge Corridor / AIS Blackout",
                 "timestamp": positions[2]["timestamp"],
                 "coordinates": [positions[2]["lon"], positions[2]["lat"]],
-                "type": "gap_start",
+                "type": "blackout_start",
                 "note": "Speed dropped to 5.8 kn in core 50% hindcast origin cone (unlogged AIS transponder gap).",
             })
         milestones.append({
@@ -619,7 +685,8 @@ def _generate_custom_scenario_artifacts(
     candidates = [c1, c2, c3]
 
     # Data Provenance and Dark Vessel Alert compliance
-    is_dark = "dark" in scenario_id.lower() or "dark" in spill_id.lower() or not slick_geojson.get("properties", {}).get("has_real_gfw", True)
+    has_gfw = slick_geojson.get("has_real_gfw") if "has_real_gfw" in slick_geojson else slick_geojson.get("properties", {}).get("has_real_gfw", True)
+    is_dark = "dark" in scenario_id.lower() or "dark" in spill_id.lower() or not has_gfw
     if is_dark:
         for c in candidates:
             c["data_provenance"] = "synthetic_fallback"
@@ -667,7 +734,8 @@ async def create_custom_scenario(
     upload_dir.mkdir(parents=True, exist_ok=True)
 
     timestamp_str = datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
-    safe_filename = f"upload_{timestamp_str}_{file.filename}"
+    clean_name = Path(file.filename or "upload").name
+    safe_filename = f"upload_{timestamp_str}_{clean_name}"
     file_path = upload_dir / safe_filename
 
     content = await file.read()

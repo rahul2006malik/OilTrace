@@ -360,7 +360,7 @@ def dead_reckon_full_track(
         try:
             dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
             if dt.tzinfo is not None:
-                dt = dt.replace(tzinfo=None)
+                dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
             parsed.append((dt, fix))
         except (ValueError, TypeError):
             continue

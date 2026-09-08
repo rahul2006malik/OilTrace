@@ -3,19 +3,17 @@ import { useOilTraceStore } from '../../store/useOilTraceStore';
 import { Bell, Search, Waves, ChevronDown, RefreshCw, FileText } from 'lucide-react';
 
 export const TopBar: React.FC<{ onDossierOpen?: () => void }> = ({ onDossierOpen }) => {
-  const {
-    detection,
-    attribution,
-    backendOnline,
-    systemHealth,
-    isLoadingPipeline,
-    getRealVesselFraction,
-    activeScenarioId,
-    availableScenarios,
-    setActiveScreen,
-    selectCandidate,
-    setCameraTarget,
-  } = useOilTraceStore();
+  const detection = useOilTraceStore((s) => s.detection);
+  const attribution = useOilTraceStore((s) => s.attribution);
+  const backendOnline = useOilTraceStore((s) => s.backendOnline);
+  const systemHealth = useOilTraceStore((s) => s.systemHealth);
+  const isLoadingPipeline = useOilTraceStore((s) => s.isLoadingPipeline);
+  const getRealVesselFraction = useOilTraceStore((s) => s.getRealVesselFraction);
+  const activeScenarioId = useOilTraceStore((s) => s.activeScenarioId);
+  const availableScenarios = useOilTraceStore((s) => s.availableScenarios);
+  const setActiveScreen = useOilTraceStore((s) => s.setActiveScreen);
+  const selectCandidate = useOilTraceStore((s) => s.selectCandidate);
+  const setCameraTarget = useOilTraceStore((s) => s.setCameraTarget);
 
   const [utcTime, setUtcTime] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,13 +61,11 @@ export const TopBar: React.FC<{ onDossierOpen?: () => void }> = ({ onDossierOpen
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            if (data.type === 'ais_batch') {
-              setLivePingsCount((prev) => prev + (data.pings_count || 1));
-            } else if (data.type === 'heartbeat') {
-              setLivePingsCount((prev) => prev + 1);
+            if (data.type === 'ais_batch' && typeof data.pings_count === 'number') {
+              setLivePingsCount((prev) => prev + data.pings_count);
             }
           } catch {
-            setLivePingsCount((prev) => prev + 1);
+            // Ignore malformed messages without incrementing telemetry count
           }
         };
         ws.onclose = () => {
@@ -85,6 +81,10 @@ export const TopBar: React.FC<{ onDossierOpen?: () => void }> = ({ onDossierOpen
         };
         ws.onerror = () => {
           setWsConnected(false);
+          if (pingInterval) {
+            clearInterval(pingInterval);
+            pingInterval = null;
+          }
           if (ws) {
             try { ws.close(); } catch {}
           }

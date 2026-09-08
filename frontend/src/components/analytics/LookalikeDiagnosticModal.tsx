@@ -103,10 +103,12 @@ export const LookalikeDiagnosticModal: React.FC<LookalikeDiagnosticModalProps> =
 
             <div className='p-2.5 bg-[#0D1522] border border-[#1E2C3F] rounded-sm'>
               <div className='text-[10px] text-slate-400 font-semibold uppercase'>Lookalike Suppression</div>
-              <div className={`text-base font-bold mt-1 ${isSuppressed ? 'text-amber-400' : 'text-emerald-400'}`}>
-                {isSuppressed ? 'FLAGGED AS LOOKALIKE' : 'REJECTED (AUTHENTIC SPILL)'}
+              <div className={`text-base font-bold mt-1 ${isSuppressed ? 'text-emerald-400' : 'text-amber-400'}`}>
+                {isSuppressed ? 'LOOKALIKE SUPPRESSED (CONFIRMED SPILL)' : 'BORDERLINE / UNFILTERED LOOKALIKE'}
               </div>
-              <div className='text-[9px] text-slate-400 mt-0.5'>Dual-Stage Veto Active</div>
+              <div className='text-[9px] text-slate-400 mt-0.5'>
+                {isSuppressed ? 'Dual-Stage Causal Veto Cleared' : 'Secondary Review Recommended'}
+              </div>
             </div>
           </div>
 

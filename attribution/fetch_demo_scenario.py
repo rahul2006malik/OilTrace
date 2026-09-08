@@ -185,13 +185,26 @@ def main() -> int:
         identity = gfw.resolve_vessel_identity(cand["vessel_id"])
         if identity.resolved:
             cand["vessel_name"] = identity.shipname
-            cand["evidence_trace"]["vessel_type_prior"] = identity.shiptype
+
+            # Map shiptype string to numeric risk prior float per VESSEL_TYPE_RISK_PRIORS
+            prior_val = None
+            if identity.shiptype:
+                shiptype_key = str(identity.shiptype).lower().replace(" ", "_")
+                prior_val = sc.VESSEL_TYPE_RISK_PRIORS.get(shiptype_key, 0.50)
+            cand["evidence_trace"]["vessel_type_prior"] = prior_val
+
             cand["_debug_identity"] = {
                 "flag": identity.flag, "shiptype": identity.shiptype,
                 "resolved_vessel_id": identity.vessel_id,
             }
+
+            # Add coordinates to candidate if we have them from GFW
+            if hasattr(identity, 'last_position_lon') and identity.last_position_lon:
+                cand['lon'] = identity.last_position_lon  
+                cand['lat'] = identity.last_position_lat
+
             print(f"  {cand['vessel_id']} -> {identity.shipname or '(no name)'} "
-                  f"({identity.shiptype or 'unknown type'}, flag={identity.flag})")
+                  f"({identity.shiptype or 'unknown type'}, prior={prior_val}, flag={identity.flag})")
         else:
             print(f"  {cand['vessel_id']} -> not resolved (no matching registry entry)")
 

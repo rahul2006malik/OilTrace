@@ -1,0 +1,16 @@
+data/
+data/cache/
+*.json
+*.geojson
+*.tif
+*.tiff
+*.nc
+*.nc4
+*.png
+*.pdf
+.git/
+node_modules/
+frontend/
+dist/
+reports/
+checkpoints/

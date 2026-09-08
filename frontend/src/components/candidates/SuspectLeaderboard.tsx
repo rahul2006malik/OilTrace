@@ -4,14 +4,65 @@ import { Candidate, CandidateProvenance } from '../../types';
 import { Ship, ShieldAlert, AlertTriangle, ExternalLink, Anchor, Navigation, Download, Loader2 } from 'lucide-react';
 import { generateBackendReportPdf } from '../../api/oiltraceApi';
 
+const CandidateKinematicsPill: React.FC<{
+  cand: Candidate;
+  detectedAt?: string;
+}> = React.memo(({ cand, detectedAt }) => {
+  const playbackTimeHours = useOilTraceStore((s) => s.playbackTimeHours);
+  const detMs = detectedAt ? new Date(detectedAt).getTime() : Date.now();
+  const targetMs = detMs + playbackTimeHours * 3600 * 1000;
+  let currentSog = 12.0;
+  let isSlowdownOrGap = false;
+
+  if (cand.ais_positions && cand.ais_positions.length > 0) {
+    let closest = cand.ais_positions[0];
+    let minDiff = Infinity;
+    for (const pt of cand.ais_positions) {
+      const diff = Math.abs(new Date(pt.timestamp).getTime() - targetMs);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = pt;
+      }
+    }
+    if (closest && typeof closest.sog === 'number') {
+      currentSog = closest.sog;
+      isSlowdownOrGap = !!closest.is_reconstructed || (closest.sog >= 4.0 && closest.sog <= 8.0);
+    }
+  } else {
+    isSlowdownOrGap = playbackTimeHours <= -30.0 && playbackTimeHours >= -38.0;
+    currentSog = isSlowdownOrGap ? 6.1 : 14.8;
+  }
+
+  return (
+    <div className="mt-2 p-1.5 bg-[#0D1522] border border-[#2DD4BF]/40 rounded-sm flex items-center justify-between text-[9px] font-mono">
+      <div className="flex items-center space-x-1.5 text-slate-300">
+        <Navigation className="w-3 h-3 text-[#2DD4BF]" />
+        <span>{playbackTimeHours === 0 ? 'T=0.0h' : `T${playbackTimeHours.toFixed(1)}h`} KINEMATICS:</span>
+      </div>
+      <div>
+        {isSlowdownOrGap ? (
+          <span className="text-rose-400 font-bold animate-pulse flex items-center space-x-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping inline-block mr-1" />
+            {currentSog.toFixed(1)} kn (DISCHARGE SLOWDOWN / GAP)
+          </span>
+        ) : (
+          <span className="text-emerald-400 font-bold">
+            {currentSog.toFixed(1)} kn (TRANSIT CRUISE)
+          </span>
+        )}
+      </div>
+    </div>
+  );
+});
+
 export const SuspectLeaderboard: React.FC = () => {
   const {
     detection,
     attribution,
     selectedCandidateId,
     selectCandidate,
+    setCameraTarget,
     getRealVesselFraction,
-    playbackTimeHours,
     pipelineError,
   } = useOilTraceStore();
 
@@ -121,19 +172,38 @@ export const SuspectLeaderboard: React.FC = () => {
           candidates.map((cand, idx) => {
             const isSelected = cand.vessel_id === (selectedCandidate?.vessel_id || candidates[0]?.vessel_id);
             const scorePct = cand.suspicion_score !== null ? (cand.suspicion_score * 100).toFixed(1) : '—';
+            const s_score = cand.suspicion_score ?? 0;
             const ci = cand.confidence_interval;
+            const ev = cand.evidence_trace;
+
+            // AIS gap detection
+            const hasAisGap =
+              ev?.dominant_factor === 'gap_duration_hours' ||
+              (typeof (ev as any)?.gap_duration_hours === 'number' && (ev as any).gap_duration_hours > 6);
+
+            // Counterfactual tooltip
+            const counterfactualTitle =
+              ev?.counterfactuals && ev.counterfactuals.length > 0
+                ? ev.counterfactuals[0]
+                : undefined;
 
             return (
               <div
                 key={cand.vessel_id}
-                onClick={() => selectCandidate(cand.vessel_id)}
+                onClick={() => {
+                  selectCandidate(cand.vessel_id);
+                  if (cand.last_known_position) {
+                    setCameraTarget(cand.last_known_position);
+                  }
+                }}
+                title={counterfactualTitle}
                 className={`p-2.5 border cursor-pointer transition-all ${
                   isSelected
                     ? 'border-[#2DD4BF] bg-[#0F1926]'
                     : 'border-[#1D2E42] bg-[#060B11] hover:border-slate-400'
                 }`}
               >
-                {/* Header Row: Rank, Name, Provenance */}
+                {/* Header Row: Rank, Name, AIS GAP badge, Provenance */}
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center space-x-2 truncate">
                     <span className={`text-[10px] font-mono font-bold px-1 py-0.2 ${idx === 0 ? 'bg-[#2DD4BF] text-[#060B11]' : 'bg-[#1D2E42] text-slate-300'}`}>
@@ -142,6 +212,11 @@ export const SuspectLeaderboard: React.FC = () => {
                     <span className="text-xs font-bold font-mono text-[#F1F5F9] truncate">
                       {cand.vessel_name || `MMSI: ${cand.vessel_id}`}
                     </span>
+                    {hasAisGap && (
+                      <span className="text-[8px] font-mono font-bold px-1 py-0.5 bg-rose-500/20 text-rose-300 border border-rose-500/50 rounded-xs animate-pulse">
+                        AIS GAP
+                      </span>
+                    )}
                   </div>
                   {getProvenanceBadge(cand.data_provenance)}
                 </div>
@@ -153,7 +228,7 @@ export const SuspectLeaderboard: React.FC = () => {
                   <span className="truncate max-w-[110px]">{cand.vessel_type || 'Tanker'}</span>
                 </div>
 
-                {/* Suspicion Score & CI */}
+                {/* Suspicion Score & Animated Gradient Progress Bar */}
                 <div className="border-t border-[#1D2E42] pt-2 mb-2">
                   <div className="flex justify-between items-baseline mb-1">
                     <span className="text-[10px] font-mono text-slate-400">SUSPICION SCORE:</span>
@@ -168,6 +243,15 @@ export const SuspectLeaderboard: React.FC = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* Gradient score progress bar */}
+                  <div className="w-full bg-[#060B11] h-1.5 border border-[#1D2E42] overflow-hidden rounded-xs mb-2">
+                    <div
+                      className="h-full bg-gradient-to-r from-rose-500 via-amber-400 to-[#2DD4BF] transition-all duration-700"
+                      style={{ width: `${Math.min(100, Math.max(0, s_score * 100))}%` }}
+                    />
+                  </div>
+
 
                   {/* Evidence Decomposition Bars */}
                   <div className="space-y-1 mt-1.5 text-[9px] font-mono">
@@ -246,7 +330,7 @@ export const SuspectLeaderboard: React.FC = () => {
                       {cand.route_reconstruction?.speed_summary?.discharge_speed_window && (
                         <div className="col-span-2 mt-0.5 text-amber-300 font-bold flex items-center space-x-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                          <span>DISCHARGE SPEED ANOMALY DETECTED (2.0–6.0 kn)</span>
+                          <span>DISCHARGE SPEED ANOMALY DETECTED (4.0–8.0 kn)</span>
                         </div>
                       )}
                     </div>
@@ -277,51 +361,9 @@ export const SuspectLeaderboard: React.FC = () => {
                 )}
 
                 {/* Live Scrubber-Coupled Speed & Status Pill */}
-                {isSelected && (() => {
-                  let currentSog = 13.8;
-                  let isSlowdownOrGap = false;
-                  if (cand.ais_positions && cand.ais_positions.length > 0 && detection?.detected_at) {
-                    const detMs = new Date(detection.detected_at).getTime();
-                    const targetMs = detMs + playbackTimeHours * 3600 * 1000;
-                    let closest = cand.ais_positions[0];
-                    let minDiff = Infinity;
-                    for (const pt of cand.ais_positions) {
-                      const diff = Math.abs(new Date(pt.timestamp).getTime() - targetMs);
-                      if (diff < minDiff) {
-                        minDiff = diff;
-                        closest = pt;
-                      }
-                    }
-                    if (closest && typeof closest.sog === 'number') {
-                      currentSog = closest.sog;
-                      isSlowdownOrGap = !!closest.is_reconstructed || (closest.sog >= 3.5 && closest.sog <= 8.5);
-                    }
-                  } else {
-                    isSlowdownOrGap = playbackTimeHours <= -30.0 && playbackTimeHours >= -38.0;
-                    currentSog = isSlowdownOrGap ? 6.1 : 14.8;
-                  }
-
-                  return (
-                    <div className="mt-2 p-1.5 bg-[#0D1522] border border-[#2DD4BF]/40 rounded-sm flex items-center justify-between text-[9px] font-mono">
-                      <div className="flex items-center space-x-1.5 text-slate-300">
-                        <Navigation className="w-3 h-3 text-[#2DD4BF]" />
-                        <span>{playbackTimeHours === 0 ? 'T=0.0h' : `T${playbackTimeHours.toFixed(1)}h`} KINEMATICS:</span>
-                      </div>
-                      <div>
-                        {isSlowdownOrGap ? (
-                          <span className="text-rose-400 font-bold animate-pulse flex items-center space-x-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping inline-block mr-1" />
-                            {currentSog.toFixed(1)} kn (DISCHARGE SLOWDOWN / GAP)
-                          </span>
-                        ) : (
-                          <span className="text-emerald-400 font-bold">
-                            {currentSog.toFixed(1)} kn (TRANSIT CRUISE)
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })()}
+                {isSelected && (
+                  <CandidateKinematicsPill cand={cand} detectedAt={detection?.detected_at} />
+                )}
 
                 {/* Admiralty Forensic Dossier Export Action */}
                 {isSelected && (

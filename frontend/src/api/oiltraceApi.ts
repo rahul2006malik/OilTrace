@@ -154,9 +154,33 @@ export async function fetchScenarios(): Promise<{ scenarios: any[] }> {
   return await res.json();
 }
 
+export async function deleteScenarioApi(scenarioId: string): Promise<{ status: string; scenario_id: string; files_purged: number; message: string }> {
+  const res = await fetch(`${API_BASE}/api/scenarios/${encodeURIComponent(scenarioId)}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to delete scenario (${res.status}): ${errorText}`);
+  }
+  return await res.json();
+}
+
 /**
- * Fetches specific scenario details by ID.
+ * Fetches full scenario data (slick detection GeoJSON, drift ensemble, trajectories, attribution).
  */
+export async function fetchScenarioDetails(scenarioId: string): Promise<{
+  scenario_id: string;
+  origin_ensemble: any;
+  trajectories: any[];
+  slick: SlickDetection | null;
+  attribution: AttributionResult | null;
+}> {
+  const res = await fetch(`${API_BASE}/api/scenarios/${encodeURIComponent(scenarioId)}`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch scenario details for ${scenarioId} (${res.status})`);
+  }
+  return await res.json();
+}
 /**
  * Uploads a custom SAR image with incident coordinates to create and register a new scenario.
  */
@@ -191,17 +215,23 @@ export async function createCustomScenarioApi(
 export async function fetchMetoceanGrid(
   bbox: [number, number, number, number],
   timeIso?: string,
-  gridStep: number = 0.5
+  gridStep: number = 0.5,
+  scenarioId?: string
 ): Promise<any> {
+  const lonSpan = Math.max(0.1, bbox[2] - bbox[0]);
+  const calculatedRes = Math.max(4, Math.min(24, Math.round(lonSpan / Math.max(0.05, gridStep))));
   const params = new URLSearchParams({
     min_lon: bbox[0].toFixed(4),
     min_lat: bbox[1].toFixed(4),
     max_lon: bbox[2].toFixed(4),
     max_lat: bbox[3].toFixed(4),
-    grid_res: '14',
+    grid_res: calculatedRes.toString(),
   });
   if (timeIso) {
     params.set('time', timeIso);
+  }
+  if (scenarioId) {
+    params.set('scenario_id', scenarioId);
   }
 
   const res = await fetch(`${API_BASE}/api/metocean/grid?${params.toString()}`);

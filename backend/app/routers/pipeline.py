@@ -147,8 +147,12 @@ def _compute_drift_proximity_by_vessel(
         if not test_points:
             v_lon = cand.get("lon")
             v_lat = cand.get("lat")
+            if (v_lon is None or v_lat is None) and cand.get("last_known_position"):
+                lkp = cand["last_known_position"]
+                if isinstance(lkp, (list, tuple)) and len(lkp) >= 2:
+                    v_lon, v_lat = lkp[0], lkp[1]
             if v_lon is not None and v_lat is not None:
-                test_points.append((Point(v_lon, v_lat), 0.4))
+                test_points.append((Point(float(v_lon), float(v_lat)), 0.4))
 
         if not test_points:
             prox_by_vessel[vid] = 0.02
@@ -255,8 +259,9 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
     if payload.slick_geojson_ref:
         if isinstance(payload.slick_geojson_ref, dict):
             slick_geojson = payload.slick_geojson_ref
-            slick_area = slick_geojson.get("area_km2")
-            slick_elongation = slick_geojson.get("elongation_ratio")
+            props = slick_geojson.get("properties", {}) if isinstance(slick_geojson.get("properties"), dict) else {}
+            slick_area = slick_geojson.get("area_km2") or props.get("area_km2")
+            slick_elongation = slick_geojson.get("elongation_ratio") or props.get("elongation_ratio")
             if slick_geojson.get("geometry"):
                 try:
                     slick_polygon = shape(slick_geojson["geometry"])
@@ -561,7 +566,11 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
     estimated_age_h = 18.0
     if drift_result and "age_estimate_hours" in drift_result:
         try:
-            estimated_age_h = float(drift_result["age_estimate_hours"])
+            raw_age = drift_result["age_estimate_hours"]
+            if isinstance(raw_age, dict):
+                estimated_age_h = float(raw_age.get("value", 18.0))
+            else:
+                estimated_age_h = float(raw_age)
         except Exception:
             pass
     if drift_result and "origin_zone" in drift_result and "estimated_onset_time" in drift_result["origin_zone"]:
@@ -704,7 +713,12 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
 
     formatted = []
     for c in fused:
-        c_dict = dict(c)
+        if hasattr(c, "model_dump"):
+            c_dict = c.model_dump()
+        elif hasattr(c, "dict"):
+            c_dict = c.dict()
+        else:
+            c_dict = dict(c)
         v_id = str(c_dict.get("vessel_id"))
         s_score = c_dict.get("suspicion_score") or 0.65
         c_dict["suspicion_score"] = s_score
@@ -781,7 +795,7 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
                 {"timestamp": (detected_at_dt - timedelta(hours=18)).isoformat(), "lon": round(v_last_lon - 0.10, 4), "lat": round(v_last_lat - 0.08, 4), "sog": 6.5 if is_high_suspect else 13.5, "cog": 52.0, "is_reconstructed": True},
                 {"timestamp": (detected_at_dt - timedelta(hours=12)).isoformat(), "lon": round(v_last_lon - 0.02, 4), "lat": round(v_last_lat - 0.02, 4), "sog": 6.0 if is_high_suspect else 13.8, "cog": 52.0, "is_reconstructed": True},
                 {"timestamp": (detected_at_dt - timedelta(hours=6)).isoformat(), "lon": round(v_last_lon + 0.05, 4), "lat": round(v_last_lat + 0.03, 4), "sog": 13.0, "cog": 55.0, "is_reconstructed": True},
-                {"timestamp": detected_at_str, "lon": round(v_last_lon, 4), "lat": round(v_last_lat, 4), "sog": 13.4, "cog": 55.0, "is_reconstructed": False},
+                {"timestamp": detected_at_str, "lon": round(v_last_lon, 4), "lat": round(v_last_lat, 4), "sog": 13.4, "cog": 55.0, "is_reconstructed": True},
             ]
         m_list, s_list = _derive_milestones_and_sog(c_dict, detected_at_str)
         c_dict["voyage_milestones"] = m_list

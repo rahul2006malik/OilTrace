@@ -3,7 +3,7 @@ import { useOilTraceStore } from '../../store/useOilTraceStore';
 import { ScenarioItem } from '../../types';
 import {
   Plus, Search, Grid, List, Layers, Ship, Droplet, AlertCircle, ArrowRight, X,
-  Upload, MapPin, Calendar, ChevronRight, Star
+  Upload, MapPin, Calendar, ChevronRight, Star, Trash2
 } from 'lucide-react';
 
 // Offline-ready scenario cards with local tactical previews
@@ -28,16 +28,32 @@ interface CreateModalState {
 }
 
 export const ScenarioPickerScreen: React.FC = () => {
-  const { availableScenarios, isLoadingScenarios, loadScenario, refreshScenarios, createCustomScenario } = useOilTraceStore();
+  const { availableScenarios, isLoadingScenarios, loadScenario, refreshScenarios, createCustomScenario, deleteScenario } = useOilTraceStore();
   const [activeTab, setActiveTab] = useState<'all' | 'recent' | 'training' | 'custom'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [createModal, setCreateModal] = useState<CreateModalState>({
     isOpen: false, file: null, name: 'Custom SAR Incident', lon: '71.61', lat: '18.42',
     isDragging: false, isCreating: false, error: null,
   });
+
+  const handleDeleteScenario = async (e: React.MouseEvent, scenarioId: string, name: string) => {
+    e.stopPropagation();
+    if (!window.confirm(`Delete scenario "${name}" and purge all cached drift simulations, trajectories, and report artifacts?`)) {
+      return;
+    }
+    setDeletingId(scenarioId);
+    try {
+      await deleteScenario(scenarioId);
+    } catch (err: any) {
+      alert(`Failed to delete scenario: ${err.message || err}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     refreshScenarios();
@@ -49,8 +65,8 @@ export const ScenarioPickerScreen: React.FC = () => {
     const matchesSearch = !q || s.name.toLowerCase().includes(q) || s.location_name?.toLowerCase().includes(q) || s.description?.toLowerCase().includes(q);
     const matchesTab =
       activeTab === 'all' ||
-      (activeTab === 'custom' && s.tags?.includes('CUSTOM SCENARIO')) ||
-      (activeTab === 'training' && (s.tags?.includes('CAUSAL VETO') || s.spill_area_km2 && s.spill_area_km2 < 6)) ||
+      (activeTab === 'custom' && Boolean(s.tags?.includes('CUSTOM SCENARIO'))) ||
+      (activeTab === 'training' && (Boolean(s.tags?.includes('CAUSAL VETO')) || (typeof s.spill_area_km2 === 'number' && s.spill_area_km2 < 6))) ||
       activeTab === 'recent';
     return matchesSearch && matchesTab;
   });
@@ -229,9 +245,22 @@ export const ScenarioPickerScreen: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Hindcast status badge */}
-                      <div className="absolute top-2.5 right-2.5 text-[9px] font-mono font-bold px-2 py-0.5 bg-[#060B11]/90 border border-[#1D2E42] text-[#2DD4BF] rounded-sm">
-                        {s.has_drift_ensemble ? 'HINDCAST READY' : 'LIVE COMPUTE'}
+                      {/* Hindcast status badge & Delete Button */}
+                      <div className="absolute top-2.5 right-2.5 flex items-center space-x-1">
+                        <div className="text-[9px] font-mono font-bold px-2 py-0.5 bg-[#060B11]/90 border border-[#1D2E42] text-[#2DD4BF] rounded-sm">
+                          {s.has_drift_ensemble ? 'HINDCAST READY' : 'LIVE COMPUTE'}
+                        </div>
+                        {s.scenario_id !== 'mumbai_gulf_flagship' && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteScenario(e, s.scenario_id, s.name)}
+                            disabled={deletingId === s.scenario_id}
+                            className="p-1 bg-[#060B11]/90 border border-rose-900/60 hover:border-rose-500 text-rose-400 hover:text-rose-200 transition-colors rounded-sm shadow-sm"
+                            title="Delete scenario and purge all cached artifacts"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -282,10 +311,10 @@ export const ScenarioPickerScreen: React.FC = () => {
 
               // List view
               return (
-                <button
+                <div
                   key={s.scenario_id}
                   onClick={() => loadScenario(s)}
-                  className="group w-full flex items-center space-x-4 border border-[#1D2E42] bg-[#0A121C] hover:border-[#2DD4BF] p-4 transition-all text-left"
+                  className="group w-full flex items-center space-x-4 border border-[#1D2E42] bg-[#0A121C] hover:border-[#2DD4BF] p-4 transition-all text-left cursor-pointer"
                 >
                   <div className="w-20 h-16 shrink-0 overflow-hidden">
                     <img src={imgSrc} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
@@ -298,8 +327,21 @@ export const ScenarioPickerScreen: React.FC = () => {
                     <div className="text-xs text-slate-400 mt-0.5">{s.location_name} · {s.detected_at?.split('T')[0]}</div>
                     <div className="text-[10px] text-slate-500 mt-1 truncate">{s.description}</div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-[#2DD4BF] transition-colors shrink-0" />
-                </button>
+                  <div className="flex items-center space-x-2 shrink-0">
+                    {s.scenario_id !== 'mumbai_gulf_flagship' && (
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteScenario(e, s.scenario_id, s.name)}
+                        disabled={deletingId === s.scenario_id}
+                        className="p-1.5 bg-[#060B11] border border-rose-900/60 hover:border-rose-500 text-rose-400 hover:text-rose-200 transition-colors rounded-sm"
+                        title="Delete scenario and purge all cached artifacts"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-[#2DD4BF] transition-colors" />
+                  </div>
+                </div>
               );
             })}
 

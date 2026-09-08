@@ -1,0 +1,20 @@
+{
+  "spill_id": "SPILL-20260908-CUST-011",
+  "detected_at": "2026-09-08T07:08:25.274937+00:00",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": []
+  },
+  "centroid": [
+    71.61,
+    15.33
+  ],
+  "area_km2": 0.0,
+  "elongation_ratio": 1.0,
+  "oil_confidence": 0.0,
+  "thickness_class": "sheen",
+  "source_scene_id": "00094.tif",
+  "lookalike_suppressed": true,
+  "data_provenance": "real_detector",
+  "has_oil": false
+}

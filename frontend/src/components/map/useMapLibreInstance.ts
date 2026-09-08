@@ -113,12 +113,12 @@ export function useMapLibreInstance() {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const prevSpillIdRef = useRef<string | null>(null);
 
-  const {
-    detection,
-    cameraTarget,
-    setCameraTarget,
-    activeMapTab,
-  } = useOilTraceStore();
+  const detection = useOilTraceStore((s) => s.detection);
+  const cameraTarget = useOilTraceStore((s) => s.cameraTarget);
+  const setCameraTarget = useOilTraceStore((s) => s.setCameraTarget);
+  const activeMapTab = useOilTraceStore((s) => s.activeMapTab);
+  const activeScenarioId = useOilTraceStore((s) => s.activeScenarioId);
+  const availableScenarios = useOilTraceStore((s) => s.availableScenarios);
 
   const [mapLoaded, setMapLoaded] = useState<boolean>(false);
   const [currentBasemap, setCurrentBasemap] = useState<BasemapStyle>('satellite');
@@ -187,7 +187,7 @@ export function useMapLibreInstance() {
     });
   }, [mapLoaded, mapboxToken]);
 
-  // Synchronize Camera only on incident or target change
+  // Synchronize Camera on incident or scenario change (fit bounding box if available)
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
@@ -204,13 +204,26 @@ export function useMapLibreInstance() {
 
     if (detection?.centroid && detection.spill_id !== prevSpillIdRef.current) {
       prevSpillIdRef.current = detection.spill_id;
-      map.flyTo({
-        center: [detection.centroid[0], detection.centroid[1]],
-        zoom: 8.5,
-        speed: 1.2,
-      });
+
+      const activeScen = availableScenarios.find((s) => s.scenario_id === activeScenarioId);
+      if (activeScen?.bbox && activeScen.bbox.length === 4) {
+        const [minLon, minLat, maxLon, maxLat] = activeScen.bbox;
+        map.fitBounds(
+          [
+            [minLon, minLat],
+            [maxLon, maxLat],
+          ],
+          { padding: 75, maxZoom: 10.5, duration: 1200 }
+        );
+      } else {
+        map.flyTo({
+          center: [detection.centroid[0], detection.centroid[1]],
+          zoom: 8.5,
+          speed: 1.2,
+        });
+      }
     }
-  }, [cameraTarget, detection?.spill_id, mapLoaded, setCameraTarget, detection?.centroid]);
+  }, [cameraTarget, detection?.spill_id, mapLoaded, setCameraTarget, detection?.centroid, activeScenarioId, availableScenarios]);
 
   // Synchronize Active Map Tab with Basemap
   useEffect(() => {
