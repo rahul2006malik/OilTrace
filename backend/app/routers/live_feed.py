@@ -71,6 +71,26 @@ async def websocket_live_ais_endpoint(websocket: WebSocket):
     last_timestamp = datetime.now(timezone.utc).isoformat()
 
     initial_push = True
+
+    async def _client_receiver():
+        try:
+            while True:
+                msg_text = await websocket.receive_text()
+                try:
+                    data = json.loads(msg_text)
+                    if data.get("type") == "ping":
+                        pong_msg = {
+                            "type": "pong",
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "sequence_id": data.get("sequence_id"),
+                        }
+                        await websocket.send_text(json.dumps(pong_msg))
+                except Exception:
+                    pass
+        except (WebSocketDisconnect, asyncio.CancelledError):
+            pass
+
+    receiver_task = asyncio.create_task(_client_receiver())
     try:
         while True:
             new_pings = []
@@ -145,6 +165,12 @@ async def websocket_live_ais_endpoint(websocket: WebSocket):
     except Exception as e:
         logger.debug("[ws] Stream terminated: %s", e)
         manager.disconnect(websocket)
+    finally:
+        receiver_task.cancel()
+        try:
+            await receiver_task
+        except (asyncio.CancelledError, Exception):
+            pass
 
 
 @router.get("/api/surveillance/satellite-passes")
