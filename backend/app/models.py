@@ -161,6 +161,10 @@ class EvidenceTrace(BaseModel):
     shap_explanation: Optional[Dict[str, Any]] = None
     counterfactuals: List[str] = Field(default_factory=list)
     narrative: str = ""
+    cpa_distance_km: Optional[float] = None
+    cpa_time_diff_hours: Optional[float] = None
+    causal_veto: bool = False
+    spatiotemporal_cpa_match: Optional[bool] = None
 
 
 DataProvenance = Literal["real_gfw", "real_aisstream_live", "synthetic_fallback"]
@@ -181,6 +185,11 @@ class RouteReconstruction(BaseModel):
     intersects_90pct: bool = False
     min_distance_km: float = 0.0
     ray_trace_score: float = 0.0
+    cpa_distance_km: float = 0.0
+    cpa_time_diff_hours: float = 0.0
+    cpa_timestamp: Optional[str] = None
+    causal_veto: bool = False
+    speed_summary: Optional[Dict[str, Any]] = None
 
 
 class Candidate(BaseModel):
@@ -197,6 +206,9 @@ class Candidate(BaseModel):
     confidence_interval_method: str = "placeholder_width_pending_bootstrap"
     evidence_trace: EvidenceTrace
     proximate_but_absent_at_origin: bool = False
+    cpa_distance_km: Optional[float] = None
+    cpa_time_diff_hours: Optional[float] = None
+    causal_veto: bool = False
     data_provenance: DataProvenance = Field(
         ...,
         description="Mandatory per-candidate: real_gfw, real_aisstream_live, or synthetic_fallback.",

@@ -140,3 +140,81 @@ def resolve_best_forcing(
     best_wind = max(wind_files, key=_score_file) if wind_files else None
 
     return best_current, best_wind
+
+
+def analytical_monsoon_forcing(
+    lons: Any,
+    lats: Any,
+    target_dt: datetime,
+) -> Tuple[Any, Any, Any, Any]:
+    """
+    Physical analytical hydrodynamic & atmospheric forcing model for the Northern Indian Ocean
+    (Arabian Sea, Bay of Bengal, Lakshadweep Sea, and Andaman Sea).
+    
+    Computes (u_current, v_current, u_wind, v_wind) in m/s based on:
+      1. Seasonal Monsoon Wind Regimes:
+         - SW Monsoon (May-Oct): ENE winds 8-14 m/s
+         - NE Monsoon (Nov-Apr): WSW winds 4-7 m/s
+      2. Ekman Surface Layer Deflection (45 degrees right of wind in Northern Hemisphere)
+      3. Boundary Coastal Currents (WICC & EICC)
+    """
+    import numpy as np
+
+    q_lons = np.asarray(lons, dtype=float)
+    q_lats = np.asarray(lats, dtype=float)
+
+    clean_dt = target_dt
+    if clean_dt.tzinfo is not None:
+        clean_dt = clean_dt.replace(tzinfo=None)
+    doy = clean_dt.timetuple().tm_yday
+
+    # 1. Seasonal wind field
+    is_sw_monsoon = 135 <= doy <= 290  # Mid-May to mid-October
+    if is_sw_monsoon:
+        phase = (doy - 135.0) / (290.0 - 135.0) * np.pi
+        w_speed = 7.5 + 4.5 * np.sin(phase)
+        # Wind blowing toward ~060 deg (u > 0, v > 0)
+        u_w = w_speed * np.sin(np.radians(60.0))
+        v_w = w_speed * np.cos(np.radians(60.0))
+    else:
+        # NE Monsoon (Nov-Apr)
+        w_speed = 4.0 + 2.5 * np.cos(((doy + 45) % 365) / 365.0 * 2 * np.pi)
+        # Wind blowing toward ~240 deg (u < 0, v < 0)
+        u_w = -w_speed * np.sin(np.radians(60.0))
+        v_w = -w_speed * np.cos(np.radians(60.0))
+
+    # 2. Wind-driven surface Ekman drift (2.8% of wind speed, deflected 45 deg right)
+    # Rotation by -45 degrees (clockwise in cartesian coords)
+    cos45 = np.cos(np.radians(-45.0))
+    sin45 = np.sin(np.radians(-45.0))
+    u_ekman = 0.028 * (u_w * cos45 - v_w * sin45)
+    v_ekman = 0.028 * (u_w * sin45 + v_w * cos45)
+
+    # 3. Geostrophic boundary currents (WICC & EICC)
+    # Arabian Sea (lon < 77.0): West India Coastal Current
+    # Bay of Bengal (lon >= 77.0): East India Coastal Current
+    u_boundary = np.zeros_like(q_lons)
+    v_boundary = np.zeros_like(q_lats)
+
+    is_arabian = q_lons < 77.0
+    if is_sw_monsoon:
+        # WICC flows southward along west coast in Summer
+        v_boundary = np.where(is_arabian & (q_lats < 22.0), -0.22, 0.05)
+        # EICC flows northward along east coast in Summer
+        v_boundary = np.where(~is_arabian & (q_lats < 20.0), 0.28, v_boundary)
+        u_boundary = np.where(is_arabian, -0.08, 0.12)
+    else:
+        # WICC flows northward along west coast in Winter
+        v_boundary = np.where(is_arabian & (q_lats < 22.0), 0.18, -0.05)
+        # EICC flows southward in Winter
+        v_boundary = np.where(~is_arabian & (q_lats < 20.0), -0.20, v_boundary)
+        u_boundary = np.where(is_arabian, 0.05, -0.10)
+
+    u_curr = u_boundary + u_ekman
+    v_curr = v_boundary + v_ekman
+
+    u_w_arr = np.full_like(q_lons, u_w)
+    v_w_arr = np.full_like(q_lats, v_w)
+
+    return u_curr, v_curr, u_w_arr, v_w_arr
+

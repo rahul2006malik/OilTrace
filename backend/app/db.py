@@ -16,7 +16,7 @@ from typing import Generator, Union
 
 logger = logging.getLogger("oiltrace_db")
 
-SQLITE_BUSY_TIMEOUT_MS = 10000
+SQLITE_BUSY_TIMEOUT_MS = 15000
 SQLITE_CONNECT_TIMEOUT_S = 15.0
 
 

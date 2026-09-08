@@ -97,6 +97,28 @@ class ReconstructedTrack(NamedTuple):
     min_distance_to_cone_km: float
     ray_trace_score: float
     proximate_but_absent_at_origin: bool
+    cpa_distance_km: float = 0.0
+    cpa_time_diff_hours: float = 0.0
+    cpa_timestamp: Optional[str] = None
+    causal_veto: bool = False
+    speed_summary: Optional[Dict[str, Any]] = None
+
+    @property
+    def intersects_50pct(self) -> bool:
+        return self.intersects_cone_50
+
+    @property
+    def intersects_75pct(self) -> bool:
+        return self.intersects_cone_75
+
+    @property
+    def intersects_90pct(self) -> bool:
+        return self.intersects_cone_90
+
+    @property
+    def min_distance_km(self) -> float:
+        return self.min_distance_to_cone_km
+
 
 
 # ---------------------------------------------------------------------------
@@ -467,12 +489,20 @@ def compute_track_cone_intersection(
     min_dist = float("inf")
     best_score = 0.0
 
+    cpa_distance_km = float("inf")
+    cpa_dt_hours = float("inf")
+    cpa_timestamp = None
+
     for wp in track:
         pt = Point(wp.lon, wp.lat)
         dt_hours = abs((wp.timestamp - spill_time).total_seconds()) / 3600.0
         time_weight = math.exp(-dt_hours / decay_tau_hours)
+        # Apply sharper Gaussian decay if time gap exceeds 3 hours
+        if dt_hours > 3.0:
+            time_weight *= math.exp(-min(12.0, ((dt_hours - 3.0) / 2.5) ** 2))
 
         spatial_weight = 0.0
+        pt_dist = 0.0
 
         if poly_50 and poly_50.contains(pt):
             hit_50 = True
@@ -480,15 +510,18 @@ def compute_track_cone_intersection(
             hit_90 = True  # 50% is inside 90%
             spatial_weight = 1.0
             min_dist = 0.0
+            pt_dist = 0.0
         elif poly_75 and poly_75.contains(pt):
             hit_75 = True
             hit_90 = True
             spatial_weight = 0.80
             min_dist = 0.0
+            pt_dist = 0.0
         elif poly_90 and poly_90.contains(pt):
             hit_90 = True
             spatial_weight = 0.50
             min_dist = 0.0
+            pt_dist = 0.0
         else:
             # Outside all contours — compute true distance to polygon boundary (not centroid)
             ref_poly = poly_90 or poly_75 or poly_50
@@ -507,7 +540,14 @@ def compute_track_cone_intersection(
                         ref_poly.centroid.x, ref_poly.centroid.y,
                     )
                 min_dist = min(min_dist, dist)
+                pt_dist = dist
                 spatial_weight = max(0.005, math.exp(-dist / 25.0) * 0.40)
+
+        # Track 4D Closest Point of Approach (CPA)
+        if pt_dist < cpa_distance_km:
+            cpa_distance_km = pt_dist
+            cpa_dt_hours = dt_hours
+            cpa_timestamp = wp.timestamp.isoformat()
 
         score = spatial_weight * time_weight
         if score > best_score:
@@ -521,11 +561,18 @@ def compute_track_cone_intersection(
     # downranked — they are red herrings for naive proximity attribution.
     proximate_but_absent = (min_dist < 15.0 and best_score < 0.20)
 
+    # Causal veto: passed the area but at a completely mismatched time window
+    causal_veto = (cpa_distance_km < 12.0 and cpa_dt_hours > 3.5)
+
     return (
         hit_50, hit_75, hit_90,
         round(min_dist, 2),
         round(best_score, 4),
         proximate_but_absent,
+        round(cpa_distance_km, 2),
+        round(cpa_dt_hours, 2),
+        cpa_timestamp,
+        causal_veto,
     )
 
 
@@ -548,23 +595,6 @@ def reconstruct_and_score_vessel(
     """
     Full pipeline: reconstruct vessel track across AIS gaps, then compute
     4D spatio-temporal intersection with the backward drift origin cone.
-
-    Parameters
-    ----------
-    vessel_id : str — MMSI or vessel identifier
-    ais_fixes : list of AIS position dicts
-    origin_cone_fc : GeoJSON FeatureCollection from origin_ensemble.json
-    spill_time : datetime — estimated spill release time
-    gap_threshold_hours : float — minimum gap to trigger dead reckoning
-    step_minutes : int — DR integration time step
-    forcing_dir : str | None — path to cached GLORYS NetCDF files
-    decay_tau_hours : float — temporal decay constant for ray-tracing
-    current_distance_km : float | None — vessel's current distance from
-        the slick (if known), used for proximate_but_absent check
-
-    Returns
-    -------
-    ReconstructedTrack — complete track with intersection analysis
     """
     track = dead_reckon_full_track(
         ais_fixes=ais_fixes,
@@ -573,17 +603,27 @@ def reconstruct_and_score_vessel(
         forcing_dir=forcing_dir,
     )
 
-    (hit_50, hit_75, hit_90,
-     min_dist, score, proximate_but_absent) = compute_track_cone_intersection(
+    res = compute_track_cone_intersection(
         track=track,
         origin_cone_fc=origin_cone_fc,
         spill_time=spill_time,
         decay_tau_hours=decay_tau_hours,
     )
+    hit_50, hit_75, hit_90, min_dist, score, proximate_but_absent = res[0:6]
+    cpa_distance_km, cpa_dt_hours, cpa_timestamp, causal_veto = res[6:10]
 
     # Override proximate_but_absent with current_distance_km if provided
     if current_distance_km is not None and current_distance_km < 15.0 and score < 0.20:
         proximate_but_absent = True
+
+    sogs = [wp.sog_knots for wp in track if wp.sog_knots is not None]
+    speed_summary = {
+        "mean_sog": round(float(np.mean(sogs)), 1) if sogs and NUMPY_AVAILABLE else 0.0,
+        "max_sog": round(float(np.max(sogs)), 1) if sogs and NUMPY_AVAILABLE else 0.0,
+        "discharge_speed_pct": round(float(np.mean([2.0 <= s <= 6.0 for s in sogs])) * 100.0, 1) if sogs and NUMPY_AVAILABLE else 0.0,
+        "discharge_speed_window": bool(any(2.0 <= s <= 6.0 for s in sogs)),
+        "gap_count": sum(1 for i in range(1, len(track)) if track[i].is_interpolated and not track[i-1].is_interpolated),
+    }
 
     return ReconstructedTrack(
         vessel_id=vessel_id,
@@ -594,6 +634,11 @@ def reconstruct_and_score_vessel(
         min_distance_to_cone_km=min_dist,
         ray_trace_score=score,
         proximate_but_absent_at_origin=proximate_but_absent,
+        cpa_distance_km=cpa_distance_km,
+        cpa_time_diff_hours=cpa_dt_hours,
+        cpa_timestamp=cpa_timestamp,
+        causal_veto=causal_veto,
+        speed_summary=speed_summary,
     )
 
 

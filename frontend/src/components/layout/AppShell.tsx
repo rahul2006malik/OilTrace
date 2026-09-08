@@ -10,6 +10,7 @@ import { SuspectLeaderboard } from '../candidates/SuspectLeaderboard';
 import { TemporalScrubber } from '../dock/TemporalScrubber';
 import { PhysicsInspector } from '../physics/PhysicsInspector';
 import { DossierModal } from '../export/DossierModal';
+import { LookalikeDiagnosticModal } from '../analytics/LookalikeDiagnosticModal';
 import { ScenarioPickerScreen } from '../scenarios/ScenarioPickerScreen';
 import { LiveSurveillanceScreen } from '../surveillance/LiveSurveillanceScreen';
 import { ReportsScreen } from '../reports/ReportsScreen';
@@ -26,6 +27,7 @@ export const AppShell: React.FC = () => {
     setPlaybackTime,
   } = useOilTraceStore();
   const [isDossierOpen, setIsDossierOpen] = useState(false);
+  const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
 
   useEffect(() => {
     init();
@@ -81,7 +83,7 @@ export const AppShell: React.FC = () => {
           <div className="flex-1 flex overflow-hidden relative">
             {/* Left Column (22%): SAR Telemetry */}
             <div className="w-[22%] min-w-[260px] max-w-[340px] h-full shrink-0">
-              <SarTelemetryPanel />
+              <SarTelemetryPanel onDiagnosticOpen={() => setIsDiagnosticOpen(true)} />
             </div>
 
             {/* Center Column (flex-1): MapLibre Tactical Canvas */}
@@ -146,6 +148,9 @@ export const AppShell: React.FC = () => {
 
       {/* Dossier Modal */}
       <DossierModal isOpen={isDossierOpen} onClose={() => setIsDossierOpen(false)} />
+
+      {/* Lookalike Radar Diagnostic Modal */}
+      <LookalikeDiagnosticModal isOpen={isDiagnosticOpen} onClose={() => setIsDiagnosticOpen(false)} />
     </div>
   );
 };

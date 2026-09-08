@@ -347,6 +347,18 @@ def fast_rk4_backward_ensemble(
         u_w = _sample_bilinear(w_lats, w_lons, u_w_raw[t_w_idx], q_lats, q_lons)
         v_w = _sample_bilinear(w_lats, w_lons, v_w_raw[t_w_idx], q_lats, q_lons)
 
+        out_of_bounds = (q_lons < c_lons[0]) | (q_lons > c_lons[-1]) | (q_lats < c_lats[0]) | (q_lats > c_lats[-1])
+        if np.any(out_of_bounds):
+            try:
+                from .buffer_manager import analytical_monsoon_forcing
+            except ImportError:
+                from buffer_manager import analytical_monsoon_forcing
+            u_c_alt, v_c_alt, u_w_alt, v_w_alt = analytical_monsoon_forcing(q_lons, q_lats, target_dt)
+            u_c = np.where(out_of_bounds, u_c_alt, u_c)
+            v_c = np.where(out_of_bounds, v_c_alt, v_c)
+            u_w = np.where(out_of_bounds, u_w_alt, u_w)
+            v_w = np.where(out_of_bounds, v_w_alt, v_w)
+
         # Backward velocity in deg/s: negative sign advects backwards in time
         m_lon_scale = 111320.0 * np.maximum(0.001, np.abs(np.cos(np.radians(q_lats))))
         f_lon = -(u_c + windages * u_w) / m_lon_scale

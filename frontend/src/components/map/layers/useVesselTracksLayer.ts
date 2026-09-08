@@ -68,25 +68,49 @@ export function useVesselTracksLayer(
     attribution.candidates.forEach((cand, cIdx) => {
       if (!cand.ais_positions || cand.ais_positions.length < 2) return;
       const isSelected = cand.vessel_id === (selectedCandidateId || attribution.candidates[0]?.vessel_id);
-      const routeColor = isSelected ? '#F59E0B' : cIdx === 0 ? '#EF4444' : cIdx === 1 ? '#38BDF8' : cIdx === 2 ? '#A855F7' : '#64748B';
-      const routeWidth = isSelected ? 3.5 : cIdx === 0 ? 2.5 : 1.5;
-      const routeOpacity = isSelected ? 0.95 : cIdx <= 2 ? 0.65 : 0.35;
 
-      routeFeatures.push({
-        type: 'Feature',
-        properties: {
-          vessel_id: cand.vessel_id,
-          name: cand.vessel_name || cand.vessel_id,
-          color: routeColor,
-          width: routeWidth,
-          opacity: routeOpacity,
-          isSelected,
-        },
-        geometry: {
-          type: 'LineString',
-          coordinates: cand.ais_positions.map((p: any) => [p.lon, p.lat]),
-        },
-      });
+      // Speed-coded track segments
+      for (let i = 1; i < cand.ais_positions.length; i++) {
+        const p1 = cand.ais_positions[i - 1];
+        const p2 = cand.ais_positions[i];
+        const isGap = Boolean(p1.is_reconstructed || p2.is_reconstructed);
+        if (isGap) continue; // handled by dischargeFeatures below
+
+        const avgSog = ((p1.sog ?? 12.0) + (p2.sog ?? 12.0)) / 2;
+        let segColor: string;
+        if (avgSog >= 2.0 && avgSog <= 6.0) {
+          segColor = '#F59E0B'; // Suspect discharge speed (amber)
+        } else if (avgSog > 12.0) {
+          segColor = '#10B981'; // Cruising transit (emerald green)
+        } else if (avgSog < 2.0) {
+          segColor = '#94A3B8'; // Drifting / stationary (slate)
+        } else {
+          segColor = isSelected ? '#38BDF8' : cIdx === 0 ? '#EF4444' : '#64748B'; // Standard passage
+        }
+
+        const width = isSelected ? 3.5 : cIdx === 0 ? 2.5 : 1.5;
+        const opacity = isSelected ? 0.95 : cIdx <= 2 ? 0.65 : 0.35;
+
+        routeFeatures.push({
+          type: 'Feature',
+          properties: {
+            vessel_id: cand.vessel_id,
+            name: cand.vessel_name || cand.vessel_id,
+            color: segColor,
+            width,
+            opacity,
+            isSelected,
+            sog: avgSog,
+          },
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [p1.lon, p1.lat],
+              [p2.lon, p2.lat],
+            ],
+          },
+        });
+      }
 
       let currentDischargeRun: number[][] = [];
       for (let i = 0; i < cand.ais_positions.length; i++) {
@@ -136,6 +160,10 @@ export function useVesselTracksLayer(
 
       if (isSelected) {
         cand.ais_positions.forEach((p: any, idx: number) => {
+          const isGap = Boolean(p.is_reconstructed);
+          const isDischarge = !isGap && p.sog >= 2.0 && p.sog <= 6.0;
+          const isCruising = !isGap && p.sog > 12.0;
+
           waypointFeatures.push({
             type: 'Feature',
             properties: {
@@ -143,7 +171,9 @@ export function useVesselTracksLayer(
               sog: p.sog,
               cog: p.cog,
               idx,
-              isDischarge: Boolean(p.is_reconstructed),
+              isGap,
+              isDischarge,
+              isCruising,
             },
             geometry: { type: 'Point', coordinates: [p.lon, p.lat] },
           });
@@ -198,8 +228,14 @@ export function useVesselTracksLayer(
         type: 'circle',
         source: waypointsSourceId,
         paint: {
-          'circle-radius': 3.5,
-          'circle-color': ['case', ['get', 'isDischarge'], '#EF4444', '#F59E0B'],
+          'circle-radius': ['case', ['get', 'isDischarge'], 4.5, 3.2],
+          'circle-color': [
+            'case',
+            ['get', 'isGap'], '#EF4444',
+            ['get', 'isDischarge'], '#F59E0B',
+            ['get', 'isCruising'], '#10B981',
+            '#38BDF8',
+          ],
           'circle-stroke-width': 1.5,
           'circle-stroke-color': '#060B11',
         },
@@ -411,6 +447,14 @@ export function useVesselTracksLayer(
         const tipLon = currentPos[0] + vecLen * Math.sin(headingRad);
         const tipLat = currentPos[1] + vecLen * Math.cos(headingRad);
 
+        // Compute COG chevron arrowhead (150 deg barbs)
+        const barbAngle = (150 * Math.PI) / 180;
+        const barbLen = vecLen * 0.38;
+        const leftBarbLon = tipLon + barbLen * Math.sin(headingRad + barbAngle);
+        const leftBarbLat = tipLat + barbLen * Math.cos(headingRad + barbAngle);
+        const rightBarbLon = tipLon + barbLen * Math.sin(headingRad - barbAngle);
+        const rightBarbLat = tipLat + barbLen * Math.cos(headingRad - barbAngle);
+
         updatedHeadingFeatures.push({
           type: 'Feature' as const,
           properties: {
@@ -420,7 +464,13 @@ export function useVesselTracksLayer(
           },
           geometry: {
             type: 'LineString' as const,
-            coordinates: [currentPos, [tipLon, tipLat]],
+            coordinates: [
+              currentPos,
+              [tipLon, tipLat],
+              [leftBarbLon, leftBarbLat],
+              [tipLon, tipLat],
+              [rightBarbLon, rightBarbLat],
+            ],
           },
         });
       }

@@ -86,6 +86,10 @@ export interface EvidenceTrace {
   shap_explanation: Record<string, number> | null;
   counterfactuals: string[];
   narrative: string;
+  cpa_distance_km?: number;
+  cpa_time_diff_hours?: number;
+  causal_veto?: boolean;
+  spatiotemporal_cpa_match?: boolean;
 }
 
 export interface AisPosition {
@@ -103,6 +107,16 @@ export interface RouteReconstruction {
   intersects_90pct: boolean;
   min_distance_km: number;
   ray_trace_score: number;
+  cpa_distance_km?: number;
+  cpa_time_diff_hours?: number;
+  cpa_timestamp?: string | null;
+  causal_veto?: boolean;
+  speed_summary?: {
+    min_knots: number;
+    max_knots: number;
+    mean_knots: number;
+    discharge_speed_window: boolean;
+  } | null;
 }
 
 export interface VoyageMilestone {
@@ -134,6 +148,9 @@ export interface Candidate {
   confidence_interval_method: string;
   evidence_trace: EvidenceTrace;
   proximate_but_absent_at_origin: boolean;
+  cpa_distance_km?: number;
+  cpa_time_diff_hours?: number;
+  causal_veto?: boolean;
   data_provenance: CandidateProvenance;
   departure_port?: string | null;
   destination_port?: string | null;

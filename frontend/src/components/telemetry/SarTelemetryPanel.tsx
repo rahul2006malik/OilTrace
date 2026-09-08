@@ -1,8 +1,8 @@
 import React from 'react';
 import { useOilTraceStore } from '../../store/useOilTraceStore';
-import { Radio, Satellite, Layers, AlertCircle, CheckCircle2, Play, Flame } from 'lucide-react';
+import { Radio, Satellite, Layers, AlertCircle, CheckCircle2, Play, Flame, Activity } from 'lucide-react';
 
-export const SarTelemetryPanel: React.FC = () => {
+export const SarTelemetryPanel: React.FC<{ onDiagnosticOpen?: () => void }> = ({ onDiagnosticOpen }) => {
   const { detection, isLoadingPipeline, executeInvestigation } = useOilTraceStore();
 
   return (
@@ -125,6 +125,15 @@ export const SarTelemetryPanel: React.FC = () => {
           <div className="text-[9px] text-slate-500 pt-1.5 border-t border-[#1E2C3F]">
             ResNet-34 Filter → U-Net Segmentation (~3.5s latency)
           </div>
+          {onDiagnosticOpen && (
+            <button
+              onClick={onDiagnosticOpen}
+              className="w-full mt-2 py-1.5 px-2 bg-[#0A121C] hover:bg-[#2DD4BF] hover:text-[#060B11] text-[#2DD4BF] text-[10px] font-bold tracking-wider uppercase border border-[#2DD4BF]/30 rounded-sm flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>Inspect Radar Profile</span>
+            </button>
+          )}
         </div>
       </div>
 

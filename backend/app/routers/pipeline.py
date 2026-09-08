@@ -577,6 +577,7 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
     # 5.1 Reconstruct 4D dead-reckoned routes across AIS blackout gaps
     vessel_tracks: dict[str, list[dict]] = {}
     ray_trace_scores: dict[str, float] = {}
+    vessel_recons: dict[str, Any] = {}
     if ROUTE_RECONSTRUCTION_AVAILABLE and drift_result and "origin_probability_cone" in drift_result:
         f_dir = str(cache_dir / "forcing")
         for v_id, p_list in pings_by_vessel.items():
@@ -589,6 +590,7 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
                         spill_time=spill_time_dt,
                         forcing_dir=f_dir,
                     )
+                    vessel_recons[v_id] = recon
                     ray_trace_scores[v_id] = float(recon.ray_trace_score)
                     vessel_tracks[v_id] = [
                         {
@@ -725,6 +727,37 @@ async def run_pipeline(payload: PipelineRunRequest) -> AttributionResult:
         c_dict["confidence_interval_method"] = "ensemble_spatial_dispersion_bootstrap"
 
         # Use reconstructed route if available, otherwise historical pings, otherwise fallback
+        if v_id in vessel_recons:
+            recon_obj = vessel_recons[v_id]
+            c_dict["route_reconstruction"] = {
+                "intersects_50pct": getattr(recon_obj, "intersects_50pct", getattr(recon_obj, "intersects_cone_50", False)),
+                "intersects_75pct": getattr(recon_obj, "intersects_75pct", getattr(recon_obj, "intersects_cone_75", False)),
+                "intersects_90pct": getattr(recon_obj, "intersects_90pct", getattr(recon_obj, "intersects_cone_90", False)),
+                "min_distance_km": round(float(getattr(recon_obj, "min_distance_km", getattr(recon_obj, "min_distance_to_cone_km", 0.0))), 3),
+                "ray_trace_score": round(float(recon_obj.ray_trace_score), 4),
+                "cpa_distance_km": round(float(recon_obj.cpa_distance_km), 3),
+                "cpa_time_diff_hours": round(recon_obj.cpa_time_diff_hours, 2),
+                "cpa_timestamp": recon_obj.cpa_timestamp,
+                "causal_veto": recon_obj.causal_veto,
+                "speed_summary": recon_obj.speed_summary,
+            }
+            c_dict["cpa_distance_km"] = round(recon_obj.cpa_distance_km, 3)
+            c_dict["cpa_time_diff_hours"] = round(recon_obj.cpa_time_diff_hours, 2)
+            c_dict["causal_veto"] = recon_obj.causal_veto
+            if "evidence_trace" in c_dict and isinstance(c_dict["evidence_trace"], dict):
+                c_dict["evidence_trace"]["cpa_distance_km"] = round(recon_obj.cpa_distance_km, 3)
+                c_dict["evidence_trace"]["cpa_time_diff_hours"] = round(recon_obj.cpa_time_diff_hours, 2)
+                c_dict["evidence_trace"]["causal_veto"] = recon_obj.causal_veto
+                c_dict["evidence_trace"]["spatiotemporal_cpa_match"] = (
+                    recon_obj.cpa_distance_km <= 3.0 and recon_obj.cpa_time_diff_hours <= 1.5
+                )
+                if recon_obj.causal_veto:
+                    c_dict["evidence_trace"]["narrative"] = (
+                        f"[CAUSAL VETO] CPA occurred {recon_obj.cpa_time_diff_hours:.1f}h outside spill onset window. "
+                        + c_dict["evidence_trace"].get("narrative", "")
+                    )
+                    c_dict["suspicion_score"] = min(float(c_dict["suspicion_score"]), 0.12)
+
         if v_id in vessel_tracks:
             c_dict["ais_positions"] = vessel_tracks[v_id]
         elif v_id in pings_by_vessel and len(pings_by_vessel[v_id]) >= 2:
