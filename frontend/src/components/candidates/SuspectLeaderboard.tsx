@@ -228,11 +228,37 @@ export const SuspectLeaderboard: React.FC = () => {
                     );
                   })()}
 
+                  {/* 4D Spatiotemporal CPA & Speed Profiler */}
+                  {(cand.cpa_distance_km !== undefined || cand.route_reconstruction?.cpa_distance_km !== undefined) && (
+                    <div className="mt-2 pt-1.5 border-t border-[#1D2E42]/60 grid grid-cols-2 gap-1 text-[9px] font-mono text-slate-400">
+                      <div>
+                        <span>4D CPA DIST:</span>
+                        <span className="ml-1 text-slate-200 font-bold">
+                          {(cand.cpa_distance_km ?? cand.route_reconstruction?.cpa_distance_km ?? 0).toFixed(2)} km
+                        </span>
+                      </div>
+                      <div>
+                        <span>CPA Δt WINDOW:</span>
+                        <span className="ml-1 text-slate-200 font-bold">
+                          {(cand.cpa_time_diff_hours ?? cand.route_reconstruction?.cpa_time_diff_hours ?? 0).toFixed(1)} h
+                        </span>
+                      </div>
+                      {cand.route_reconstruction?.speed_summary?.discharge_speed_window && (
+                        <div className="col-span-2 mt-0.5 text-amber-300 font-bold flex items-center space-x-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          <span>DISCHARGE SPEED ANOMALY DETECTED (2.0–6.0 kn)</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Causal Veto / Exoneration Notice if Exonerated */}
-                  {cand.proximate_but_absent_at_origin && (
-                    <div className="mt-2 p-1.5 bg-emerald-950/40 border border-emerald-500/40 text-[9px] text-emerald-300 flex items-center space-x-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                      <span className="font-bold uppercase">CAUSAL VETO: EXONERATED FROM LIABILITY</span>
+                  {(cand.proximate_but_absent_at_origin || cand.causal_veto || cand.evidence_trace?.causal_veto) && (
+                    <div className="mt-2 p-1.5 bg-rose-950/40 border border-rose-500/40 text-[9px] text-rose-300 flex items-center space-x-1.5">
+                      <span className="w-2 h-2 rounded-full bg-rose-400" />
+                      <span className="font-bold uppercase">
+                        CAUSAL VETO: {cand.causal_veto || cand.evidence_trace?.causal_veto ? 'TEMPORAL MISMATCH EXONERATION' : 'EXONERATED FROM LIABILITY'}
+                      </span>
                     </div>
                   )}
                 </div>

@@ -34,23 +34,64 @@ export const TopBar: React.FC<{ onDossierOpen?: () => void }> = ({ onDossierOpen
     return () => clearInterval(interval);
   }, []);
 
-  // Real-time WebSocket connection to backend /ws/live-ais
+  // Real-time WebSocket connection to backend /ws/live-ais with exponential backoff
   useEffect(() => {
     let ws: WebSocket | null = null;
-    try {
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const isDev = window.location.port === '3000' || window.location.port === '5173';
-      const host = isDev ? '127.0.0.1:8000' : window.location.host;
-      ws = new WebSocket(`${protocol}//${host}/ws/live-ais`);
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+    let backoff = 2000;
+    let isCancelled = false;
 
-      ws.onopen = () => setWsConnected(true);
-      ws.onmessage = () => setLivePingsCount((prev) => prev + 1);
-      ws.onclose = () => setWsConnected(false);
-      ws.onerror = () => setWsConnected(false);
-    } catch {
-      setWsConnected(false);
+    function connect() {
+      if (isCancelled) return;
+      try {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const isDev = window.location.port === '3000' || window.location.port === '5173';
+        const host = isDev ? '127.0.0.1:8000' : window.location.host;
+        ws = new WebSocket(`${protocol}//${host}/ws/live-ais`);
+
+        ws.onopen = () => {
+          setWsConnected(true);
+          backoff = 2000;
+        };
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'ais_batch') {
+              setLivePingsCount((prev) => prev + (data.pings_count || 1));
+            } else if (data.type === 'heartbeat') {
+              setLivePingsCount((prev) => prev + 1);
+            }
+          } catch {
+            setLivePingsCount((prev) => prev + 1);
+          }
+        };
+        ws.onclose = () => {
+          setWsConnected(false);
+          if (!isCancelled) {
+            reconnectTimeout = setTimeout(connect, backoff);
+            backoff = Math.min(backoff * 1.5, 15000);
+          }
+        };
+        ws.onerror = () => {
+          setWsConnected(false);
+          if (ws) {
+            try { ws.close(); } catch {}
+          }
+        };
+      } catch {
+        setWsConnected(false);
+        if (!isCancelled) {
+          reconnectTimeout = setTimeout(connect, backoff);
+          backoff = Math.min(backoff * 1.5, 15000);
+        }
+      }
     }
+
+    connect();
+
     return () => {
+      isCancelled = true;
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
       if (ws) ws.close();
     };
   }, []);
